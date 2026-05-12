@@ -510,13 +510,13 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Outro */}
+      {/* Outro — editorial colophon */}
       <footer className="outro">
         <div className="outro-grid">
-          <span>BFS / Colophon</span>
+          <span>BFS · Colophon</span>
           <span>Lat 0° · Lon 0°</span>
           <span>Edition III · MMXXVI</span>
-          <span className="right">↓</span>
+          <span className="right">Folio · Vol. III</span>
         </div>
         <SplitText
           as="h2"
@@ -536,33 +536,95 @@ export default function Home() {
           <Newsletter />
         </Reveal>
 
+        {/* Colophon — editorial masthead, the credit page of the issue */}
+        <Reveal delay="0.45s">
+          <section
+            className="outro-colophon-wrap"
+            aria-labelledby="colophon-heading"
+          >
+            <h3 id="colophon-heading" className="outro-colophon-label">
+              <span aria-hidden>§</span>
+              <em>Colophon</em>
+            </h3>
+            <dl className="outro-colophon">
+              <div className="outro-colophon-row">
+                <dt className="outro-colophon-key">Set in</dt>
+                <dd className="outro-colophon-val">
+                  <em>Instrument Serif</em>
+                  <span aria-hidden> · </span>Inter
+                </dd>
+              </div>
+              <div className="outro-colophon-row">
+                <dt className="outro-colophon-key">Printed</dt>
+                <dd className="outro-colophon-val">
+                  Studio
+                  <span aria-hidden> · </span>Lat 0°&thinsp;0′&thinsp;N
+                  <span aria-hidden> · </span>Lon 0°&thinsp;0′&thinsp;W
+                </dd>
+              </div>
+              <div className="outro-colophon-row">
+                <dt className="outro-colophon-key">Dispatch</dt>
+                <dd className="outro-colophon-val">
+                  48 hours
+                  <span aria-hidden> · </span>Worldwide
+                </dd>
+              </div>
+              <div className="outro-colophon-row">
+                <dt className="outro-colophon-key">Correspondence</dt>
+                <dd className="outro-colophon-val">
+                  <a
+                    href="mailto:studio@blacksforsale.studio"
+                    className="outro-colophon-mail"
+                    data-cursor="link"
+                    data-cursor-label="Write"
+                  >
+                    studio@blacksforsale.studio
+                  </a>
+                </dd>
+              </div>
+            </dl>
+          </section>
+        </Reveal>
+
         <div className="outro-base">
           <p className="outro-disclaimer">
             <strong>Disclosure.</strong> Yes — we are aware of how the name
             reads. No — we do not sell people. We sell paper, ink, and bound
             objects of an aggressively specific hue. If you arrived here for
-            anything else, the back button is in the upper-left of this
-            window. We trust you to use it.
+            anything else, close the tab — we&rsquo;ll both move on with our day.
           </p>
-          <div className="outro-links">
-            <a href="#" data-cursor="link">
-              Terms
+          <nav className="outro-links" aria-label="Footer">
+            <a href="#supplies" data-cursor="link">
+              Catalogue
             </a>
-            <a href="#" data-cursor="link">
-              Privacy
+            <a href="#manifesto" data-cursor="link">
+              Position
             </a>
-            <a href="#" data-cursor="link">
+            <a href="#cult" data-cursor="link">
+              Field Notes
+            </a>
+            <a href="#faq" data-cursor="link">
+              On Record
+            </a>
+            <a
+              href="mailto:studio@blacksforsale.studio"
+              data-cursor="link"
+              data-cursor-label="Write"
+            >
               Studio
             </a>
-            <a href="#" data-cursor="link">
-              Instagram
-            </a>
-          </div>
+          </nav>
         </div>
 
         <div className="outro-wordmark" aria-hidden>
           BFS
         </div>
+
+        <p className="outro-signoff">
+          <em>MMXXVI</em>
+          <span aria-hidden> · </span>Made in the absence of light.
+          <span aria-hidden> · </span>All wrongs reserved.
+        </p>
       </footer>
     </main>
   );

@@ -5,6 +5,154 @@ One entry per run. Newest first.
 
 ---
 
+## 2026-05-13 — Editorial colophon (outro: dead-link footer → masthead)
+
+**Area:** Outro / trust surface. Replaces the previous footer
+register (four `href="#"` links — Terms / Privacy / Studio /
+Instagram — plus a mobile-broken disclaimer line) with an editorial
+colophon spread: a small italic-serif `§ Colophon` label and a
+hairline-ruled four-cell `<dl>` masthead carrying *Set in* (Instrument
+Serif · Inter), *Printed* (Studio · Lat 0° 0′ N · Lon 0° 0′ W),
+*Dispatch* (48 hours · Worldwide), and *Correspondence* (a real
+`mailto:studio@blacksforsale.studio`). The four footer links are
+rewired to real in-page anchors (`#supplies`, `#manifesto`, `#cult`,
+`#faq`) plus a fifth `mailto:` Studio link. A new italic sign-off
+line lives below the wordmark.
+
+**Why this was the highest-leverage target.**
+Phase-1 audits converged on three findings: (a) the outro is the
+weakest section, (b) four visible dead `href="#"` links hurt
+E-E-A-T and credibility, (c) no contact surface exists anywhere.
+Phase-1 reference-scout independently surfaced the Aesop / Bureau
+Borsche / Officine Universelle Buly colophon aesthetic — masthead-
+sized credit page typeset in serif/sans pair with hairline rules —
+as a one-run move that takes the outro from "footer" to "credit
+page of the issue." The literal string "BFS / Colophon" already
+existed in the outro grid header, but no colophon followed; this
+ship delivers on that promise. Bigger bets (six SVG product visuals
+elevated to "object portraits"; page-turn chapter transitions;
+cursor state machine) are logged below for future runs.
+
+Refs scouted: Aesop / Buly product pages (set-in, printed, year
+credits), Bureau Borsche editorial archives (object-as-glyph),
+Studio Dumbar (hairline ledger discipline).
+
+**What changed.**
+
+- `src/app/page.tsx` (outro block, lines 513–602) — Rewrote the
+  outro footer. Header grid now reads "BFS · Colophon" / "Lat 0° ·
+  Lon 0°" / "Edition III · MMXXVI" / "Folio · Vol. III" (the bare
+  `↓` glyph is gone). The CTAs row is unchanged. Below it, a new
+  `<section aria-labelledby="colophon-heading">` wraps a `<dl>` of
+  four `<div>`-grouped `<dt>` / `<dd>` pairs. Disclaimer paragraph
+  rewritten to drop the platform-false "back button is in the
+  upper-left of this window" line — now "close the tab — we'll both
+  move on with our day," which reads correctly on mobile, on
+  Windows, and inside in-app webviews. The `outro-links` div became
+  a `<nav aria-label="Footer">` with five anchors, all real
+  destinations (four in-page, one `mailto:`). New `<p
+  className="outro-signoff">` below the wordmark: italic
+  "MMXXVI · Made in the absence of light. All wrongs reserved."
+- `src/app/globals.css` — Appended ~120 lines: `.outro-colophon-wrap`,
+  `.outro-colophon-label` (italic serif § + small-caps "Colophon"),
+  `.outro-colophon` (responsive grid: 1 col mobile, 2 col ≥720px,
+  4 col ≥1080px; borders drawn per-breakpoint so the grid reads as
+  a ledger, not a CSS table), `.outro-colophon-row` (per-cell
+  padding + interior rules), `.outro-colophon-key` (italic serif
+  label register), `.outro-colophon-val` (white body with italic
+  serif inflection on the `<em>` typeface name), `.outro-colophon-mail`
+  (underline-on-hairline mailto with a focus-visible ring), and
+  `.outro-signoff` (centred quiet italic closer).
+- `src/app/globals.css` (reduced-motion block, ~line 2596) — Added
+  `html.scroll-smooth { scroll-behavior: auto; }` inside
+  `@media (prefers-reduced-motion: reduce)`. The Tailwind
+  `.scroll-smooth` class on `<html>` (set in `layout.tsx:152`)
+  applies `scroll-behavior: smooth` unconditionally; this overrides
+  it for users with vestibular preferences so anchor jumps snap
+  instead of slide.
+
+**Verification.**
+
+- `bun run lint` — clean (one unescaped apostrophe in the rewritten
+  disclaimer was flagged and fixed: `we'll` → `we&rsquo;ll`).
+- `bunx tsc --noEmit` — clean.
+- `bun run build` — clean. All seven routes prerender statically
+  (`/`, `/_not-found`, `/opengraph-image`, `/robots.txt`,
+  `/sitemap.xml` plus the implicit metadata routes).
+- Footer link audit: zero `href="#"` remaining in the page. Five
+  links resolve to real targets: four in-page anchors and one
+  `mailto:`.
+- Disclaimer copy: no longer references the browser back button or
+  the "upper-left of this window," so it reads correctly on iOS, on
+  Android, inside webviews, and on Windows where back is in the
+  upper-right.
+- a11y: the `<dl>` carries an `aria-labelledby` pointing at a real
+  `<h3 id="colophon-heading">`; the mailto link has a
+  `focus-visible` outline that contrasts on the dark base.
+- prefers-reduced-motion: anchor jumps now snap (verified by
+  inspecting the new rule order — the Tailwind utility is the
+  initial declaration, the reduced-motion override comes after in
+  the cascade).
+
+**Expected impact.**
+
+- E-E-A-T: removing four visible dead links closes the most obvious
+  trust gap on the page. Search engines and human readers both stop
+  encountering placeholder anchors.
+- Trust: a real `mailto:` exists in the colophon AND in the footer
+  nav, addressing the "no contact surface anywhere" follow-up
+  carried over from the prior two runs.
+- SOTD register: the colophon block reads as a deliberate editorial
+  choice rather than a generic footer — the move that takes the
+  outro from "footer" to "credit page of the issue."
+- a11y: `prefers-reduced-motion` users no longer get forced smooth
+  scroll on anchor navigation.
+- Web Vitals: no client JS added; the new section is pure HTML +
+  CSS; one new `<Reveal>` IntersectionObserver instance only.
+
+**Files modified.**
+
+- `src/app/page.tsx`
+- `src/app/globals.css`
+
+**Follow-ups uncovered (TODO for future runs).**
+
+- [ ] **Wire the newsletter to a real destination.** Currently
+      `setSubmitted(true)` only — the email is captured client-side
+      and discarded on refresh. A Resend / Loops / Buttondown call
+      via a server action would make the channel real.
+- [ ] **Six SVG product visuals → object portraits.** Big bet from
+      this run's reference-scout. Replace the current flat SVGs
+      with composed object portraits (radial rim-light gradient +
+      hairline outline + placard caption block typeset in the
+      existing serif). Per-spread `IntersectionObserver` emits a
+      `--spread-progress` CSS var so the caption drifts against the
+      static object on scroll. CSS-only, one focused run.
+- [ ] **Chapter rule between spreads.** Single full-bleed 1px
+      element whose `scaleX` is driven by the chapter rail's
+      existing `IntersectionObserver`. Reads as a page-turn caesura
+      between chapters. Re-uses already-present infrastructure.
+- [ ] **Cursor state machine.** Today the custom cursor toggles
+      `data-cursor="link"` only. A three-state machine
+      (`default | cta | type`) with a thin ring → crosshair → hairline
+      scrubber would lift the interaction layer.
+- [ ] **Cursor `pointermove` rAF throttle.** Audit flagged
+      `cursor.tsx:20–66` as updating the dot synchronously on every
+      pointermove (~60+/s without throttling). Wrap in a
+      `pending` flag so only one update is scheduled per frame.
+- [ ] **Workspace-root warning at build.** Multi-lockfile warning
+      from `next build` ("detected /Users/rokgoropevsek/bun.lock");
+      set `turbopack.root` in `next.config.ts` or remove the stray
+      home-directory lockfile.
+- [ ] **Lighthouse / Web Vitals baseline.** Still no measured pass.
+      A baseline LCP / CLS / INP number would let future runs
+      target the worst metric instead of guessing.
+- [ ] **`apple-touch-icon` + `manifest.webmanifest`.** Carried over
+      from the SEO-foundation run. iOS bookmarks and Android PWA
+      installs still fall back to a light icon on a non-dark base.
+
+---
+
 ## 2026-05-13 — Chapter rail (sticky right-edge index, IntersectionObserver-tracked)
 
 **Area:** Wayfinding & editorial signature. Adds a thin fixed rail at
