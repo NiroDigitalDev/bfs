@@ -4,6 +4,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { Cursor } from "@/components/cursor";
 import { Loader } from "@/components/loader";
 import { ScrollProgress } from "@/components/scroll-progress";
+import { ParallaxRoot } from "@/components/parallax-root";
 import { site, siteUrl } from "@/lib/site";
 import { products } from "@/data/products";
 import { faqs } from "@/data/faqs";
@@ -153,6 +154,7 @@ export default function RootLayout({
         <div className="grain" aria-hidden />
         <Loader />
         <ScrollProgress />
+        <ParallaxRoot />
         <Cursor />
         {children}
         <Analytics />

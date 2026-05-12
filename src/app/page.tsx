@@ -67,6 +67,16 @@ export default function Home() {
       {/* Hero */}
       <header id="top" className="hero">
         <Spotlight />
+
+        {/* Edge-anchored chapter glyph — rotated spine */}
+        <aside className="hero-edge" aria-hidden>
+          <span className="hero-edge-stem">
+            <span className="hero-edge-num">001</span>
+            <span className="hero-edge-rule" />
+            <span className="hero-edge-label">Volume · Catalogue</span>
+          </span>
+        </aside>
+
         <div className="hero-frame">
           <div className="hero-meta">
             <span className="hero-meta-row">
@@ -76,25 +86,30 @@ export default function Home() {
             <span className="hero-meta-row right">Lat 0° 0′ N · Lon 0° 0′ W</span>
           </div>
 
-          <h1 className="hero-title">
-            <SplitText as="span" text="Dark" stagger={0.05} />
-            <span className="hero-title-row">
-              <SplitText
-                as="span"
-                text="Matter"
-                stagger={0.05}
-                start={0.25}
-                className="hero-outline"
-              />
-              <span className="hero-period">
-                <SplitText as="span" text="." stagger={0} start={0.6} />
+          {/* Composed title — overlapping rows, asymmetric shift, parallax stack */}
+          <div className="hero-title-stack">
+            <h1 className="hero-title" aria-label="Dark Matter.">
+              <span className="hero-word hero-word-1" aria-hidden>
+                <SplitText as="span" text="Dark" stagger={0.05} />
               </span>
-            </span>
-            <span className="hero-eyebrow">
-              <span className="hero-eyebrow-line" />
+              <span className="hero-word hero-word-2" aria-hidden>
+                <SplitText
+                  as="span"
+                  text="Matter"
+                  stagger={0.05}
+                  start={0.25}
+                  className="hero-outline"
+                />
+                <span className="hero-period">
+                  <SplitText as="span" text="." stagger={0} start={0.6} />
+                </span>
+              </span>
+            </h1>
+            <span className="hero-aside">
+              <span className="hero-aside-line" aria-hidden />
               <em>An exercise in subtractive design.</em>
             </span>
-          </h1>
+          </div>
 
           <div className="hero-bottom">
             <Reveal delay="0.4s" className="hero-lede">
@@ -122,18 +137,21 @@ export default function Home() {
               </Magnetic>
             </Reveal>
 
-            <Reveal delay="0.6s" className="hero-stats">
-              <div>
-                <Counter to={47283} locale className="stat-num" />
-                <span className="stat-label">Volumes in circulation</span>
+            {/* Specification ribbon — colophon register, not SaaS counters */}
+            <Reveal delay="0.6s" className="hero-spec">
+              <div className="hero-spec-row">
+                <span className="hero-spec-key">Edition</span>
+                <span className="hero-spec-val">III · MMXXVI</span>
               </div>
-              <div>
-                <Counter to={99.9} decimals={1} suffix="%" className="stat-num" />
-                <span className="stat-label">Light absorbed at 550 nm</span>
+              <div className="hero-spec-row">
+                <span className="hero-spec-key">Light absorbed · 550 nm</span>
+                <Counter to={99.9} decimals={1} suffix="%" className="hero-spec-val" />
               </div>
-              <div>
-                <Counter to={42} suffix="+" className="stat-num" />
-                <span className="stat-label">Borders crossed</span>
+              <div className="hero-spec-row">
+                <span className="hero-spec-key">Made in</span>
+                <span className="hero-spec-val hero-spec-val--prose">
+                  The absence of light
+                </span>
               </div>
             </Reveal>
           </div>

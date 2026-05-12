@@ -429,6 +429,12 @@ html.loading body {
       #000 100%
     );
 }
+@media (min-width: 900px) {
+  /* Leave room for the rotated chapter spine on desktop */
+  .hero {
+    padding-left: clamp(56px, 5vw, 88px);
+  }
+}
 .hero-frame {
   max-width: 1480px;
   margin: 0 auto;
@@ -468,53 +474,132 @@ html.loading body {
     box-shadow: 0 0 0 6px rgba(255, 255, 255, 0);
   }
 }
+/* Title stack — overlapping words, asymmetric shift, scroll-bound drag.
+   Differential parallax indices (-0.35, -0.55, -0.15) read like Hello Monday's
+   one-listener-many-speeds; clamped so the title never drifts off-screen. */
+.hero-title-stack {
+  position: relative;
+  margin-top: clamp(16px, 3vw, 36px);
+  transform: translate3d(
+    0,
+    clamp(-200px, calc(var(--scroll-y, 0) * -0.35px), 0px),
+    0
+  );
+  will-change: transform;
+}
 .hero-title {
-  font-size: clamp(64px, 14.5vw, 260px);
+  font-size: clamp(72px, 16vw, 288px);
   line-height: 0.82;
   letter-spacing: -0.06em;
   font-weight: 900;
   text-transform: uppercase;
   margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0;
+  display: block;
 }
-.hero-title-row {
-  display: inline-flex;
-  align-items: flex-end;
+.hero-word {
+  display: block;
+  position: relative;
 }
+.hero-word-1 {
+  letter-spacing: -0.07em;
+}
+/* Word 2 overlaps word 1 (negative margin scales with viewport — Werkplaats move)
+   and shifts right (asymmetric composition, edge of grid). */
+.hero-word-2 {
+  margin-top: clamp(-0.22em, -2.8vw, -0.08em);
+  padding-left: clamp(8vw, 14vw, 18vw);
+  letter-spacing: -0.05em;
+}
+/* Fluid stroke — hairline editorial register at any zoom (Pentagram MIT move) */
 .hero-outline {
   color: transparent;
-  -webkit-text-stroke: 2px #f4f4f4;
-}
-@media (min-width: 900px) {
-  .hero-outline {
-    -webkit-text-stroke-width: 3px;
-  }
+  -webkit-text-stroke: clamp(1px, 0.2vw, 3.5px) #f4f4f4;
 }
 .hero-period {
   display: inline-block;
   color: #fff;
-  margin-left: 0.05em;
-  transform: translateY(-0.02em);
+  margin-left: 0.02em;
 }
-.hero-eyebrow {
+.hero-period .split-char {
+  -webkit-text-stroke: 0;
+}
+/* Eyebrow lifted out of the h1; baseline-anchored under the right column,
+   parallaxes at a faster rate than the title (differential drag). */
+.hero-aside {
   display: inline-flex;
   align-items: center;
   gap: 14px;
+  margin-top: clamp(14px, 2vw, 26px);
+  padding-left: clamp(8vw, 14vw, 18vw);
   font-family: var(--font-serif);
   font-style: italic;
   font-weight: 400;
-  font-size: clamp(18px, 2.4vw, 32px);
+  font-size: clamp(18px, 2.4vw, 30px);
   letter-spacing: 0;
   text-transform: none;
-  color: rgba(255, 255, 255, 0.65);
-  margin-top: clamp(12px, 1.6vw, 22px);
+  color: rgba(255, 255, 255, 0.62);
+  transform: translate3d(
+    0,
+    clamp(-140px, calc(var(--scroll-y, 0) * -0.55px), 0px),
+    0
+  );
+  will-change: transform;
 }
-.hero-eyebrow-line {
-  width: clamp(40px, 6vw, 90px);
+.hero-aside-line {
+  display: inline-block;
+  width: clamp(40px, 6vw, 100px);
   height: 1px;
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.32);
+  flex-shrink: 0;
+}
+/* Edge-anchored chapter spine — Active Theory move; rotates a horizontal
+   inline-flex strip inside a vertical column that spans the hero height.
+   Parallaxes at the slowest rate so it feels structural, not motion-y. */
+.hero-edge {
+  display: none;
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: clamp(28px, 3vw, 48px);
+  z-index: 3;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  user-select: none;
+  transform: translate3d(
+    0,
+    clamp(-60px, calc(var(--scroll-y, 0) * -0.15px), 0px),
+    0
+  );
+  will-change: transform;
+}
+@media (min-width: 900px) {
+  .hero-edge {
+    display: flex;
+  }
+}
+.hero-edge-stem {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  white-space: nowrap;
+  transform: rotate(-90deg);
+  font-size: 10px;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.48);
+}
+.hero-edge-num {
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+}
+.hero-edge-rule {
+  display: inline-block;
+  width: clamp(40px, 6vw, 72px);
+  height: 1px;
+  background: rgba(255, 255, 255, 0.35);
 }
 .hero-bottom {
   margin-top: clamp(36px, 6vw, 72px);
@@ -546,37 +631,78 @@ html.loading body {
     justify-content: flex-end;
   }
 }
-.hero-stats {
+/* Specification ribbon — replaces the 3-stat counter row.
+   Reads as a print colophon: key/value pairs with hairline dividers,
+   one numeric counter (the only stat that earned its animation) and one
+   serif-italic prose value (tonal contrast against the Latin specs). */
+.hero-spec {
   grid-column: 1 / -1;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: clamp(16px, 3vw, 48px);
-  margin-top: clamp(28px, 4vw, 56px);
-  padding-top: clamp(20px, 3vw, 32px);
+  grid-template-columns: 1fr;
+  gap: 18px;
+  margin-top: clamp(32px, 5vw, 64px);
+  padding-top: clamp(20px, 3vw, 28px);
   border-top: 1px solid var(--color-line);
 }
-.hero-stats > div {
+@media (min-width: 720px) {
+  .hero-spec {
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: clamp(20px, 3vw, 48px);
+    align-items: end;
+  }
+}
+.hero-spec-row {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 10px;
+  position: relative;
 }
-.stat-num {
-  font-size: clamp(28px, 4vw, 56px);
+.hero-spec-row + .hero-spec-row {
+  padding-top: 18px;
+  border-top: 1px solid var(--color-line);
+}
+@media (min-width: 720px) {
+  .hero-spec-row + .hero-spec-row {
+    padding-top: 0;
+    border-top: 0;
+  }
+  .hero-spec-row + .hero-spec-row::before {
+    content: "";
+    position: absolute;
+    left: calc(clamp(20px, 3vw, 48px) * -0.5);
+    top: 4px;
+    bottom: 4px;
+    width: 1px;
+    background: var(--color-line);
+  }
+}
+.hero-spec-key {
+  font-size: 10px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--color-text-faint);
+  font-weight: 700;
+}
+.hero-spec-val {
+  font-size: clamp(24px, 3.4vw, 46px);
   font-weight: 900;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.03em;
   line-height: 1;
   font-variant-numeric: tabular-nums;
+  color: var(--color-text-strong);
 }
-.stat-label {
-  font-size: 11px;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--color-fog);
-  font-weight: 700;
+.hero-spec-val--prose {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(18px, 2.5vw, 32px);
+  letter-spacing: -0.005em;
+  color: rgba(255, 255, 255, 0.78);
+  font-variant-numeric: normal;
 }
 .hero-scroll {
   position: absolute;
-  left: 20px;
+  right: 20px;
   bottom: 24px;
   display: inline-flex;
   align-items: center;
@@ -673,6 +799,11 @@ html.loading body {
 .btn-primary:hover::before {
   transform: translateY(0);
 }
+.btn-primary:active,
+.btn-ghost:active {
+  transform: scale(0.985);
+  transition: transform var(--dur-1) var(--ease-out-quart);
+}
 .btn-primary.big {
   padding: 22px 34px;
   font-size: 14px;
@@ -716,6 +847,20 @@ html.loading body {
 .marquee-row {
   overflow: hidden;
   white-space: nowrap;
+  -webkit-mask-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    #000 6%,
+    #000 94%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    #000 6%,
+    #000 94%,
+    transparent 100%
+  );
 }
 .marquee-track {
   display: inline-flex;

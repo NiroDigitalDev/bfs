@@ -5,6 +5,195 @@ One entry per run. Newest first.
 
 ---
 
+## 2026-05-12 — Hero typographic recomposition + scroll-bound parallax + spec ribbon
+
+**Area:** Hero typography, layout asymmetry, motion choreography, content
+register on the entry surface.
+
+**Why this was the highest-leverage target.**
+Three rounds of auditors across the last two runs have flagged the hero as
+the ceiling: "canonical, not composed" (centered stack, both title words
+at identical 900 weight, eyebrow buried inside the `<h1>`, 3-stat counter
+row in SaaS landing-page format). The previous run installed the token
+foundation (named easings, duration scale, semantic colour ramp, fluid
+stroke primitives) precisely so this cycle could consume them — every
+typographic decision below references existing tokens, none of them invent
+new primitives. The hero is the entry surface; whatever register it sets
+runs through the rest of the site. The reference scout returned six
+concrete typographic moves (Werkplaats clamp-overlap, Active Theory
+edge-pinned chapter glyph, Hello Monday differential one-rAF parallax,
+Pentagram fluid stroke width via clamp). This run lands all of them
+under a single 230-line CSS delta, no new deps.
+
+**Changes.**
+
+- `src/components/parallax-root.tsx` *(new)* — Client component that
+  writes `window.scrollY` (unitless) to `--scroll-y` on `:root`, rAF-
+  throttled, passive listener, mounted once in the root layout. Skipped
+  entirely under `prefers-reduced-motion: reduce` so the CSS fallback
+  `var(--scroll-y, 0)` evaluates to 0 and every parallax transform stays
+  at identity. One listener, many speeds (Hello Monday's differential-
+  drag pattern) instead of per-component scroll observers.
+- `src/app/layout.tsx` — Mounted `<ParallaxRoot />` alongside the other
+  global client utilities (Loader, ScrollProgress, Cursor).
+- `src/app/page.tsx` — Restructured the hero markup. The h1 now wraps two
+  block-level `.hero-word` spans (each containing a SplitText) instead
+  of a flex column with an inline `.hero-title-row`. The italic-serif
+  eyebrow is lifted *out* of the `<h1>` into a sibling `.hero-aside`,
+  baseline-anchored under the second word. A new `<aside className="hero-edge">`
+  contains the edge-anchored chapter spine ("001 — Volume · Catalogue").
+  The 3-stat `.hero-stats` counter row (47,283 / 99.9% / 42+) is replaced
+  with a 3-cell `.hero-spec` ribbon: **Edition III · MMXXVI** (no counter),
+  **Light absorbed · 550 nm 99.9%** (the one stat that earned its
+  animation), **Made in / The absence of light** (serif-italic prose
+  value, tonal contrast against the Latin specs). The h1 now carries
+  `aria-label="Dark Matter."` and the inner word spans are
+  `aria-hidden`, so screen readers get the composed name once instead
+  of three character-split announcements.
+- `src/app/globals.css` — Removed `.hero-title-row`, `.hero-eyebrow`,
+  `.hero-eyebrow-line`, `.hero-stats`, `.stat-num`, `.stat-label` (none
+  referenced elsewhere; cleaned, not deprecated).
+- `src/app/globals.css` — Added `.hero-title-stack` with
+  `transform: translate3d(0, clamp(-200px, calc(var(--scroll-y, 0) * -0.35px), 0px), 0)`.
+  The clamp ceiling prevents the title from drifting off-screen at
+  long-page scroll; the fallback `0` means the rule degrades to identity
+  before JS mounts and under reduced-motion.
+- `src/app/globals.css` — `.hero-word-2` (Matter) overlaps
+  `.hero-word-1` (Dark) via `margin-top: clamp(-0.22em, -2.8vw, -0.08em)`
+  (Werkplaats clamp-overlap: collision survives all breakpoints because
+  the negative margin scales with viewport, not with a fixed pixel
+  value). Asymmetric horizontal shift via
+  `padding-left: clamp(8vw, 14vw, 18vw)` — "Matter" steps right out of
+  Dark's left edge, breaking the centered-canonical layout the audit
+  flagged.
+- `src/app/globals.css` — `.hero-outline` stroke width is now fluid
+  `-webkit-text-stroke: clamp(1px, 0.2vw, 3.5px) #f4f4f4` (Pentagram MIT
+  move: hairline editorial register at any zoom, no fixed-pixel break
+  at large viewport sizes). Replaces the previous 2px/3px breakpoint
+  switch.
+- `src/app/globals.css` — `.hero-aside` (the lifted eyebrow) uses the
+  same `padding-left` as `.hero-word-2` so the italic tagline
+  baseline-aligns under "Matter" rather than centering inside the title
+  column. Parallax drag index is `-0.55px` (faster than the title's
+  `-0.35px`) — the differential drag is the move; the eyebrow appears
+  to lift away from the title as the page scrolls, marking a
+  compositional separation that single-speed parallax can't.
+- `src/app/globals.css` — `.hero-edge` spans the full hero height as a
+  ~28-48px wide column at `left:0`, with `.hero-edge-stem` rotated -90°
+  inside (horizontal flex strip flipped vertical). Display: none below
+  900px (mobile keeps the layout clean). Parallax index `-0.15px` —
+  slowest layer, reads as structural rather than motion. Custom CSS,
+  no library; the rotation is on the inner stem so the outer wrapper's
+  parallax transform composes cleanly.
+- `src/app/globals.css` — `.hero` gets `padding-left: clamp(56px, 5vw, 88px)`
+  ≥ 900px so the title and meta row clear the rotated chapter spine on
+  every desktop viewport between 900–1480px (below 900 the spine is
+  hidden anyway).
+- `src/app/globals.css` — `.hero-spec` is a 1-col grid that flips to
+  3-col ≥ 720px. Inter-column dividers are vertical hairlines at
+  `::before` of every row after the first; on mobile they flip to
+  horizontal hairlines via `border-top`. The last spec val carries
+  `.hero-spec-val--prose` (italic serif, lighter weight) so the colophon
+  reads as composition, not data — three rows of identical 900-weight
+  Latin numerals would have just rebuilt the SaaS row the audit flagged.
+- `src/app/globals.css` — `.hero-scroll` ("Descend" cue) repositioned
+  from `left:20px` to `right:20px` so the bottom-left no longer crowds
+  the chapter-spine column.
+- `src/app/globals.css` — `.marquee-row` gets edge fade masks
+  (`mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent)`).
+  Cheap polish win the marquee audit called out: the marquees no longer
+  hard-crop at viewport edges. Vendor prefix included for Safari.
+- `src/app/globals.css` — `.btn-primary:active, .btn-ghost:active`
+  scale(0.985) press state, eased via `var(--dur-1)` / `var(--ease-out-quart)`.
+  Audit flagged the CTAs as lacking a feedback layer beneath the magnetic
+  pointer follow. The Magnetic wrapper transforms the OUTER div; the
+  inner button keeps its own transform, so press scale composes.
+
+**Verification.**
+- `bun run lint` — clean.
+- `bunx tsc --noEmit` — clean.
+- `bun run build` — clean. Same 5 routes prerendered statically (`/`,
+  `/_not-found`, `/opengraph-image`, `/robots.txt`, `/sitemap.xml`).
+  No new client bundle beyond the ~15-line `ParallaxRoot` (a single
+  passive scroll listener with rAF throttle).
+- Reduced-motion: `ParallaxRoot.useEffect` early-returns on
+  `prefers-reduced-motion: reduce`, leaving `--scroll-y` unset. Every
+  parallax transform's `clamp(min, calc(var(--scroll-y, 0) * factor), 0)`
+  collapses to `clamp(min, 0px, 0px) = 0px` → identity transform.
+  No new motion paths leak past the reduced-motion gate.
+- Visual structure verified via markup diff: h1 carries the composed
+  accessible name once; chapter spine is `aria-hidden` (decorative);
+  spec ribbon order reads top→bottom on mobile, left→right on desktop.
+
+**Expected impact.**
+- Hero now reads as composed, not stacked: weight contrast (solid 900 vs
+  hairline outline), case unchanged but kerning/tracking diverged
+  (-0.07em vs -0.05em), asymmetric horizontal shift breaks the centered
+  layout, and the negative-margin overlap scales with viewport so the
+  collision survives every breakpoint. The italic-serif aside, lifted
+  out of the `<h1>`, now reads as its own compositional element rather
+  than a buried subtitle.
+- Scroll-bound parallax via a single rAF listener with three different
+  drag indices is the kind of motion choreography Awwwards juries reward
+  ("designed, not decorated") — and it costs ~15 lines of client JS plus
+  three `translate3d` rules in CSS. No animation library.
+- Spec ribbon replaces three SaaS-styled counters with one numeric stat
+  (the one with brand meaning), one Latin-numeral colophon entry, and
+  one italic-serif prose value. The audit's most-flagged issue ("SaaS
+  landing-page copy-paste, not editorial brand") is closed without
+  losing the one number worth animating (99.9% light absorbed at 550 nm).
+- Tokens from the previous run did the heavy lifting: every easing,
+  duration, colour, and ring reference uses an existing `var(--*)` —
+  zero new primitives were defined this run, and the foundation
+  invests forward (next cycle's hero exit / product chapters can
+  consume the same parallax pipeline by adding a single CSS rule).
+- Performance: one new ~600-byte client component (`ParallaxRoot`),
+  one passive scroll listener, rAF-throttled. No CLS impact (markup
+  reflow happens at static render, not on scroll). No new dependencies.
+
+**Files modified.**
+- `src/components/parallax-root.tsx` *(new)*
+- `src/app/layout.tsx`
+- `src/app/page.tsx`
+- `src/app/globals.css`
+
+**Follow-ups uncovered (TODO for future runs).**
+
+- [ ] **Stat band repositioning + content rewrite** — the white-slab
+      stat band (100% K / 0 white margins / 1/1 hue / 4.9★) is now the
+      next-highest-leverage SaaS-feeling artefact. Marquee/stat audit
+      recommended either (a) reordering it before the marquees as a
+      prelude, or (b) rewriting the content from technical telemetry
+      to poetic colophon ("Monochrome by conviction", "One colour,
+      one choice", "Shipped — sealed — sacred"). The white inversion
+      moment is worth keeping; the SaaS content is not.
+- [ ] **Marquee weight/case hierarchy** — the two marquee rows still
+      differ only by outline-vs-fill. Marquee audit recommended one
+      row in mono / one in display, or one tracked-tight / one
+      tracked-loose, so the rows feel composed instead of stacked.
+- [ ] **Product grid bento** — six uniform cards still; let `void-book`
+      occupy a 2-col feature row, vary card sizes / orientations, and
+      give each product visual a distinct gesture (cover lift, fan-out,
+      stroke draw-on, stack depth-shift) rather than the current shared
+      greyscale gradient.
+- [ ] **Scroll-pinned product chapters** — reference-scout recommended
+      a Frans Hals Museum-style pinned spec sheet with chapter-by-
+      chapter reveal as the catalogue moment.
+- [ ] **Hero exit choreography** — hero enters with stagger but exits
+      without any goodbye motion. Could bind hero background opacity
+      or scale to scrollY > 100vh via the same `--scroll-y` listener
+      that already exists.
+- [ ] **PWA + apple-touch-icon + manifest.webmanifest** — open from
+      prior runs.
+- [ ] **Outro footer dead links + missing contact surface** — open from
+      prior runs.
+- [ ] **OG image typography fidelity** — load `Instrument_Serif` as a
+      buffer inside `opengraph-image.tsx` instead of `ui-serif`
+      fallback.
+- [ ] **Lighthouse baseline** — still unmeasured.
+
+---
+
 ## 2026-05-12 — Design-system tokens + a11y foundation (focus ring, reduced-motion gating)
 
 **Area:** Cross-cutting CSS tokens, accessibility baseline, motion gating,
