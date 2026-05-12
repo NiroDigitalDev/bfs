@@ -6,6 +6,7 @@ import { Loader } from "@/components/loader";
 import { ScrollProgress } from "@/components/scroll-progress";
 import { site, siteUrl } from "@/lib/site";
 import { products } from "@/data/products";
+import { faqs } from "@/data/faqs";
 import "./globals.css";
 
 const inter = Inter({
@@ -107,17 +108,32 @@ const productCatalogLd = {
     item: {
       "@type": "Product",
       "@id": `${siteUrl}/#${p.id}`,
+      url: `${siteUrl}/#${p.id}`,
       name: p.title,
       description: p.copy,
       category: "Stationery",
       brand: { "@type": "Brand", name: site.name },
       offers: {
         "@type": "Offer",
-        url: `${siteUrl}/#supplies`,
+        url: `${siteUrl}/#${p.id}`,
         price: p.priceAmount,
         priceCurrency: p.currency,
         availability: "https://schema.org/InStock",
       },
+    },
+  })),
+};
+
+const faqPageLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "@id": `${siteUrl}/#faq`,
+  mainEntity: faqs.map((f) => ({
+    "@type": "Question",
+    name: f.question,
+    acceptedAnswer: {
+      "@type": "Answer",
+      text: f.answer,
     },
   })),
 };
@@ -145,6 +161,10 @@ export default function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(productCatalogLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqPageLd) }}
         />
       </body>
     </html>

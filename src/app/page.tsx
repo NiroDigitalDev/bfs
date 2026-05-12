@@ -16,6 +16,7 @@ import {
   PlannerVisual,
 } from "@/components/product-visuals";
 import { products as productData, type ProductId } from "@/data/products";
+import { faqs } from "@/data/faqs";
 
 const productVisuals: Record<ProductId, React.ComponentType> = {
   "void-book": NotebookVisual,
@@ -55,11 +56,11 @@ export default function Home() {
           </a>
         </div>
         <Magnetic strength={0.25}>
-          <button className="nav-cta" data-cursor="link">
+          <a href="#supplies" className="nav-cta" data-cursor="link" aria-label="Cart: zero items — view catalogue">
             <span>Cart</span>
             <span className="nav-cta-dot" />
             <span>0</span>
-          </button>
+          </a>
         </Magnetic>
       </nav>
 
@@ -188,10 +189,10 @@ export default function Home() {
         </div>
 
         <div className="products">
-          {products.map(({ chapter, title, subtitle, price, spec, copy, Visual, tags }, i) => (
-            <Reveal key={chapter} delay={`${(i % 3) * 0.08}s`}>
+          {products.map(({ id, chapter, title, subtitle, price, spec, copy, Visual, tags }, i) => (
+            <Reveal key={id} delay={`${(i % 3) * 0.08}s`}>
               <Tilt max={6}>
-                <article className="product" data-cursor="link" data-cursor-label="View">
+                <article id={id} className="product" data-cursor="link" data-cursor-label="View">
                   <div className="product-tags">
                     {tags.map((t) => (
                       <span key={t} className="product-tag">
@@ -441,36 +442,11 @@ export default function Home() {
           />
         </div>
         <div className="faq-list">
-          <FaqItem index="01" question="Why would anyone buy black paper?">
-            White paper is a defaulted decision. Most pages you have seen
-            started as someone else&apos;s preset. Ours start at zero. The
-            ground is, finally, neutral.
-          </FaqItem>
-          <FaqItem index="02" question="Can I print on it?">
-            Yes, on the right equipment. Laser printers with white toner produce
-            clean lines. Standard inkjet produces a small act of confusion. We
-            recommend a dedicated white-toner shop, the Savior pen, or
-            handwriting as a personality.
-          </FaqItem>
-          <FaqItem index="03" question="Do you ship internationally?">
-            To forty-two countries. Customs has, on occasion, opened a parcel
-            and rung for clarification. The clarification is the same as the
-            product description: notebooks, in black.
-          </FaqItem>
-          <FaqItem index="04" question="Is this an art project or a real business?">
-            Both. We file taxes and we have a position on white margins. The
-            two are compatible.
-          </FaqItem>
-          <FaqItem index="05" question="And the URL — really?">
-            We hear it. We chose it anyway. The premise of the name is the
-            premise of the product: a single, uncomfortable word held until it
-            means something else. We hold the line and the inventory.
-          </FaqItem>
-          <FaqItem index="06" question="What is the return policy?">
-            Thirty days, unopened, full refund. If you have opened the product
-            and discovered the paper is, as advertised, black — we appreciate
-            the engagement, but we cannot refund expectation.
-          </FaqItem>
+          {faqs.map((f) => (
+            <FaqItem key={f.index} index={f.index} question={f.question}>
+              {f.answer}
+            </FaqItem>
+          ))}
         </div>
       </section>
 

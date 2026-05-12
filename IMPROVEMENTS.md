@@ -5,6 +5,121 @@ One entry per run. Newest first.
 
 ---
 
+## 2026-05-12 — FAQ JSON-LD + per-product anchors + cart semantic upgrade
+
+**Area:** Structured data completion, fragment-link correctness, nav semantics.
+
+**Why this was the highest-leverage target.**
+The previous run shipped the SEO foundation (metadata, OG, sitemap, robots,
+Organization + ItemList of `Product` JSON-LD). It left three known gaps in
+its own follow-up list that, taken together, finish that story:
+
+1. **`Product` `@id` pointed at a fragment that did not exist.** The JSON-LD
+   declared each product's `@id` as `${siteUrl}/#${p.id}` (e.g.
+   `/#void-book`), but the corresponding `<article>` elements had no `id`
+   attribute. Search engines following the `@id` would land on the section
+   wrapper, not the product. That is a correctness regression introduced by
+   the prior run — fixing it now closes the loop.
+2. **Six FAQ Q&As already render on-page but were not machine-readable.**
+   No `FAQPage` schema = a free SERP rich-result surface left on the table.
+3. **The nav "Cart" was a `<button>` with no `onClick`.** It read as
+   interactive (magnetic, link cursor) but did nothing. On a single-page
+   conceptual brand, the right semantic is a same-page anchor to the
+   catalogue, not a stub for a checkout flow that does not exist.
+
+These three items share one through-line: every interactive surface and
+every `@id` reference should resolve to something real. Bundling them is
+one cohesive improvement, not three small ones.
+
+**Changes.**
+- `src/data/faqs.ts` *(new)* — Extracted the 6 Q&A entries into a typed
+  `Faq[]` constant. Single source of truth, mirroring the
+  `src/data/products.ts` pattern from the previous run. Both the page
+  rendering and the FAQPage JSON-LD consume this one list.
+- `src/app/layout.tsx` — Added a third `application/ld+json` script:
+  `FAQPage` schema with `@id` of `${siteUrl}/#faq` and `mainEntity`
+  built from `faqs.map(...)`. Each `Question` carries its `acceptedAnswer`
+  with full answer text. Also: the existing `Product` JSON-LD now includes
+  a top-level `url` field per item, and its `Offer.url` now points at the
+  product fragment (`/#void-book`) rather than the section
+  (`/#supplies`) — so search-result deep links land on the right
+  `<article>`, not the section header.
+- `src/app/page.tsx` — Added `id={id}` to each `<article className="product">`
+  in the products map, destructuring `id` from the product object. The
+  fragment URL in the `Product` `@id` now resolves to a real DOM anchor for
+  all six SKUs. Also: replaced the inline FAQ JSX block (six hardcoded
+  `<FaqItem>` elements) with a single `faqs.map(...)` over the new data
+  module, preserving the exact rendered text, ordering, and component
+  props.
+- `src/app/page.tsx` — Converted the nav Cart `<button>` to
+  `<a href="#supplies">` with `aria-label="Cart: zero items — view
+  catalogue"` so screen readers announce the actual destination instead of
+  an ambiguous "Cart" button. Visual treatment (magnetic wrapper,
+  `.nav-cta` class, dot separator, `0`) is unchanged.
+
+**Verification.**
+- `bun run lint` — clean.
+- `bunx tsc --noEmit` — clean.
+- `bun run build` — clean. 5 routes prerendered statically.
+- Live HTML inspection via `bun run start`:
+  - 3 distinct `application/ld+json` script blocks emitted: `Organization`,
+    `ItemList`, `FAQPage`.
+  - 6 `"@type":"Question"` entries inside `FAQPage`, with the full answer
+    text for each (verified against the on-page copy by sampling the
+    closing words of every answer).
+  - All 6 product article `id` attributes present in the DOM
+    (`void-book`, `abyssal-cardstock`, `event-horizon-pad`, `sticky-voids`,
+    `savior-pen`, `executive-despair`) — fragment links from the JSON-LD
+    `@id` now scroll to the correct `<article>`.
+  - `Product` `Offer.url` field now serializes to per-product fragments
+    (verified `…/#void-book`, `…/#abyssal-cardstock`, `…/#event-horizon-pad`
+    in the rendered output).
+  - Cart control rendered as `<a href="#supplies" class="nav-cta" …>` with
+    the new `aria-label`; no `<button class="nav-cta">` remaining.
+  - Heading hierarchy unchanged. No CLS change (no new layout, no new
+    client JS). No new dependencies.
+
+**Expected impact.**
+- Google: eligible for `FAQPage` rich results (the FAQ "What people are
+  asking" surface) in addition to the existing `Product` rich results.
+- Deep links from search results to a product now land on that product's
+  `<article>`, not the section header — improving the "View on page"
+  jump experience.
+- Cart control is now keyboard-focusable as a link, announces its real
+  destination to assistive tech, and is no longer a no-op interactive
+  button. Removes a latent UX dead-end.
+- Maintenance: a future FAQ edit is now a one-place change in
+  `src/data/faqs.ts`; both the page and the schema update together.
+
+**Files modified.**
+- `src/data/faqs.ts` *(new)*
+- `src/app/layout.tsx`
+- `src/app/page.tsx`
+
+**Follow-ups uncovered (TODO for future runs).**
+
+- [ ] **`apple-touch-icon` + `manifest.webmanifest`** — still open. Next.js
+      16 supports `src/app/apple-icon.tsx` and `src/app/manifest.ts` as
+      programmatic routes; both would inherit the `#000` brand colour and
+      close the iOS/Android home-screen icon gap.
+- [ ] **Outro footer dead links** (Terms, Privacy, Studio, Instagram all
+      `href="#"`). Audit recommended leaving them as deliberate
+      placeholders on a conceptual-brand site, but the question is still
+      open. Decide per link in a future run.
+- [ ] **No contact surface.** No address, no email, no contact route.
+      Trust gap for a commerce-flavoured page. A single `mailto:` in the
+      footer would close it.
+- [ ] **Outro disclosure copy** still says "back button is in the
+      upper-left of this window" — wrong on Windows and on mobile.
+      Generalise.
+- [ ] **`Instrument_Serif` not used by OG image** — currently falls back
+      to `ui-serif`. Loading the actual Google Font as a buffer inside
+      `opengraph-image.tsx` would tighten brand coherence.
+- [ ] **Lighthouse baseline** — still unmeasured. A first pass would let
+      future runs target the worst metric.
+
+---
+
 ## 2026-05-12 — SEO foundation + social-share metadata + Product structured data
 
 **Area:** Site-wide `<head>` metadata, crawl signals, share rendering.
