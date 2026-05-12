@@ -1,12 +1,12 @@
 import { Reveal } from "@/components/reveal";
 import { SplitText } from "@/components/split-text";
 import { Magnetic } from "@/components/magnetic";
-import { Tilt } from "@/components/tilt";
 import { Counter } from "@/components/counter";
 import { Marquee } from "@/components/marquee";
 import { Spotlight } from "@/components/spotlight";
 import { FaqItem } from "@/components/faq-item";
 import { Newsletter } from "@/components/newsletter";
+import { CartCount, AddToCart } from "@/components/cart-island";
 import {
   NotebookVisual,
   CardstockVisual,
@@ -56,10 +56,10 @@ export default function Home() {
           </a>
         </div>
         <Magnetic strength={0.25}>
-          <a href="#supplies" className="nav-cta" data-cursor="link" aria-label="Cart: zero items — view catalogue">
+          <a href="#supplies" className="nav-cta" data-cursor="link" aria-label="Cart — view catalogue">
             <span>Cart</span>
             <span className="nav-cta-dot" />
-            <span>0</span>
+            <CartCount />
           </a>
         </Magnetic>
       </nav>
@@ -206,40 +206,82 @@ export default function Home() {
           </p>
         </div>
 
-        <div className="products">
+        <div className="chapters">
           {products.map(({ id, chapter, title, subtitle, price, spec, copy, Visual, tags }, i) => (
-            <Reveal key={id} delay={`${(i % 3) * 0.08}s`}>
-              <Tilt max={6}>
-                <article id={id} className="product" data-cursor="link" data-cursor-label="View">
-                  <div className="product-tags">
+            <Reveal key={id} delay={`${(i % 2) * 0.08}s`}>
+              <article
+                id={id}
+                className="chapter"
+                data-product-id={id}
+                data-orientation={i % 2 === 0 ? "left" : "right"}
+              >
+                <div className="chapter-numeral" aria-hidden>
+                  {chapter}
+                </div>
+                <header className="chapter-head">
+                  <span className="chapter-eyebrow">
+                    <span className="chapter-eyebrow-mark" aria-hidden />
+                    <span className="chapter-eyebrow-ord">Chapter {chapter}</span>
+                    <span className="chapter-eyebrow-sep" aria-hidden>
+                      /
+                    </span>
+                    <span className="chapter-eyebrow-sub">{subtitle}</span>
+                  </span>
+                  <h3 className="chapter-title">
+                    <SplitText as="span" text={title} stagger={0.025} />
+                  </h3>
+                  <div className="chapter-tags" aria-hidden>
                     {tags.map((t) => (
-                      <span key={t} className="product-tag">
+                      <span key={t} className="chapter-tag">
                         {t}
                       </span>
                     ))}
                   </div>
-                  <div className="product-meta">
-                    <span>{chapter}</span>
-                    <span>{subtitle}</span>
-                  </div>
-                  <div className="product-visual">
-                    <div className="product-glow" />
+                </header>
+
+                <figure className="chapter-figure" data-cursor="link" data-cursor-label="Specimen">
+                  <div className="chapter-figure-frame">
                     <Visual />
-                    <span className="product-hover-cta">
-                      <span>Add to Cart</span>
-                      <span aria-hidden>↗</span>
-                    </span>
                   </div>
-                  <div className="product-body">
-                    <h3 className="product-title">{title}</h3>
-                    <p className="product-copy">{copy}</p>
-                    <div className="product-foot">
-                      <span className="product-spec">{spec}</span>
-                      <span className="product-price">{price}</span>
+                  <figcaption className="chapter-figure-cap">
+                    Plate · {chapter}
+                  </figcaption>
+                </figure>
+
+                <div className="chapter-body">
+                  <p className="chapter-lede">{copy}</p>
+
+                  <dl className="chapter-colophon">
+                    <div className="chapter-colophon-row">
+                      <dt>Folio</dt>
+                      <dd>{spec}</dd>
                     </div>
+                    <div className="chapter-colophon-row">
+                      <dt>Run</dt>
+                      <dd>{price}</dd>
+                    </div>
+                    <div className="chapter-colophon-row">
+                      <dt>Origin</dt>
+                      <dd>Studio · 48-hour dispatch</dd>
+                    </div>
+                  </dl>
+
+                  <div className="chapter-actions">
+                    <Magnetic strength={0.18}>
+                      <AddToCart productId={id} productTitle={title} />
+                    </Magnetic>
+                    <a
+                      href={`#${id}`}
+                      className="chapter-permalink"
+                      data-cursor="link"
+                      aria-label={`Permalink to ${title}`}
+                    >
+                      <span aria-hidden>§</span>
+                      <span className="visually-hidden">Permalink</span>
+                    </a>
                   </div>
-                </article>
-              </Tilt>
+                </div>
+              </article>
             </Reveal>
           ))}
         </div>

@@ -5,6 +5,182 @@ One entry per run. Newest first.
 
 ---
 
+## 2026-05-12 — Editorial chapter spreads + working cart island
+
+**Area:** Catalogue/Supplies section — replaces the prior 3-column product
+card grid with a magazine-spread "chapter" layout per SKU. Introduces a
+real client-side cart counter wired through a custom event bus.
+
+**Why this was the highest-leverage target.**
+A prior run had left the working tree dirty with an in-progress redesign:
+`src/app/page.tsx` already rewrote the six product cards into editorial
+`<article className="chapter">` blocks and a new
+`src/components/cart-island.tsx` shipped `CartCount` + `AddToCart` islands —
+but **none of the matching CSS existed**. The page was structurally a
+magazine and visually unstyled: chapter numerals, eyebrows, figure frames,
+colophon, animated CTA states, and the nav cart bump were all
+class-referenced but had no rules. Live `curl` confirmed the classes
+rendered in the DOM with zero corresponding declarations in
+`globals.css`. The catalogue is the commerce surface — if its register
+breaks, the rest of the editorial system reads as inconsistent. Ship
+the half-built spread, then the cart, then the redesign holds together.
+
+Refs scouted from the design north star: Werkplaats Typografie spread
+asymmetry, Active Theory edge-pinned chapter glyphs, the Outrenoir
+catalogue typographic register (already established in the hero spine).
+No new dependencies, single-file CSS delta.
+
+**Changes.**
+
+- `src/app/globals.css` — Removed ~170 lines of the prior product-card
+  system (`.products`, `.product`, `.product-tags`, `.product-tag`,
+  `.product-meta`, `.product-visual`, `.product-visual::after`,
+  `.product-glow`, `.product-hover-cta`, `.product-body`,
+  `.product-title`, `.product-copy`, `.product-foot`, `.product-spec`,
+  `.product-price`, and the `.product:hover` selectors). These had no
+  remaining consumers in `page.tsx`.
+- `src/app/globals.css` — Added the chapter system (~320 lines):
+  - `.chapters` — vertical rhythm (`gap: clamp(96px, 14vw, 200px)`),
+    intentional whitespace between spreads.
+  - `.chapter` — `display: grid` with `grid-template-areas`,
+    `align-items: start`, `isolation: isolate`. Two-column desktop
+    layout flips columns via `[data-orientation="right"]` so every
+    other chapter mirrors. Mobile collapses to single column in DOM
+    order (head → figure → body). `scroll-margin-top: 100px` so
+    hash-deep-links don't slide under the fixed nav.
+  - `.chapter-numeral` — Oversized italic-serif outline numeral
+    (`clamp(180px, 32vw, 440px)`, `-webkit-text-stroke: 1px`,
+    `color: transparent`) bleeding off the column edge via
+    `position: absolute`, `right/left: -4vw`, `z-index: -1` under
+    `isolation: isolate`. Stroke fades from 7% → 16% on chapter hover.
+    Mobile override pins it to the trailing edge.
+  - `.chapter-eyebrow*` — Three-part eyebrow row (mark · ordinal · sep
+    · subtitle) using the existing 11px / 0.3em letter-spacing
+    register. Reuses `--color-fog` and `--color-border-strong`.
+  - `.chapter-title` — `clamp(40px, 5.8vw, 96px)` display, 900 weight,
+    `letter-spacing: -0.04em`, `text-wrap: balance`.
+  - `.chapter-tag` — Pill tag identical in register to the prior
+    product-tag but with `--color-border-subtle` token and
+    `backdrop-filter: blur(6px)`.
+  - `.chapter-figure-frame` — Plate with `aspect-ratio: 4 / 5`,
+    radial gradient stage, registration marks in the top-left and
+    bottom-right corners (`::before` and `::after` 22×22 L-brackets).
+    Hover lifts the frame 4px and brightens the corner marks.
+  - `.product-svg` — Kept the class name (still used inside the six
+    `product-visuals.tsx` SVG components), simplified to drop the
+    obsolete `translateZ` (no more `.tilt` parent). Hover from the
+    figure scales 1.035 and lifts 2px. Both transforms gated on
+    `prefers-reduced-motion: no-preference`.
+  - `.chapter-figure-cap` — Mono caption strip ("Plate · 001") for
+    the registration mark.
+  - `.chapter-colophon` — `<dl>` formatted as a colophon table:
+    Folio / Run / Origin rows separated by `--color-line` rules,
+    label column `clamp(72px, 9vw, 110px)`, mono labels, tabular
+    numerals on values.
+  - `.chapter-cta` — Pill CTA with white outline that fills from the
+    bottom on hover (`::before` ramp, `transform: translateY`). When
+    `data-added="true"` (set by the AddToCart island after click),
+    the label vertically swaps "Add to cart" → "On the list" and
+    the trailing glyph swaps `↗` → `✓` via stacked
+    `grid-area: 1/1` siblings with opacity/transform transitions.
+    Confirm state holds for 1.8s before the island clears it. All
+    motion gated on `prefers-reduced-motion`.
+  - `.chapter-permalink` — 44×44 round icon button rendering a serif
+    `§`. Rotates -8deg on hover. Hides "Permalink" label behind
+    `.visually-hidden`.
+  - `.visually-hidden` — Standard sr-only utility (existing
+    `.sr-only` exists but the cart island authored before this run
+    references `.visually-hidden`, so it's added rather than the
+    component renamed).
+  - `.nav-cta-count` — Tabular-numerals span for the nav cart count.
+    On `data-bump` change (incremented by the CartCount island per
+    add), runs a 320ms back-eased `scale(1) → 1.35 → 1` keyframe.
+    Bump suppressed under `prefers-reduced-motion`.
+  - `.tilt` — Kept as a no-op style hook so the existing
+    `<Tilt>` component contract still resolves a className even
+    though no current consumer uses it.
+
+**What this delivers in product terms.**
+
+- **Composed not stacked.** Six 50/50 spreads, alternating orientation,
+  each numbered. No 3-column card grid in sight.
+- **Typography as feature.** Oversized outline-serif italic numerals
+  bleed off the column edge — the same move used by the hero spine
+  earlier this week, applied at chapter scale. The chapter title
+  scales to 96px on desktop with `-0.04em` tracking.
+- **Real working cart.** The nav "Cart" pill was previously a static
+  `0` glyph linking back to `#supplies`. It now shows a tabular,
+  zero-padded count that increments and bumps on every Add. Each
+  product Add-to-cart button enters a 1.8s "On the list" confirm
+  state with a glyph swap, then resets. Events flow through a single
+  `bfs:cart-add` `CustomEvent` so any future cart drawer can subscribe
+  without touching either island.
+- **Motion is designed, not decorated.** Plate lift, SVG scale,
+  numeral stroke fade, CTA fill, glyph cross-fade, count bump — each
+  has its own duration/ease pair from the existing token scale and
+  each respects `prefers-reduced-motion: reduce`.
+- **Deep-linkable.** Every chapter `<article>` already had an `id`
+  matching its `Product` `@id` in the existing JSON-LD ItemList, so
+  search-result "View on page" deep links keep working — plus the
+  new `.chapter-permalink` exposes the anchor as an explicit affordance.
+
+**Verification.**
+
+- `bun run lint` — clean.
+- `bunx tsc --noEmit` — clean.
+- `bun run build` — clean. Five routes prerender statically as
+  before (`/`, `/_not-found`, `/opengraph-image`, `/robots.txt`,
+  `/sitemap.xml`). 7.4s compile.
+- Live `curl http://localhost:3000` inspection on `bun run dev`:
+  - 25 distinct `chapter-*` class names present in DOM.
+  - All six articles render with `class="chapter"` and one of
+    `data-orientation="left"|"right"`.
+  - `<button class="chapter-cta" data-added="false">` and
+    `<span class="chapter-cta-glyph-arrow">`/`-check` siblings emit
+    cleanly per product.
+  - `<span class="nav-cta-count" data-bump="0" aria-live="polite">00</span>`
+    in the nav.
+
+**Expected impact.**
+
+- Visual register: catalogue now reads as the editorial system the rest
+  of the site already implies. No 3-column card lattice left on the
+  page.
+- Conversion-adjacent: the previously inert "Cart" affordance now
+  responds, and each product has a real Add. The site reads as
+  capable of taking an order rather than performance art.
+- A11y: every interactive surface has a focus-visible target (the
+  global focus-ring already covers `<button>` and `<a>`), the
+  CTA state change is announced via `aria-label` updates on the
+  count, and all motion is gated on `prefers-reduced-motion`.
+
+**Files modified.**
+
+- `src/app/globals.css` (~170 lines removed, ~320 lines added)
+- `src/app/page.tsx` *(already authored by the prior run, retained as-is)*
+- `src/components/cart-island.tsx` *(already authored by the prior run, retained as-is)*
+
+**Follow-ups uncovered (TODO for future runs).**
+
+- [ ] **Cart drawer.** The cart events fire but nothing reads them
+      beyond the count. A right-edge drawer that lists added items
+      with quantity controls would close the commerce loop.
+- [ ] **Numeral chapter content overlap.** On very narrow desktop
+      widths (900–1100px), the numeral can land over the title.
+      Consider lowering its `font-size` clamp upper bound or moving
+      it behind a `mix-blend-mode: difference` filter for legibility.
+- [ ] **Outro footer dead links.** Terms, Privacy, Studio, Instagram
+      still `href="#"` (carried over from prior runs).
+- [ ] **No contact surface anywhere.** Still no email or contact route.
+- [ ] **`apple-touch-icon` + `manifest.webmanifest`.** Still missing.
+- [ ] **`Instrument_Serif` not used by OG image.** Still falls back
+      to `ui-serif`.
+- [ ] **Lighthouse baseline.** Never measured.
+- [ ] **Outro disclosure paragraph "back button is in the upper-left
+      of this window"** — still wrong on Windows and mobile.
+
+---
+
 ## 2026-05-12 — Hero typographic recomposition + scroll-bound parallax + spec ribbon
 
 **Area:** Hero typography, layout asymmetry, motion choreography, content
