@@ -5,6 +5,215 @@ One entry per run. Newest first.
 
 ---
 
+## 2026-05-13 — Object portraits (six chapter figures → tilt + specular + studio light)
+
+**Area:** Chapter 01 catalogue figures — the page's actual subject
+matter. Elevates the six product specimens from "SVG icon under a
+uniform CSS hover" to "object portrait under studio lighting" via
+pointer-tracked tilt, cursor-bound specular sweep, always-on plate
+lighting, and per-product micro-detail on the two thinnest visuals.
+Also tightens the global SplitText transition from 1400ms to 900ms,
+shaving roughly half a second off every animated section title.
+
+**Why this was the highest-leverage target.**
+Phase-1 audits converged on one cluster: the page's first-screen
+typographic craft is real, but the **six chapter figures — the
+catalogue, the subject matter, the thing the brand actually sells —
+render as flat front-elevation SVGs under a single shared CSS hover
+(`scale(1.035) translateY(-2px)`)**. Two reference-scouts and the
+visuals-auditor converged independently on the same reference bar —
+Aesop / Officine Universelle Buly / Bureau Borsche / Tom Sachs
+product pages, where "object portrait" means real specular, real
+material identity, and motion that reads as inspecting an object
+under light rather than a CSS hover effect. The auditor's top-ranked
+elevation move (pointer-tracked tilt + cursor-bound specular) was
+S-effort with zero new dependencies because a `Tilt` component
+already existed in the tree, unused — written to expose `--mx` /
+`--my` CSS variables on its root, exactly the shape the specular
+needed. Larger bets surfaced in discovery (hero parallax sign-flip,
+chapter-rail continuous progress, hero→marquee staging) logged below
+for future runs.
+
+Refs scouted: Aesop product pages (specular + floor contact under
+apothecary objects), Officine Universelle Buly (engraved-line
+specimen plates with serif Latin sub-labels), Bureau Borsche /
+Tom Sachs (pointer-tracked specular for the feel of "inspecting an
+object under light"). Audit verdict on existing six visuals before
+this ship: `savior-pen` strong, `cardstock` / `pad` / `planner`
+adequate, `void-book` / `sticky-voids` thin.
+
+**What changed.**
+
+- `src/app/page.tsx` (lines 1–10, 242–252) — Imports `Tilt`.
+  Each `<figure className="chapter-figure">` now wraps its frame
+  with `<Tilt className="chapter-figure-frame" max={6}>`, which
+  renders a `<div class="tilt chapter-figure-frame">` and owns
+  the perspective rotation. Inside the Tilt: a new
+  `<span className="chapter-figure-light" aria-hidden />` (always-
+  on studio light), the `<Visual />`, and a new
+  `<span className="chapter-figure-specular" aria-hidden />`
+  (cursor-bound radial highlight). The `<figcaption>` now carries
+  two spans — `Plate · {chapter}` on the left and the first
+  product tag on the right, justified across the cap row by the
+  existing `display: flex; justify-content: space-between`.
+- `src/components/tilt.tsx` — Unchanged. Was already written
+  to capped ±max° pointer-tracked `rotateX/rotateY` via rAF
+  interpolation, gate on `(pointer: fine)` and
+  `prefers-reduced-motion: no-preference`, and expose
+  `--mx` / `--my` (0–100%) on the root. Now used in production
+  for the first time.
+- `src/components/product-visuals.tsx` — Per-visual elevation:
+  - Every visual now gets a **floor contact ellipse** (radial
+    gradient, black → transparent) beneath the object, anchoring
+    it to a plinth rather than floating it.
+  - Every visual now gets a **top sheen** (vertical linear-
+    gradient stripe across the upper third) hinting at studio
+    overhead lighting.
+  - `NotebookVisual` (void-book, audit verdict: thin) gains a
+    **foredge** — a 4px column on the right edge with its own
+    page-block gradient and a 1px page-top highlight — making
+    it read as a hardbound book with thickness rather than a
+    flat swatch. Plus a faint blind-deboss panel around the BFS
+    wordmark.
+  - `StickyVisual` (sticky-voids, audit verdict: thin) gains
+    **per-pad edge thickness** (6px darker strip along each
+    pad's bottom edge implying stack depth), an **adhesive
+    band** hint on the middle pad's top, and a **corner curl**
+    triangle peel on the top pad's top-right.
+  - `PlannerVisual` gains a half-page edge tilt path on the
+    right edge to imply fanned spreads.
+  - All defs (`linearGradient`, `radialGradient`) namespaced
+    per visual (`nbFloor`, `csFloor`, `spFloor`, `stFloor`,
+    `pnFloor`, `plFloor` etc.) so multiple visuals on one page
+    don't id-collide.
+- `src/app/globals.css` (lines 313–330, 1103–1207) — Three
+  blocks of CSS changes:
+  - **SplitText timing.** `.split-char` transition cut from
+    `var(--dur-6)` (1400ms) → `var(--dur-5)` (900ms), and the
+    opacity cut from `var(--dur-3)` → `var(--dur-2)`. Affects
+    every section title — hero "Dark Matter." finishes
+    approximately 500ms sooner; mid-page titles snap rather
+    than drift.
+  - **Figure transforms.** Rise-on-hover moved off the
+    `.chapter-figure-frame` (where Tilt's inline JS transform
+    would clobber CSS hover) and onto the outer
+    `.chapter-figure` element, where CSS owns it. The frame
+    gets `isolation: isolate` so the specular's
+    `mix-blend-mode: screen` is sandboxed to the plate.
+    Registration-mark pseudos kept on `::before` / `::after`
+    (z-index: 3); specular layer at z-index: 2; SVG at
+    z-index: 1; studio light at z-index: 0.
+  - **New layers.** `.chapter-figure-light` rule: two stacked
+    radial gradients (top highlight + floor contact). 
+    `.chapter-figure-specular` rule: a single 180-px radial
+    at `var(--mx, 50%) var(--my, 50%)`, opacity 0 by default,
+    1 on `:hover` of the frame, `mix-blend-mode: screen`,
+    falling back to centred radial when Tilt is inactive
+    (touch / reduced motion).
+  - **Reduced-motion guard.** `prefers-reduced-motion: reduce`
+    zeros all chapter-figure transforms and hides
+    `.chapter-figure-specular` entirely (it's a hover affect,
+    pointless without pointer motion).
+
+**Verification.**
+
+- `bun run lint` — clean.
+- `bunx tsc --noEmit` — clean.
+- `bun run build` — clean. Five routes prerendered statically;
+  no new client-component cost beyond using the previously-unused
+  `Tilt` component.
+- Live HTML inspection on `bun run start` (after killing a stale
+  May-12 server process holding port 3000): served HTML contains
+  `class="tilt chapter-figure-frame"`, six instances of
+  `chapter-figure-light`, six instances of `chapter-figure-specular`,
+  six `chapter-figure-cap` rows with the new two-span split.
+  Page weight: 141 KB HTML (unchanged within rounding from the
+  prior ship; all additions are CSS rules + SVG markup, no JS
+  bundle growth).
+- Reduced-motion path: Tilt early-returns on
+  `prefers-reduced-motion: reduce`, leaving frame transform at
+  default; CSS guard hides the specular layer; figure outer
+  hover-rise is also zeroed. Result: figures render with
+  studio-light layer only, no motion, no specular.
+- Touch path: Tilt early-returns on non-`pointer: fine`, leaving
+  `--mx` / `--my` unset; specular falls back to its `50% 50%`
+  default and stays at opacity 0 (no `:hover` on touch). Outer
+  figure transform also no-ops without hover. Result: identical
+  to reduced-motion path.
+
+**Expected impact.**
+
+- Catalogue figures now read as *photographed objects on a lit
+  plinth* rather than CSS hover icons. Pointer-tracked tilt +
+  cursor-bound specular is the single largest swing on this page
+  from "polished editorial template" toward "object portrait"
+  register.
+- Notebook and sticky-pads were the thinnest two visuals per
+  audit; both now carry a material-identity move
+  (foredge / corner-curl + edge-thickness) instead of reading as
+  flat rectangles.
+- SplitText timing cut means the hero "Dark Matter." reveal now
+  resolves at roughly 1.45s post-curtain (down from 1.95s), and
+  mid-page section titles snap in under 1s instead of drifting
+  in over 1.7s.
+- No bundle growth, no new dependency, no SSR cost change. All
+  motion stays gated behind `(pointer: fine) and
+  (prefers-reduced-motion: no-preference)`.
+
+**Files modified.**
+
+- `src/app/page.tsx`
+- `src/components/product-visuals.tsx`
+- `src/app/globals.css`
+
+**Files unchanged but newly load-bearing.**
+
+- `src/components/tilt.tsx` — pre-existing, previously unused;
+  now drives all six chapter figures.
+
+**Follow-ups uncovered (TODO for future runs).**
+
+- [ ] **Hero parallax sign flip.** Audit found the hero title
+      currently parallaxes *against* scroll direction
+      (`calc(var(--scroll-y) * -0.35px)`), causing the title to
+      race the viewport upward and break read-order against the
+      lede/CTAs. Flip the sign to a positive fractional rate
+      (+0.12 to +0.18) and gate to the hero's own
+      IntersectionObserver so it only applies while the hero is
+      on-screen. One-line change, large perceptual win. The
+      `src/components/parallax-root.tsx` channel already exists.
+- [ ] **Chapter rail → continuous progress.** Rail is currently
+      a binary on/off indicator (width 14 → 26 px on
+      `aria-current`). Subscribe to a per-section IntersectionObserver
+      with `intersectionRatio` tracked into a CSS variable so
+      the active rule grows continuously through the section
+      rather than snapping. Connect to the existing scroll-progress
+      bar so the two indicators read as one instrument.
+- [ ] **Hero → marquee handoff.** Currently three flat siblings
+      (radial-bg hero → `#050505` marquee → bordered section)
+      with no easing between them. Stage with `position: sticky`
+      on hero (or 100vh sentinel) so marquees slide *up over*
+      the hero rather than after it. Or clip-path the hero from
+      `inset(0)` → `inset(0 0 100% 0)` over the first viewport.
+- [ ] **Nav scrolled state.** Nav is fixed but never contracts,
+      never sheds the `Vol. III · MMXXVI` sub-label, never adds
+      a hairline bottom border. After ~30vh of scroll, contract
+      vertical padding, drop sub-label, tighten letter-spacing.
+      Cheap; immediate register change between "title page" and
+      "deep in the issue."
+- [ ] **Per-section SplitText stagger calibration.** Global
+      duration cut shipped this run, but per-section staggers
+      (currently 0.025–0.05) could be tuned per surface — hero
+      slower/cinematic, mid-page snappier. Probably one
+      `--split-stagger` variable + per-section overrides.
+- [ ] **Apple touch icon + `manifest.webmanifest`.** Carried
+      forward from the SEO ship; still outstanding.
+- [ ] **OG image: load Instrument Serif as buffer.** Carried
+      forward; OG currently falls back to `ui-serif`.
+- [ ] **Lighthouse baseline.** Still no measured baseline.
+
+---
+
 ## 2026-05-13 — Editorial colophon (outro: dead-link footer → masthead)
 
 **Area:** Outro / trust surface. Replaces the previous footer

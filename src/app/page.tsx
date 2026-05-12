@@ -1,6 +1,7 @@
 import { Reveal } from "@/components/reveal";
 import { SplitText } from "@/components/split-text";
 import { Magnetic } from "@/components/magnetic";
+import { Tilt } from "@/components/tilt";
 import { Counter } from "@/components/counter";
 import { Marquee } from "@/components/marquee";
 import { Spotlight } from "@/components/spotlight";
@@ -240,11 +241,14 @@ export default function Home() {
                 </header>
 
                 <figure className="chapter-figure" data-cursor="link" data-cursor-label="Specimen">
-                  <div className="chapter-figure-frame">
+                  <Tilt className="chapter-figure-frame" max={6}>
+                    <span className="chapter-figure-light" aria-hidden />
                     <Visual />
-                  </div>
+                    <span className="chapter-figure-specular" aria-hidden />
+                  </Tilt>
                   <figcaption className="chapter-figure-cap">
-                    Plate · {chapter}
+                    <span>Plate · {chapter}</span>
+                    <span aria-hidden>{tags[0]}</span>
                   </figcaption>
                 </figure>
 

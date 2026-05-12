@@ -326,8 +326,8 @@ html.loading body {
   display: inline-block;
   transform: translateY(110%) rotate(8deg);
   opacity: 0;
-  transition: transform var(--dur-6) var(--ease-out-back),
-    opacity var(--dur-3) ease-out;
+  transition: transform var(--dur-5) var(--ease-out-back),
+    opacity var(--dur-2) ease-out;
   will-change: transform, opacity;
 }
 .split-active .split-char {
@@ -1100,10 +1100,15 @@ html.loading body {
   backdrop-filter: blur(6px);
 }
 
-/* Figure — plate with registration marks */
+/* Figure — plate with registration marks, studio light, and cursor-bound specular */
 .chapter-figure {
   position: relative;
   margin: 0;
+  transition: transform var(--dur-5) var(--ease-out-expo);
+  will-change: transform;
+}
+.chapter-figure:hover {
+  transform: translateY(-4px);
 }
 .chapter-figure-frame {
   position: relative;
@@ -1119,9 +1124,10 @@ html.loading body {
   overflow: hidden;
   display: grid;
   place-items: center;
-  transition: border-color var(--dur-3) var(--ease-out-expo),
-    transform var(--dur-5) var(--ease-out-expo);
-  will-change: transform;
+  transition: border-color var(--dur-3) var(--ease-out-expo);
+  /* Tilt component owns transform; isolate so blend-modes don't escape */
+  isolation: isolate;
+  transform: perspective(1000px);
 }
 .chapter-figure-frame::before,
 .chapter-figure-frame::after {
@@ -1132,6 +1138,7 @@ html.loading body {
   border: 1px solid rgba(255, 255, 255, 0.18);
   pointer-events: none;
   transition: border-color var(--dur-3) var(--ease-out-expo);
+  z-index: 3;
 }
 .chapter-figure-frame::before {
   top: 12px;
@@ -1147,12 +1154,53 @@ html.loading body {
 }
 .chapter-figure:hover .chapter-figure-frame {
   border-color: var(--color-line-2);
-  transform: translateY(-4px);
 }
 .chapter-figure:hover .chapter-figure-frame::before,
 .chapter-figure:hover .chapter-figure-frame::after {
   border-color: rgba(255, 255, 255, 0.35);
 }
+
+/* Studio light — always-on top highlight + floor contact, gives the plate depth
+   even when the cursor is elsewhere. Sits above the radial bg, below the SVG. */
+.chapter-figure-light {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(
+      80% 28% at 50% -2%,
+      rgba(255, 255, 255, 0.08),
+      transparent 70%
+    ),
+    radial-gradient(
+      55% 14% at 50% 100%,
+      rgba(0, 0, 0, 0.7),
+      transparent 70%
+    );
+}
+
+/* Specular sweep — cursor-bound radial highlight, screen-blended.
+   Driven by --mx/--my set on the Tilt root. Reveals on hover. */
+.chapter-figure-specular {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0;
+  mix-blend-mode: screen;
+  background: radial-gradient(
+    180px circle at var(--mx, 50%) var(--my, 50%),
+    rgba(255, 255, 255, 0.16),
+    rgba(255, 255, 255, 0.04) 35%,
+    transparent 60%
+  );
+  transition: opacity var(--dur-3) var(--ease-out-quart);
+}
+.chapter-figure-frame:hover .chapter-figure-specular {
+  opacity: 1;
+}
+
 .chapter-figure-cap {
   display: flex;
   justify-content: space-between;
@@ -1166,6 +1214,8 @@ html.loading body {
 
 /* SVG inside figure — kept class name for product visual components */
 .product-svg {
+  position: relative;
+  z-index: 1;
   width: 76%;
   height: auto;
   filter: drop-shadow(0 30px 30px rgba(0, 0, 0, 0.6));
@@ -1173,12 +1223,16 @@ html.loading body {
   will-change: transform;
 }
 .chapter-figure:hover .product-svg {
-  transform: scale(1.035) translateY(-2px);
+  transform: scale(1.025);
 }
 @media (prefers-reduced-motion: reduce) {
-  .chapter-figure:hover .chapter-figure-frame,
+  .chapter-figure,
+  .chapter-figure:hover,
   .chapter-figure:hover .product-svg {
     transform: none;
+  }
+  .chapter-figure-specular {
+    display: none;
   }
 }
 
