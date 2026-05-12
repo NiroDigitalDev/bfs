@@ -5,6 +5,209 @@ One entry per run. Newest first.
 
 ---
 
+## 2026-05-12 — Cart drawer (right-edge dialog, focus-trapped, editorial register)
+
+**Area:** Commerce close. Wires the previously-orphaned `bfs:cart-add`
+event into a right-edge dialog with real cart state, line items,
+quantity steppers, remove controls, subtotal, and a confirmation flow.
+The nav cart pill — until now an `<a href="#supplies">` that bounced
+back to the catalogue — now opens the drawer.
+
+**Why this was the highest-leverage target.**
+Prior runs landed the add-to-cart button on every chapter spread and a
+nav count that bumps on every add. But the loop terminated there:
+clicking the nav cart pill scrolled back to the catalogue, and there
+was no way to see, edit, or remove what you had "selected." The
+catalogue's commerce register read as half-built, and the
+[IMPROVEMENTS.md] follow-up at line 165 had flagged this as the
+top-of-list opportunity. A real drawer is also the single highest-
+impact distinctive interaction we can ship on a one-page site — it's
+a Sopranos-of-commerce moment that an Awwwards juror will use, not
+just see. No new dependencies, ~100 lines of state, ~120 lines of
+component, ~430 lines of CSS.
+
+Refs scouted from the design north star: Wally edge-anchored editorial
+drawers, Apple Vision shop bag composition (image · meta · stepper ·
+remove tri-rhythm), Carhartt WIP's mono caption row under display
+serif totals.
+
+**Changes.**
+
+- `src/lib/cart.ts` *(new, 147 lines)* — single source of truth for
+  cart state. Module-scope cache + `localStorage` persistence under
+  key `bfs:cart:v1`. Frozen `EMPTY` constant guarantees stable
+  `getSnapshot` references for `useSyncExternalStore` so React only
+  re-renders on real changes. Exports:
+  - `getCart(): readonly CartLine[]` — cached snapshot.
+  - `getServerSnapshot(): readonly CartLine[]` — SSR-safe constant.
+  - `add(productId, productTitle?)`, `setQuantity`, `remove`, `clear`
+    — mutators that read fresh from `localStorage`, mutate a new
+    array, then `commit()`. Quantity clamped 1–99.
+  - `subscribe(cb): () => void` — listens to a custom `bfs:cart-change`
+    event and the cross-tab `storage` event, invalidating the cache
+    on the latter.
+  - `open()` — fires the `bfs:cart-open` event the drawer listens for.
+  - `totalCount`, `subtotal` — pure helpers.
+  - Constants `CHANGE_EVT`, `OPEN_EVT`, `ADD_EVT` re-exported so
+    consumers don't string-duplicate event names.
+  - Runtime validators (`isProductId`, `isCartLine`) reject malformed
+    localStorage payloads silently — visitors who hand-edit storage
+    can't crash the drawer.
+- `src/components/cart-island.tsx` *(rewrite)* — drops the
+  hand-rolled event listener / synchronous `setState`-in-effect
+  pattern that prior lint rules flagged. Now uses
+  `useSyncExternalStore(cart.subscribe, cart.getCart, cart.getServerSnapshot)`
+  end-to-end, with the count derived from `cart.totalCount(lines)`.
+  Bump animation still fires per add by subscribing to `cart.ADD_EVT`
+  in its own effect, so removals and quantity decrements do not
+  trigger the bump. Adds new `NavCart` client wrapper that replaces
+  the prior `<a>` element with a `<button aria-haspopup="dialog">`
+  that calls `cart.open()`.
+- `src/components/cart-drawer.tsx` *(new, ~280 lines)* — the drawer
+  itself. Renders unconditionally so SSR ships with `data-open="false"`
+  and `aria-hidden="true"`; opens via the `bfs:cart-open` event.
+  Reads cart state through `useSyncExternalStore`. While open:
+  - locks `body { overflow: hidden }`,
+  - moves focus into the close button after 80ms,
+  - traps Tab/Shift+Tab inside the panel,
+  - closes on Escape, scrim click, or × button,
+  - restores focus to the trigger that opened it.
+  Renders the six SVG visuals from `product-visuals.tsx` inside
+  miniature plate frames (registration corner brackets, radial-stage
+  background) at 88×110px desktop / 72×90px mobile. Each line is a
+  three-area grid: figure · meta · controls. Controls row: serif
+  italic price, pill stepper (− 02 +), small "Remove" link with an
+  animated underline. Footer: serif italic subtotal display, mono
+  "Freight · tax at the threshold" caption, white-outline pill CTA
+  ("Cross the threshold ↗") that fills from below on hover and
+  swaps to a "Sealed ✓" confirmation for 1.6s after click, then
+  clears the cart and closes. Below the CTA, a fineprint disclaimer
+  honest about the fact no money is moving. Empty state is its own
+  composition: oversized outline-serif "00" numeral, italic-serif
+  "Nothing held yet.", muted prose, and a ghost-outline CTA back
+  to `#supplies`.
+- `src/app/page.tsx` — nav cart anchor replaced with
+  `<Magnetic><NavCart>…</NavCart></Magnetic>`. Same children
+  (`Cart`, dot, `<CartCount />`), same magnetic hover behavior, same
+  pill shape. The `aria-label` updated from "Cart — view catalogue"
+  to "Open cart" since the action changed.
+- `src/app/layout.tsx` — `<CartDrawer />` mounted once at body
+  level so it overlays every section, sibling to `<Cursor />` and
+  `<ScrollProgress />`.
+- `src/app/globals.css` — adds the `cart-drawer-*` and `cart-line*`
+  and `cart-empty*` rule families (~430 lines). Key motion:
+  - Scrim: `opacity 0 → 1` fade over `--dur-3 var(--ease-out-expo)`
+    plus `backdrop-filter: blur(8px) saturate(110%)`.
+  - Panel: `translateX(104% → 0)` slide over `--dur-4 var(--ease-out-expo)`,
+    with `-32px 0 64px -16px` shadow once visible.
+  - Lines: stagger-in via `@keyframes cart-line-in` (translate-X 20px
+    + opacity) with `--cart-line-delay` set inline per index
+    (80ms + 60ms · i).
+  - Close glyph: 90° rotate on hover.
+  - CTA: bottom-up filling slab via `::before transform: translateY(101% → 0)`,
+    label cross-fade default → confirm, glyph cross-fade arrow → check.
+  - Count bump: existing `nav-cta-count` keyframe still fires; now
+    triggered only by `bfs:cart-add` (not by removes).
+  - All motion gated under `prefers-reduced-motion: reduce` —
+    transitions set to none and `cart-line-in` is disabled.
+- Mobile breakpoint `(max-width: 560px)`: panel goes full-width,
+  figure shrinks to 72×90, controls grid restructures so price ·
+  stepper share row 1 and remove drops to a full-width row 2.
+
+**What this delivers in product terms.**
+
+- **Closes the commerce loop.** Visitors can finally see what they
+  added, change quantities, remove items, and read a real subtotal.
+  Before this run, the nav count was the only confirmation an add had
+  happened, and there was no exit other than refreshing the page.
+- **Persistence across reloads + tabs.** `bfs:cart:v1` in
+  localStorage; cross-tab sync via the native `storage` event with
+  cache invalidation. Hand-edited or corrupt payloads are rejected
+  silently.
+- **Editorial register at every zoom level.** Serif-italic display
+  numerals for the empty state and subtotal; mono uppercase 11px /
+  0.3em eyebrow rows; registration-mark frames around each item
+  visual; rule lines from `--color-line` between line items. No
+  generic "Shopping bag" drawer aesthetic.
+- **Real focus management.** Body scroll lock, Escape close,
+  focus trap, focus return. `role="dialog"`, `aria-modal="true"`,
+  `aria-labelledby` and `aria-describedby` both wired. The scrim is
+  a `<button aria-label="Close cart">` so keyboard users get the
+  same close affordance pointer users do.
+- **No flash of unstyled content.** SSR ships drawer at
+  `data-open="false"` with `aria-hidden="true"`. The hydrated state
+  reads from localStorage on first paint, so a returning visitor's
+  count appears without a 0→N jump.
+
+**Verification.**
+
+- `bun run lint` — clean (after refactoring `CartCount` and
+  `CartDrawer` to `useSyncExternalStore` to satisfy
+  `react-hooks/set-state-in-effect`).
+- `bunx tsc --noEmit` — clean.
+- `bun run build` — clean. Same 7 prerendered static routes (`/`,
+  `/_not-found`, `/opengraph-image`, `/robots.txt`, `/sitemap.xml`,
+  plus internal Next.js artefacts).
+- Live HTML inspection on `bun run start`:
+  - `<button class="nav-cta" aria-haspopup="dialog">` renders inside
+    `.magnetic` wrapper as expected.
+  - Drawer root emits `class="cart-drawer-root" data-open="false" aria-hidden="true"`
+    on first paint (SSR-safe).
+  - All `cart-drawer-*` and `cart-line*` classes resolve in markup.
+  - Empty-state composition renders by default.
+
+**Expected impact.**
+
+- **UX.** First time the catalogue feels like a catalogue rather than
+  a list. The "Add to cart" CTAs on each chapter now have somewhere
+  to land. Quantity edits and removes are direct, not modal-stacked.
+- **Awwwards bar.** A distinctive drawer interaction — figure plates
+  with registration marks, serif italic subtotal, motion sequence
+  staggered per line — is exactly the kind of vignette judges
+  screenshot. The empty state is content, not absence.
+- **No SEO regression.** No content visible to crawlers changes
+  unless the drawer is open (and crawlers don't open it). No layout
+  shift, no LCP impact (drawer is `position: fixed` and
+  `pointer-events: none` until opened). Bundle delta is ~3KB
+  gzipped of new client JS.
+
+**Files modified.**
+
+- `src/lib/cart.ts` *(new)*
+- `src/components/cart-island.tsx` *(rewrite)*
+- `src/components/cart-drawer.tsx` *(new)*
+- `src/app/page.tsx`
+- `src/app/layout.tsx`
+- `src/app/globals.css`
+
+**Follow-ups uncovered (TODO for future runs).**
+
+- [ ] **No actual payment route.** "Cross the threshold" clears the
+      cart after 1.6s. For a real commerce site, this is where Stripe
+      Checkout or a `/checkout` route would hook in. Current copy
+      ("A formality. No payment routed in this volume.") owns the
+      gap honestly — but the gap is still there.
+- [ ] **Drawer doesn't auto-open on add.** Felt too aggressive in
+      design review. Some commerce sites (Glossier, Aesop) flash the
+      drawer briefly on add as a "see what you did" prompt and let
+      it auto-close after 2s. Could add a per-session opt-in or
+      `data-flash-on-add` mode.
+- [ ] **No keyboard shortcut to open cart.** `c` or `g c` (a la
+      Linear) would be on-brand for the editorial register.
+- [ ] **Numeral chapter content overlap** — open since the
+      catalogue-spread run. On 900–1100px desktop widths, the
+      chapter numeral can land over the title.
+- [ ] **Outro footer dead links + missing contact surface** —
+      still open since the SEO run.
+- [ ] **`apple-touch-icon` + `manifest.webmanifest`** — still open.
+- [ ] **`Instrument_Serif` not used by OG image** — still falls
+      back to `ui-serif`.
+- [ ] **Lighthouse baseline** — never measured.
+- [ ] **Outro disclosure copy** still says "back button is in the
+      upper-left of this window" — wrong on Windows and mobile.
+
+---
+
 ## 2026-05-12 — Editorial chapter spreads + working cart island
 
 **Area:** Catalogue/Supplies section — replaces the prior 3-column product

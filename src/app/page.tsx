@@ -6,7 +6,7 @@ import { Marquee } from "@/components/marquee";
 import { Spotlight } from "@/components/spotlight";
 import { FaqItem } from "@/components/faq-item";
 import { Newsletter } from "@/components/newsletter";
-import { CartCount, AddToCart } from "@/components/cart-island";
+import { CartCount, AddToCart, NavCart } from "@/components/cart-island";
 import {
   NotebookVisual,
   CardstockVisual,
@@ -56,11 +56,11 @@ export default function Home() {
           </a>
         </div>
         <Magnetic strength={0.25}>
-          <a href="#supplies" className="nav-cta" data-cursor="link" aria-label="Cart — view catalogue">
+          <NavCart>
             <span>Cart</span>
             <span className="nav-cta-dot" />
             <CartCount />
-          </a>
+          </NavCart>
         </Magnetic>
       </nav>
 

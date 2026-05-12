@@ -5,6 +5,7 @@ import { Cursor } from "@/components/cursor";
 import { Loader } from "@/components/loader";
 import { ScrollProgress } from "@/components/scroll-progress";
 import { ParallaxRoot } from "@/components/parallax-root";
+import { CartDrawer } from "@/components/cart-drawer";
 import { site, siteUrl } from "@/lib/site";
 import { products } from "@/data/products";
 import { faqs } from "@/data/faqs";
@@ -157,6 +158,7 @@ export default function RootLayout({
         <ParallaxRoot />
         <Cursor />
         {children}
+        <CartDrawer />
         <Analytics />
         <script
           type="application/ld+json"

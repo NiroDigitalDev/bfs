@@ -1,35 +1,33 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 
-const EVT = "bfs:cart-add";
+import * as cart from "@/lib/cart";
+import type { ProductId } from "@/data/products";
 
-type AddDetail = { productId: string; productTitle: string };
+function useCartLines() {
+  return useSyncExternalStore(
+    cart.subscribe,
+    cart.getCart,
+    cart.getServerSnapshot
+  );
+}
 
 export function CartCount() {
-  const [count, setCount] = useState(0);
+  const lines = useCartLines();
+  const count = cart.totalCount(lines);
   const [bump, setBump] = useState(0);
-  const ref = useRef<HTMLSpanElement | null>(null);
 
   useEffect(() => {
-    const onAdd = (e: Event) => {
-      const detail = (e as CustomEvent<AddDetail>).detail;
-      if (!detail) return;
-      setCount((c) => c + 1);
-      setBump((b) => b + 1);
-      if (ref.current) {
-        ref.current.setAttribute("data-just-added", detail.productId);
-      }
-    };
-    window.addEventListener(EVT, onAdd as EventListener);
-    return () => window.removeEventListener(EVT, onAdd as EventListener);
+    const onAdd = () => setBump((b) => b + 1);
+    window.addEventListener(cart.ADD_EVT, onAdd);
+    return () => window.removeEventListener(cart.ADD_EVT, onAdd);
   }, []);
 
   const padded = String(count).padStart(2, "0");
 
   return (
     <span
-      ref={ref}
       className="nav-cta-count"
       data-bump={bump}
       aria-live="polite"
@@ -44,18 +42,14 @@ export function AddToCart({
   productId,
   productTitle,
 }: {
-  productId: string;
+  productId: ProductId;
   productTitle: string;
 }) {
   const [added, setAdded] = useState(false);
   const timer = useRef<number | null>(null);
 
   const onClick = () => {
-    window.dispatchEvent(
-      new CustomEvent<AddDetail>(EVT, {
-        detail: { productId, productTitle },
-      })
-    );
+    cart.add(productId, productTitle);
     setAdded(true);
     if (timer.current) window.clearTimeout(timer.current);
     timer.current = window.setTimeout(() => setAdded(false), 1800);
@@ -81,6 +75,22 @@ export function AddToCart({
         <span className="chapter-cta-glyph-arrow">↗</span>
         <span className="chapter-cta-glyph-check">✓</span>
       </span>
+    </button>
+  );
+}
+
+export function NavCart({ children }: { children: React.ReactNode }) {
+  return (
+    <button
+      type="button"
+      onClick={() => cart.open()}
+      className="nav-cta"
+      data-cursor="link"
+      data-cursor-label="Manifest"
+      aria-label="Open cart"
+      aria-haspopup="dialog"
+    >
+      {children}
     </button>
   );
 }
