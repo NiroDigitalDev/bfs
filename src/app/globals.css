@@ -2621,3 +2621,124 @@ html.loading body {
     opacity: 0.6;
   }
 }
+
+/* ============ CHAPTER RAIL ============ */
+.chapter-rail {
+  position: fixed;
+  top: 50%;
+  right: 18px;
+  transform: translateY(-50%);
+  z-index: 90;
+  display: none;
+  pointer-events: none;
+  mix-blend-mode: difference;
+}
+
+@media (min-width: 900px) {
+  .chapter-rail {
+    display: block;
+  }
+}
+
+.chapter-rail-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-auto-flow: row;
+  gap: 18px;
+  pointer-events: auto;
+}
+
+.chapter-rail-item {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.chapter-rail-link {
+  display: inline-grid;
+  grid-template-columns: auto auto auto;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 4px 6px 18px;
+  color: rgba(255, 255, 255, 0.42);
+  text-decoration: none;
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  transition: color var(--dur-2) var(--ease-out-expo);
+  outline-offset: 6px;
+}
+
+.chapter-rail-link:hover,
+.chapter-rail-link:focus-visible {
+  color: #fff;
+}
+
+.chapter-rail-link[aria-current="true"] {
+  color: #fff;
+}
+
+.chapter-rail-label {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  transform: translateX(6px);
+  opacity: 0;
+  transition: opacity var(--dur-2) var(--ease-out-expo),
+    transform var(--dur-3) var(--ease-out-expo);
+  white-space: nowrap;
+  order: -1;
+}
+
+.chapter-rail-link:hover .chapter-rail-label,
+.chapter-rail-link:focus-visible .chapter-rail-label,
+.chapter-rail-link[aria-current="true"] .chapter-rail-label {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.chapter-rail-rule {
+  display: inline-block;
+  width: 14px;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.55;
+  transition: width var(--dur-3) var(--ease-out-expo),
+    opacity var(--dur-2) var(--ease-out-expo);
+}
+
+.chapter-rail-link:hover .chapter-rail-rule,
+.chapter-rail-link[aria-current="true"] .chapter-rail-rule {
+  width: 26px;
+  opacity: 1;
+}
+
+.chapter-rail-numeral {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 16px;
+  letter-spacing: 0;
+  text-transform: none;
+  min-width: 1.4ch;
+  text-align: right;
+  line-height: 1;
+  transform: translateY(-1px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chapter-rail-label,
+  .chapter-rail-rule {
+    transition: none;
+  }
+  .chapter-rail-label {
+    transform: none;
+  }
+}
+

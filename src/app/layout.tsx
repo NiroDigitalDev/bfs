@@ -4,6 +4,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { Cursor } from "@/components/cursor";
 import { Loader } from "@/components/loader";
 import { ScrollProgress } from "@/components/scroll-progress";
+import { ChapterRail } from "@/components/chapter-rail";
 import { ParallaxRoot } from "@/components/parallax-root";
 import { CartDrawer } from "@/components/cart-drawer";
 import { site, siteUrl } from "@/lib/site";
@@ -158,6 +159,7 @@ export default function RootLayout({
         <ParallaxRoot />
         <Cursor />
         {children}
+        <ChapterRail />
         <CartDrawer />
         <Analytics />
         <script

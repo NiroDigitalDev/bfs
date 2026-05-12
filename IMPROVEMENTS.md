@@ -5,6 +5,137 @@ One entry per run. Newest first.
 
 ---
 
+## 2026-05-13 — Chapter rail (sticky right-edge index, IntersectionObserver-tracked)
+
+**Area:** Wayfinding & editorial signature. Adds a thin fixed rail at
+the right edge with five Roman-numeral marks (I–V) mapped to the five
+anchorable sections — `#top`, `#supplies`, `#manifesto`, `#cult`,
+`#faq`. Each mark is a hairline rule plus an italic numeral; the
+active section is tracked via `IntersectionObserver` and reveals a
+serif label ("Atelier / Catalogue / Position / Cult / Notes") that
+slides in from the right. Hover and focus reveal the same label.
+Click-jumps use existing `html.scroll-smooth`. The rail uses
+`mix-blend-mode: difference` so it stays legible across the dark
+catalogue and the inverted stat-band white spread.
+
+**Why this was the highest-leverage target.**
+Phase-1 audits surfaced three Awwwards-tier candidates: (a) refresh
+the six SVG product visuals (multi-run "big bet"), (b) add a sticky
+chapter index rail (single-run, distinctive editorial signature),
+(c) add a film-grain overlay (already present via `.grain`). The
+reference-scout synthesis flagged the chapter rail as the missing
+*material* layer — it's the move that takes the site from "animated
+dark page" to "limited-edition object you're flipping through." It
+also closes a real navigation gap: the only way to reach `#manifesto`
+or `#faq` from anywhere mid-page was to scroll. The rail is also
+the kind of detail-at-every-zoom signature an Awwwards juror notices
+without being told to.
+
+Refs scouted: Cup of Couple, Family New (chapter-numbered editorial),
+Studio Dumbar (typographic stamp / seal), Aesop (column-rule
+discipline). The rail leans into the existing CH. 02 / CH. 03 chapter
+register already used in section eyebrows.
+
+**What changed.**
+
+- `src/components/chapter-rail.tsx` *(new, 86 lines)* — Client
+  component. Five hard-coded chapters resolved at mount via
+  `document.getElementById`. An `IntersectionObserver` with
+  `rootMargin: "-30% 0px -50% 0px"` and a multi-step threshold ladder
+  tracks intersection ratios; the section with the highest ratio
+  becomes active. Renders a `<nav aria-label="Chapter index">` with an
+  ordered list of anchor links carrying `aria-current="true"` on the
+  active item. Each link declares `data-cursor="link"` and
+  `data-cursor-label` so the existing custom cursor reads the section
+  name on hover.
+- `src/app/layout.tsx` — Imports and mounts `<ChapterRail />` inside
+  `<body>`, after `{children}` and before `<CartDrawer />`.
+- `src/app/globals.css` — Appended `.chapter-rail` block (~115 lines)
+  with hairline rule, italic Instrument-Serif numeral, italic serif
+  label that reveals on hover/focus/active. Hidden below 900px;
+  `mix-blend-mode: difference` so it survives the white stat-band
+  inversion. `prefers-reduced-motion: reduce` strips the slide-in
+  transform and width-expansion transition.
+- `src/components/scroll-progress.tsx` — Defensive a11y fix from the
+  audit: the scroll-progress bar now early-returns under
+  `prefers-reduced-motion: reduce` instead of attaching the scroll
+  listener. Bundled because both touch the same scroll/navigation
+  layer.
+
+**Verification.**
+
+- `bun run lint` — clean.
+- `bunx tsc --noEmit` — clean.
+- `bun run build` — clean. Five routes prerendered statically.
+- Reduced-motion gating: visually inspected CSS rules; transitions
+  removed for `.chapter-rail-label` and `.chapter-rail-rule`.
+- Keyboard nav: anchor links are real `<a href="#…">`, naturally
+  tabbable; focus-visible reveals the label via the same selector
+  as hover.
+
+**Expected impact.**
+
+- Distinctive editorial signature visible on every scroll position
+  at ≥900px — a small "I/II/III/IV/V" mark with a hairline rule is a
+  tell-tale of award-tier editorial work (Cup of Couple, Family New,
+  Studio Dumbar).
+- Real wayfinding: mid-page users can now jump to manifesto, cult,
+  or FAQ without scroll-hunting. Reduces the page's "endless scroll"
+  feel.
+- A11y: ScrollProgress no longer animates under reduced-motion;
+  ChapterRail respects the same preference.
+- Performance: zero new dependencies, ~86-line client component,
+  single `IntersectionObserver`. No scroll listeners. No CLS — the
+  rail is fixed-positioned and doesn't reflow content.
+
+**Files modified.**
+
+- `src/components/chapter-rail.tsx` *(new)*
+- `src/app/layout.tsx`
+- `src/app/globals.css`
+- `src/components/scroll-progress.tsx`
+
+**Follow-ups uncovered (TODO for future runs).**
+
+- [ ] **Product SVG visuals refresh.** Audit #1 highest-priority. Six
+      flat label-heavy SVGs in `src/components/product-visuals.tsx`
+      undermine the typographic ambition everywhere else. Big bet:
+      dimensional illustrations or 3D-rendered objects with cast
+      shadows. Single biggest visual win remaining.
+- [ ] **Oversized section display type.** Audit #6. Section titles
+      cap at 144px; Awwwards work breaks grid with 200px+ display
+      faces and asymmetric scale. Push `.section-title` ceiling and
+      introduce a second display size for "moment" titles.
+- [ ] **Scroll-velocity-driven type weight.** Reference-scout flag.
+      Body text leans/thickens under fast scroll, settles when still.
+      Implement with a `useVelocity` hook or a CSS scroll-driven
+      animation when supported.
+- [ ] **Manifesto sticky title typography break.** Audit #9. The
+      sticky manifesto h2 recycles the standard `.section-title`
+      treatment; it should break rhythm with an oversized display
+      face to signal the structural shift.
+- [ ] **FAQ accordion motion.** Audit #8. Items expand with no
+      easing on the answer block, no line-height shift on open. Add
+      Motion or CSS `interpolate-size: allow-keywords` for the
+      height transition.
+- [ ] **Marquee reverse-pass legibility.** Audit #2. Reverse marquee
+      stroke at 8% opacity is jarring against 92% solid forward
+      text. Unify directional emphasis strategy.
+- [ ] **Spotlight mobile fallback.** Audit #5. Hero spotlight is
+      desktop-pointer-only; touch users see a static gradient void.
+      Tap-to-reveal or scroll-linked alternative.
+- [ ] **Skip-to-content link.** A11y audit #1. Add
+      `<a href="#main">Skip to content</a>` before the loader, plus
+      `id="main"` on the page wrapper.
+- [ ] **Cart drawer Escape `preventDefault`.** A11y audit #4.
+      Defensive `e.preventDefault()` in the Escape handler.
+- [ ] **Apple touch icon + web manifest.** Carried forward.
+- [ ] **Outro disclaimer mobile copy bug.** Carried forward —
+      mentions "back button in the upper-left of this window."
+- [ ] **Lighthouse baseline.** Carried forward.
+
+---
+
 ## 2026-05-12 — Cart drawer (right-edge dialog, focus-trapped, editorial register)
 
 **Area:** Commerce close. Wires the previously-orphaned `bfs:cart-add`
