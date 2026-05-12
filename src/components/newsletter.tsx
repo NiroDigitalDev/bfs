@@ -22,15 +22,15 @@ export function Newsletter() {
         required
         placeholder={
           submitted
-            ? "you'll receive nothing. as promised."
-            : "your@email — get nothing in return"
+            ? "Received. Dispatch is rare and worth the wait."
+            : "Address. Sent rarely. Mostly never."
         }
         autoComplete="email"
         data-cursor="text"
         disabled={submitted}
       />
-      <button type="submit" data-cursor="link" data-cursor-label="Join">
-        {submitted ? "Joined" : "Join the Void"}
+      <button type="submit" data-cursor="link" data-cursor-label="Enter">
+        {submitted ? "On file" : "Submit"}
       </button>
     </form>
   );

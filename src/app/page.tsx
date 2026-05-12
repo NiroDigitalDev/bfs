@@ -20,68 +20,68 @@ const products = [
   {
     chapter: "001",
     title: "The Void Book",
-    subtitle: "A5",
+    subtitle: "A5 · Unlined",
     price: "$34",
-    spec: "120GSM · LAY-FLAT BINDING",
+    spec: "120 GSM · LAY-FLAT · 192 PP",
     copy:
-      "200 pages of pure, light-absorbing black. Bound in matte faux-leather. Unlined, because rules are for white paper.",
+      "Hardbound A5. One hundred and ninety-two pages of matte coated black, calibrated to refuse reflectance. Unlined, unmargined, unsentimental.",
     Visual: NotebookVisual,
-    tags: ["best-seller", "ships in 48h"],
+    tags: ["core series", "48h dispatch"],
   },
   {
     chapter: "002",
     title: "Abyssal Cardstock",
-    subtitle: "A4",
+    subtitle: "A4 · Dyed Through",
     price: "$45",
-    spec: "500GSM · PRINTER-HOSTILE",
+    spec: "500 GSM · 50 SHEETS",
     copy:
-      "50 sheets of aggressively thick black card. Guaranteed to jam standard office printers and intimidate clients.",
+      "Fifty sheets, dyed through the core. Heavy enough to register as material. Feed it by hand or feed it to the laser. Either is permitted.",
     Visual: CardstockVisual,
-    tags: ["heavy"],
+    tags: ["heavy stock"],
   },
   {
     chapter: "003",
     title: "Event Horizon Pad",
-    subtitle: "Coil",
+    subtitle: "Top-Bound",
     price: "$28",
-    spec: "160GSM · TOOTH-HEAVY",
+    spec: "160 GSM · 40 LEAVES",
     copy:
-      "Top-wire bound sketchpad. Tooth-heavy texture perfect for pastels, white charcoal, and existential dread.",
+      "Top-bound forty-leaf pad with a tooth ground for pastel, charcoal, and gouache. Twin-loop wire. Quietly demanding of the hand holding it.",
     Visual: SketchpadVisual,
-    tags: ["new"],
+    tags: ["studio"],
   },
   {
     chapter: "004",
     title: "Sticky Voids",
-    subtitle: "3-Pack",
+    subtitle: "Triptych",
     price: "$15",
-    spec: "3×3 IN · HIGH TACK",
+    spec: "3 × 3 IN · 3 × 100",
     copy:
-      "Leave passive-aggressive notes that your roommates can barely read. Three pads of 100 sheets.",
+      "Three pads, one hundred leaves each, three inches square. High-tack adhesive, low-residue release. Instruction for those who already understood.",
     Visual: StickyVisual,
-    tags: ["gift"],
+    tags: ["low-volume"],
   },
   {
     chapter: "005",
     title: "The Savior Pen",
-    subtitle: "0.5mm",
+    subtitle: "Rollerball",
     price: "$12",
-    spec: "SILVER GEL · OPAQUE",
+    spec: "0.5 MM · SILVER PIGMENT",
     copy:
-      "Opaque, liquid silver gel ink. Because standard blue ink on our paper makes you look foolish.",
+      "A 0.5 mm rollerball loaded with opaque silver-pigment gel. Acid-free, archival, calibrated for our paper and tolerant of yours.",
     Visual: PenVisual,
-    tags: ["pairs well"],
+    tags: ["pairs with 001"],
   },
   {
     chapter: "006",
     title: "Executive Despair",
-    subtitle: "Planner",
+    subtitle: "Annual",
     price: "$42",
-    spec: "UNDATED · SILK RIBBON",
+    spec: "UNDATED · 52 SPREADS",
     copy:
-      "An undated weekly planner printed with 90% black ink on 100% black paper. For scheduling crises.",
+      "Undated weekly. Fifty-two spreads deboss-struck at ninety percent K on one hundred gsm black. Bordeaux foil along the spine. Plans persist on faith.",
     Visual: PlannerVisual,
-    tags: ["unhinged"],
+    tags: ["limited"],
   },
 ];
 
@@ -95,20 +95,20 @@ export default function Home() {
             ■
           </span>
           <span>Blacks For Sale</span>
-          <span className="nav-logo-sub">© MMXXVI</span>
+          <span className="nav-logo-sub">Vol. III · MMXXVI</span>
         </a>
         <div className="nav-links">
           <a href="#supplies" data-cursor="link">
-            <span className="nav-num">01</span> Supplies
+            <span className="nav-num">01</span> Catalogue
           </a>
           <a href="#manifesto" data-cursor="link">
-            <span className="nav-num">02</span> Manifesto
+            <span className="nav-num">02</span> Position
           </a>
           <a href="#cult" data-cursor="link">
-            <span className="nav-num">03</span> The Cult
+            <span className="nav-num">03</span> Field Notes
           </a>
           <a href="#faq" data-cursor="link">
-            <span className="nav-num">04</span> FAQ
+            <span className="nav-num">04</span> On Record
           </a>
         </div>
         <Magnetic strength={0.25}>
@@ -127,9 +127,9 @@ export default function Home() {
           <div className="hero-meta">
             <span className="hero-meta-row">
               <span className="hero-meta-dot" />
-              Live · Now Shipping the Void
+              In production · 48-hour dispatch
             </span>
-            <span className="hero-meta-row right">N 0°0′0″ — W 0°0′0″</span>
+            <span className="hero-meta-row right">Lat 0° 0′ N · Lon 0° 0′ W</span>
           </div>
 
           <h1 className="hero-title">
@@ -155,16 +155,17 @@ export default function Home() {
           <div className="hero-bottom">
             <Reveal delay="0.4s" className="hero-lede">
               <p>
-                You wanted a white canvas? Wrong website. We sell pitch-black
-                paper, obsidian notebooks, and the absolute absence of legible
-                margins.
+                Stationery, made in the absence of light. Paper coated to refuse
+                ninety-nine percent of what hits it; ink chosen to argue back.
+                For people who think a notebook should hold the dark, not break
+                it.
               </p>
             </Reveal>
 
             <Reveal delay="0.5s" className="hero-ctas">
               <Magnetic strength={0.25}>
-                <a href="#supplies" className="btn-primary" data-cursor="link" data-cursor-label="Shop">
-                  <span>Shop the Void</span>
+                <a href="#supplies" className="btn-primary" data-cursor="link" data-cursor-label="Enter">
+                  <span>Enter the catalogue</span>
                   <span className="btn-arrow" aria-hidden>
                     ↗
                   </span>
@@ -172,7 +173,7 @@ export default function Home() {
               </Magnetic>
               <Magnetic strength={0.2}>
                 <a href="#manifesto" className="btn-ghost" data-cursor="link">
-                  Read the Manifesto
+                  Read the position
                 </a>
               </Magnetic>
             </Reveal>
@@ -180,22 +181,22 @@ export default function Home() {
             <Reveal delay="0.6s" className="hero-stats">
               <div>
                 <Counter to={47283} locale className="stat-num" />
-                <span className="stat-label">Voids sold</span>
+                <span className="stat-label">Volumes in circulation</span>
               </div>
               <div>
                 <Counter to={99.9} decimals={1} suffix="%" className="stat-num" />
-                <span className="stat-label">Light absorbed</span>
+                <span className="stat-label">Light absorbed at 550 nm</span>
               </div>
               <div>
                 <Counter to={42} suffix="+" className="stat-num" />
-                <span className="stat-label">Countries shipped</span>
+                <span className="stat-label">Borders crossed</span>
               </div>
             </Reveal>
           </div>
 
           <a href="#supplies" className="hero-scroll" data-cursor="link">
             <span className="hero-scroll-line" />
-            <span>Scroll</span>
+            <span>Descend</span>
           </a>
         </div>
       </header>
@@ -205,12 +206,12 @@ export default function Home() {
         <Marquee
           speed={45}
           items={[
-            "Black Paper",
-            "No White Space",
-            "Obsidian Notebooks",
-            "500GSM Void",
-            "Pretentious Stationery",
-            "Aesthetic Conviction",
+            "Pigment over palette",
+            "Made in the dark",
+            "No legible margins",
+            "500 GSM standard",
+            "An exercise in subtraction",
+            "Single tone, by design",
           ]}
         />
         <Marquee
@@ -218,11 +219,11 @@ export default function Home() {
           speed={60}
           sep="—"
           items={[
-            "EST. The Year Color Died",
-            "Made in the Dark",
-            "Returns Accepted If You Cry",
-            "Shipped in Black Boxes",
-            "Pen World said no",
+            "Numbered in series of one",
+            "Lat 0° · Lon 0°",
+            "Shipped in 48 hours",
+            "Returns accepted, regret negotiable",
+            "Pen World still declines",
           ]}
         />
       </section>
@@ -230,7 +231,7 @@ export default function Home() {
       {/* Supplies */}
       <section id="supplies" className="section">
         <div className="section-head">
-          <span className="section-tag">CH. 01 / Supplies</span>
+          <span className="section-tag">CH. 01 / Catalogue</span>
           <SplitText
             as="h2"
             text="Stationery non grata."
@@ -238,8 +239,8 @@ export default function Home() {
             stagger={0.03}
           />
           <p className="section-lede">
-            Curated emptiness for the discerning creative. Normal pens will not
-            save you here.
+            Six objects, each engineered around a single hue. Made in small
+            runs. Stocked when stocked.
           </p>
         </div>
 
@@ -287,22 +288,22 @@ export default function Home() {
         <div className="stat-band-row">
           <div>
             <Counter to={100} suffix="%" className="stat-band-num" />
-            <span className="stat-band-label">Black</span>
+            <span className="stat-band-label">K, by mass</span>
           </div>
           <div className="stat-band-line" />
           <div>
             <Counter to={0} className="stat-band-num" />
-            <span className="stat-band-label">White Margins</span>
+            <span className="stat-band-label">White margins issued</span>
           </div>
           <div className="stat-band-line" />
           <div>
             <Counter to={1} suffix="/1" className="stat-band-num" />
-            <span className="stat-band-label">Color in Stock</span>
+            <span className="stat-band-label">Hue in stock</span>
           </div>
           <div className="stat-band-line" />
           <div>
             <Counter to={4.9} decimals={1} suffix="★" className="stat-band-num" />
-            <span className="stat-band-label">From the Cult</span>
+            <span className="stat-band-label">From the chromatically committed</span>
           </div>
         </div>
       </section>
@@ -310,15 +311,16 @@ export default function Home() {
       {/* Survival Guide */}
       <section className="section">
         <div className="section-head">
-          <span className="section-tag">CH. 02 / Survival Guide</span>
+          <span className="section-tag">CH. 02 / Care & Method</span>
           <SplitText
             as="h2"
-            text="You bought it. Now what."
+            text="On the use of dark paper."
             className="section-title"
             stagger={0.03}
           />
           <p className="section-lede">
-            Here&apos;s how to not waste your extremely specific purchase.
+            Three notes for the page in front of you. None of them are
+            optional, all of them are obvious.
           </p>
         </div>
 
@@ -326,18 +328,18 @@ export default function Home() {
           {[
             {
               n: "01",
-              h: "Abandon Normal Ink",
-              p: "Your trusty Bic will betray you here. You need opaque ink: silver gel, gold metallic, or white correction-pen energy. Think of it as upgrading from tap water to champagne, except it's a pen.",
+              h: "Refuse standard ink",
+              p: "Dye-based ballpoint dries pale and arrives invisible on coated stock. Use opaque pigment instead — silver gel, white pigment, gold metallic. Ink, here, is a setting; choose it.",
             },
             {
               n: "02",
-              h: "Let the Paper Dry",
-              p: "Gel ink on dark paper takes 4–6 seconds longer to dry than you're used to. Impatient people will smudge everything and blame us. We accept no liability for your lack of impulse control.",
+              h: "Let the page rest",
+              p: "Pigment sits on the surface six to twelve seconds before it bonds. Close a notebook too early and the facing leaf will hold the message for you, less legibly.",
             },
             {
               n: "03",
-              h: "Accept the Stares",
-              p: "People will look at you differently. Your barista will comment. Your coworkers will have questions. You will have no good answers. This is the price of aesthetic conviction.",
+              h: "Anticipate the attention",
+              p: "A black book on the table reads as decision before it is opened. You will be asked. You owe no answer beyond preference. This is the cost of working in a single tone.",
             },
           ].map(({ n, h, p }, i) => (
             <Reveal key={n} delay={`${i * 0.12}s`}>
@@ -356,35 +358,35 @@ export default function Home() {
       <section id="manifesto" className="manifesto">
         <div className="manifesto-inner">
           <aside className="manifesto-sticky">
-            <span className="section-tag">CH. 03 / Manifesto</span>
+            <span className="section-tag">CH. 03 / Position</span>
             <SplitText
               as="h2"
-              text="The Void Manifesto."
+              text="Notes on a darker practice."
               className="section-title white"
               stagger={0.03}
             />
             <p className="manifesto-credo">
-              We are a stationery brand only in the most technical sense.
-              <em> Mostly we are a position.</em>
+              On most days, we are a stationery brand.
+              <em> On the others, a position on colour.</em>
             </p>
           </aside>
           <ol className="manifesto-list">
             {[
               {
-                t: "Anti-Legibility",
-                d: "Keep your secrets entirely safe. If you accidentally write in a standard ballpoint pen, literally nobody will be able to read it. Not even you.",
+                t: "On privacy as default",
+                d: "A notebook nobody can read incidentally is a notebook you can actually use. The medium enforces what every diary asks for and few honour: room.",
               },
               {
-                t: "Aesthetic Dominance",
-                d: "Pull out a solid black notebook in your next corporate meeting. Watch the color drain from the faces of your colleagues who brought yellow legal pads.",
+                t: "On tone as position",
+                d: "A black book on the table is a sentence before a word is written. Take meetings, not minutes. Show up dressed for the work.",
               },
               {
-                t: "High Contrast Only",
-                d: "Our paper forces commitment. You must use silver, gold, or opaque white ink. It turns every grocery list into an arcane, important document.",
+                t: "On contrast as discipline",
+                d: "Black ground accepts only pigment with weight: silver, gold, opaque white, bone. The grocery list, written here, reads as instruction.",
               },
               {
-                t: "Refusal as Feature",
-                d: "Where other brands optimize for legibility, we optimize for atmosphere. The product is the mood; the mood is the product.",
+                t: "On refusal as feature",
+                d: "Other stationers optimise for legibility. We optimise for atmosphere. The mood is the product. The product is the position. The position holds.",
               },
             ].map((m, i) => (
               <Reveal key={m.t} delay={`${i * 0.08}s`}>
@@ -407,16 +409,16 @@ export default function Home() {
       <section className="press">
         <Reveal>
           <p className="press-eyebrow">
-            As featured in publications that definitely exist
+            Press · selected mentions, plausible publications
           </p>
         </Reveal>
         <Reveal delay="0.15s">
           <div className="press-grid">
             {[
-              "Dark Arts Quarterly",
-              "Ink & Suffering",
+              "Apollo Off-Hours",
+              "The Reinhardt Review",
               "Vantablack Vogue",
-              "Nihilist Stationer",
+              "Outrenoir Quarterly",
               "Pen World*",
             ].map((p) => (
               <span key={p} className="press-item">
@@ -427,8 +429,9 @@ export default function Home() {
         </Reveal>
         <Reveal delay="0.25s">
           <p className="press-disclaimer">
-            *Pen World did not actually feature us. They said our paper
-            “actively resists journalism.” We consider this a review.
+            *Pen World has, on three separate occasions, declined to review us
+            on the grounds that our paper “actively resists journalism.” We are
+            keeping the line.
           </p>
         </Reveal>
       </section>
@@ -436,10 +439,10 @@ export default function Home() {
       {/* Testimonials */}
       <section id="cult" className="cult">
         <div className="section-head center">
-          <span className="section-tag">CH. 04 / The Cult</span>
+          <span className="section-tag">CH. 04 / Field Notes</span>
           <SplitText
             as="h2"
-            text="Words from the chromatically committed."
+            text="From the chromatically committed."
             className="section-title center"
             stagger={0.025}
           />
@@ -447,24 +450,24 @@ export default function Home() {
         <div className="quotes">
           {[
             {
-              q: "I wrote my thesis in The Void Book using a white gel pen. My professor said it was ‘hostile to read’ but gave me an A for branding.",
+              q: "Wrote a thesis on The Void Book with a white gel pen. My supervisor called it hostile to read. She also gave it her highest mark of the year.",
               a: "Edgar A.",
-              r: "Grad Student",
+              r: "Doctoral candidate · Stockholm",
             },
             {
-              q: "When I typed in the URL, I was sweating. When I saw they just sold very pretentious notebooks, I was relieved. Five stars.",
+              q: "Typed the URL prepared for a federal warning. Received instead some very expensive notebooks. I am, on balance, relieved.",
               a: "Sarah T.",
-              r: "Accidental Typist",
+              r: "First-time visitor",
             },
             {
-              q: "I bought the Abyssal Cardstock to print business cards. The printer caught fire. The cards look incredible though.",
+              q: "Tried the Abyssal cards on the office laser printer. The fire brigade were patient. The remaining cards look magnificent.",
               a: "Marcus D.",
-              r: "Designer · Arsonist",
+              r: "Designer · Berlin",
             },
             {
-              q: "My therapist asked me to keep a journal. She did not specify it had to be readable. The Void Book is technically compliance.",
+              q: "My therapist suggested keeping a journal. She did not specify legibility. This is, technically, a journal.",
               a: "Naomi K.",
-              r: "Malicious Compliance Enthusiast",
+              r: "Architect · Kyoto",
             },
           ].map(({ q, a, r }, i) => (
             <Reveal key={a} delay={`${i * 0.06}s`}>
@@ -486,46 +489,44 @@ export default function Home() {
       {/* FAQ */}
       <section id="faq" className="faq">
         <div className="section-head">
-          <span className="section-tag">CH. 05 / FAQ</span>
+          <span className="section-tag">CH. 05 / On Record</span>
           <SplitText
             as="h2"
-            text="Frequently questioned."
+            text="Questions, patiently answered."
             className="section-title"
             stagger={0.03}
           />
         </div>
         <div className="faq-list">
-          <FaqItem index="01" question="Why would I buy black paper?">
-            Why would you buy white paper? Because someone told you to? Because
-            society normalized it? We&apos;re not here to answer your
-            existential questions. We&apos;re here to sell you paper that
-            matches the void inside.
+          <FaqItem index="01" question="Why would anyone buy black paper?">
+            White paper is a defaulted decision. Most pages you have seen
+            started as someone else&apos;s preset. Ours start at zero. The
+            ground is, finally, neutral.
           </FaqItem>
           <FaqItem index="02" question="Can I print on it?">
-            Technically, yes. Practically, your printer will enter a crisis.
-            Standard inkjet printers assume they&apos;re printing on white
-            paper. Ours will gaslight them into producing invisible output. We
-            recommend laser printers with white toner, or simply accepting
-            handwriting as a personality trait.
+            Yes, on the right equipment. Laser printers with white toner produce
+            clean lines. Standard inkjet produces a small act of confusion. We
+            recommend a dedicated white-toner shop, the Savior pen, or
+            handwriting as a personality.
           </FaqItem>
           <FaqItem index="03" question="Do you ship internationally?">
-            Darkness has no borders. We ship to 40+ countries. Customs agents
-            have occasionally opened our packages and been confused by the
-            contents. “It&apos;s just… black rectangles?” Yes. That&apos;s the
-            product. You&apos;re welcome.
+            To forty-two countries. Customs has, on occasion, opened a parcel
+            and rung for clarification. The clarification is the same as the
+            product description: notebooks, in black.
           </FaqItem>
           <FaqItem index="04" question="Is this an art project or a real business?">
-            Both. Neither. We have a tax ID and a genuine distaste for white
-            margins. Our accountant calls it “a real business.” Our friends
-            call it “a cry for help.” Our customers call it “the only
-            stationery brand that gets me.”
+            Both. We file taxes and we have a position on white margins. The
+            two are compatible.
           </FaqItem>
-          <FaqItem index="05" question="What's your return policy?">
-            You may return any unopened product within 30 days. If you opened it
-            and are disappointed that the black paper is, in fact, black — we
-            genuinely do not know what to tell you. The name of the company is
-            Blacks For Sale. We were not being metaphorical about the
-            stationery.
+          <FaqItem index="05" question="And the URL — really?">
+            We hear it. We chose it anyway. The premise of the name is the
+            premise of the product: a single, uncomfortable word held until it
+            means something else. We hold the line and the inventory.
+          </FaqItem>
+          <FaqItem index="06" question="What is the return policy?">
+            Thirty days, unopened, full refund. If you have opened the product
+            and discovered the paper is, as advertised, black — we appreciate
+            the engagement, but we cannot refund expectation.
           </FaqItem>
         </div>
       </section>
@@ -533,9 +534,9 @@ export default function Home() {
       {/* Outro */}
       <footer className="outro">
         <div className="outro-grid">
-          <span>BFS / Outro</span>
+          <span>BFS / Colophon</span>
           <span>Lat 0° · Lon 0°</span>
-          <span>2026 Edition</span>
+          <span>Edition III · MMXXVI</span>
           <span className="right">↓</span>
         </div>
         <SplitText
@@ -546,8 +547,8 @@ export default function Home() {
         />
         <Reveal delay="0.4s" className="outro-ctas">
           <Magnetic strength={0.25}>
-            <a href="#supplies" className="btn-primary big" data-cursor="link" data-cursor-label="Shop">
-              <span>Shop All Supplies</span>
+            <a href="#supplies" className="btn-primary big" data-cursor="link" data-cursor-label="Enter">
+              <span>Enter the catalogue</span>
               <span className="btn-arrow" aria-hidden>
                 ↗
               </span>
@@ -558,12 +559,11 @@ export default function Home() {
 
         <div className="outro-base">
           <p className="outro-disclaimer">
-            <strong>LEGAL DISCLAIMER:</strong> Yes, we are fully aware of what
-            this domain name sounds like. No, we do not sell people. We sell
-            extremely dark paper, obsidian notebooks, and conceptual stationery.
-            If you came to this URL looking for anything else, please
-            re-evaluate your life choices and clear your search history
-            immediately.
+            <strong>Disclosure.</strong> Yes — we are aware of how the name
+            reads. No — we do not sell people. We sell paper, ink, and bound
+            objects of an aggressively specific hue. If you arrived here for
+            anything else, the back button is in the upper-left of this
+            window. We trust you to use it.
           </p>
           <div className="outro-links">
             <a href="#" data-cursor="link">
@@ -573,7 +573,7 @@ export default function Home() {
               Privacy
             </a>
             <a href="#" data-cursor="link">
-              Contact
+              Studio
             </a>
             <a href="#" data-cursor="link">
               Instagram

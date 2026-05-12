@@ -28,9 +28,9 @@ export function Loader() {
       aria-hidden
     >
       <div className="loader-grid">
-        <span className="loader-tag">BFS / 001</span>
-        <span className="loader-mid">Approaching Total Black</span>
-        <span className="loader-tag right">EST. ∞</span>
+        <span className="loader-tag">BFS / Vol. III</span>
+        <span className="loader-mid">Approaching total black</span>
+        <span className="loader-tag right">No. 0/0</span>
       </div>
       <div className="loader-bar">
         <div className="loader-bar-fill" />

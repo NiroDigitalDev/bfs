@@ -20,9 +20,9 @@ const instrument = Instrument_Serif({
 });
 
 export const metadata: Metadata = {
-  title: "Blacks For Sale — The Absence of Light",
+  title: "Blacks For Sale · Stationery in the absence of light",
   description:
-    "Pitch-black paper, obsidian notebooks, and the absolute absence of legible margins. Stationery for the chromatically committed.",
+    "Notebooks, cardstock, and pens engineered around a single hue. Small runs, 48-hour dispatch, for the chromatically committed.",
 };
 
 export default function RootLayout({
