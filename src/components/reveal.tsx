@@ -17,6 +17,14 @@ export function Reveal({
     const el = ref.current;
     if (!el) return;
 
+    if (
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      el.classList.add("active");
+      return;
+    }
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {

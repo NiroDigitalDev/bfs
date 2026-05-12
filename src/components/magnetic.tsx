@@ -15,6 +15,7 @@ export function Magnetic({ children, className = "", strength = 0.3 }: Props) {
     const el = ref.current;
     if (!el) return;
     if (!window.matchMedia("(pointer: fine)").matches) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     let raf = 0;
     let tx = 0;

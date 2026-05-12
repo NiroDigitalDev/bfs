@@ -12,7 +12,8 @@ import "./globals.css";
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
-  weight: ["400", "500", "700", "800", "900"],
+  weight: ["500", "700", "800", "900"],
+  display: "swap",
 });
 
 const instrument = Instrument_Serif({
@@ -20,6 +21,7 @@ const instrument = Instrument_Serif({
   subsets: ["latin"],
   weight: ["400"],
   style: ["normal", "italic"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {

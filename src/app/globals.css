@@ -3,11 +3,43 @@
 @theme inline {
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-serif: var(--font-serif), ui-serif, Georgia, serif;
+
+  /* Surface ramp */
   --color-ink: #0a0a0a;
   --color-ink-2: #131313;
   --color-line: #1c1c1c;
   --color-line-2: #2a2a2a;
   --color-fog: #6b6b6b;
+
+  /* Semantic text */
+  --color-text: #f4f4f4;
+  --color-text-strong: #ffffff;
+  --color-text-muted: rgba(244, 244, 244, 0.65);
+  --color-text-faint: rgba(244, 244, 244, 0.45);
+
+  /* Semantic borders/overlays */
+  --color-border-subtle: rgba(255, 255, 255, 0.08);
+  --color-border-strong: rgba(255, 255, 255, 0.4);
+  --color-overlay-1: rgba(255, 255, 255, 0.04);
+  --color-overlay-2: rgba(255, 255, 255, 0.08);
+
+  /* Focus ring */
+  --color-ring: #ffffff;
+
+  /* Motion: easing tokens — name by intent */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-out-back: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --ease-in-out-quint: cubic-bezier(0.83, 0, 0.17, 1);
+  --ease-in-out-quart: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* Motion: duration scale */
+  --dur-1: 200ms;
+  --dur-2: 320ms;
+  --dur-3: 500ms;
+  --dur-4: 700ms;
+  --dur-5: 900ms;
+  --dur-6: 1400ms;
 }
 
 /* ============ BASE ============ */
@@ -16,18 +48,19 @@ body {
   background: #050505;
   color: #f4f4f4;
 }
+body {
+  /* Inter weight 400 is intentionally not loaded; default body weight is 500. */
+  font-weight: 500;
+}
 html.loading,
 html.loading body {
   overflow: hidden;
 }
-@media (pointer: fine) {
+@media (pointer: fine) and (prefers-reduced-motion: no-preference) {
   html,
   body,
   a,
   button,
-  input,
-  textarea,
-  select,
   [role="button"] {
     cursor: none;
   }
@@ -35,6 +68,36 @@ html.loading body {
 ::selection {
   background: #fff;
   color: #000;
+}
+
+/* ============ FOCUS RING ============
+   Designed as a craft moment, not a default. A 1px hairline
+   that grows on focus with a contrasting halo — readable
+   against grain, marquees, and white surfaces alike. */
+:focus {
+  outline: none;
+}
+:focus-visible {
+  outline: 2px solid var(--color-ring);
+  outline-offset: 4px;
+  border-radius: inherit;
+  box-shadow: 0 0 0 6px rgba(0, 0, 0, 0.5);
+  transition: outline-offset var(--dur-1) var(--ease-out-quart);
+}
+/* Compact focus on round CTAs — keep the offset tighter so the ring hugs the pill */
+.btn-primary:focus-visible,
+.btn-ghost:focus-visible,
+.nav-cta:focus-visible {
+  outline-offset: 3px;
+}
+/* On light surfaces (stat-band), invert the halo so the ring stays legible */
+.stat-band :focus-visible {
+  outline-color: #000;
+  box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.6);
+}
+/* Keyboard focus always shows the native caret/pointer, even with cursor:none */
+:focus-visible {
+  cursor: auto;
 }
 .sr-only {
   position: absolute;
@@ -106,8 +169,9 @@ html.loading body {
   height: 38px;
   border: 1px solid rgba(255, 255, 255, 0.6);
   border-radius: 999px;
-  transition: width 0.25s ease, height 0.25s ease, background-color 0.25s ease,
-    border-color 0.25s ease, opacity 0.2s ease, mix-blend-mode 0.2s ease;
+  transition: width var(--dur-1) ease, height var(--dur-1) ease,
+    background-color var(--dur-1) ease, border-color var(--dur-1) ease,
+    opacity var(--dur-1) ease, mix-blend-mode var(--dur-1) ease;
   mix-blend-mode: difference;
   display: grid;
   place-items: center;
@@ -176,7 +240,7 @@ html.loading body {
   grid-template-rows: 1fr auto auto;
   align-content: stretch;
   padding: 24px;
-  transition: opacity 0.8s ease;
+  transition: opacity var(--dur-4) var(--ease-out-expo);
 }
 .loader-out {
   opacity: 0;
@@ -214,7 +278,7 @@ html.loading body {
   background: #fff;
   transform: scaleX(0);
   transform-origin: 0 50%;
-  animation: load 1.5s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+  animation: load var(--dur-6) var(--ease-in-out-quart) forwards;
 }
 @keyframes load {
   to {
@@ -226,7 +290,7 @@ html.loading body {
   inset: 0;
   background: #050505;
   transform: translateY(100%);
-  transition: transform 0.8s cubic-bezier(0.83, 0, 0.17, 1);
+  transition: transform var(--dur-4) var(--ease-in-out-quint);
   z-index: -1;
 }
 .loader-out .loader-curtain {
@@ -237,8 +301,8 @@ html.loading body {
 .reveal {
   opacity: 0;
   transform: translateY(36px);
-  transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity var(--dur-5) var(--ease-out-expo),
+    transform var(--dur-5) var(--ease-out-expo);
 }
 .reveal.active {
   opacity: 1;
@@ -262,8 +326,8 @@ html.loading body {
   display: inline-block;
   transform: translateY(110%) rotate(8deg);
   opacity: 0;
-  transition: transform 1s cubic-bezier(0.2, 0.7, 0.2, 1),
-    opacity 0.6s ease-out;
+  transition: transform var(--dur-6) var(--ease-out-back),
+    opacity var(--dur-3) ease-out;
   will-change: transform, opacity;
 }
 .split-active .split-char {
@@ -592,7 +656,7 @@ html.loading body {
   text-transform: uppercase;
   overflow: hidden;
   isolation: isolate;
-  transition: color 0.4s ease;
+  transition: color var(--dur-2) ease;
 }
 .btn-primary::before {
   content: "";
@@ -600,7 +664,7 @@ html.loading body {
   inset: 0;
   background: #050505;
   transform: translateY(100%);
-  transition: transform 0.5s cubic-bezier(0.65, 0, 0.35, 1);
+  transition: transform var(--dur-3) var(--ease-in-out-quart);
   z-index: -1;
 }
 .btn-primary:hover {
@@ -615,7 +679,7 @@ html.loading body {
 }
 .btn-arrow {
   display: inline-block;
-  transition: transform 0.4s ease;
+  transition: transform var(--dur-2) ease;
 }
 .btn-primary:hover .btn-arrow {
   transform: translate(2px, -2px) rotate(8deg);
@@ -633,7 +697,7 @@ html.loading body {
   font-size: 12px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  transition: border-color 0.3s ease, background-color 0.3s ease;
+  transition: border-color var(--dur-2) ease, background-color var(--dur-2) ease;
 }
 .btn-ghost:hover {
   border-color: #fff;
@@ -770,7 +834,7 @@ html.loading body {
 }
 .tilt {
   transform-style: preserve-3d;
-  transition: transform 0.4s ease;
+  transition: transform var(--dur-2) ease;
   will-change: transform;
 }
 .product {
@@ -781,7 +845,7 @@ html.loading body {
   padding: 18px;
   overflow: hidden;
   transform-style: preserve-3d;
-  transition: border-color 0.4s ease;
+  transition: border-color var(--dur-2) ease;
 }
 .product:hover {
   border-color: var(--color-line-2);
@@ -829,7 +893,7 @@ html.loading body {
   overflow: hidden;
   display: grid;
   place-items: center;
-  transition: transform 0.6s ease;
+  transition: transform var(--dur-3) ease;
 }
 .product-visual::after {
   content: "";
@@ -853,7 +917,7 @@ html.loading body {
     transparent 70%
   );
   opacity: 0;
-  transition: opacity 0.4s ease;
+  transition: opacity var(--dur-2) ease;
   pointer-events: none;
 }
 .product:hover .product-glow {
@@ -863,7 +927,7 @@ html.loading body {
   width: 76%;
   height: auto;
   transform: translateZ(40px);
-  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform var(--dur-3) var(--ease-out-expo);
   filter: drop-shadow(0 30px 30px rgba(0, 0, 0, 0.6));
 }
 .product:hover .product-svg {
@@ -884,7 +948,7 @@ html.loading body {
   text-transform: uppercase;
   font-size: 11px;
   transform: translateY(150%);
-  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform var(--dur-3) var(--ease-out-expo);
 }
 .product:hover .product-hover-cta {
   transform: translateY(0);
@@ -1006,7 +1070,7 @@ html.loading body {
   padding: 36px;
   background: linear-gradient(180deg, #0a0a0a, #050505);
   overflow: hidden;
-  transition: border-color 0.4s ease, transform 0.5s ease;
+  transition: border-color var(--dur-2) ease, transform var(--dur-3) ease;
 }
 .survival-card:hover {
   border-color: var(--color-line-2);
@@ -1043,7 +1107,7 @@ html.loading body {
   height: 1px;
   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
   transform: translateX(-100%);
-  transition: transform 0.7s ease;
+  transition: transform var(--dur-4) ease;
 }
 .survival-card:hover .survival-line {
   transform: translateX(0);
@@ -1202,7 +1266,7 @@ html.loading body {
   background: linear-gradient(180deg, #0c0c0c, #060606);
   display: grid;
   gap: 18px;
-  transition: border-color 0.4s ease, transform 0.5s ease;
+  transition: border-color var(--dur-2) ease, transform var(--dur-3) ease;
 }
 .quote:hover {
   border-color: var(--color-line-2);
@@ -1303,7 +1367,7 @@ html.loading body {
   inset: 50% 0 auto 0;
   height: 1.5px;
   background: #fff;
-  transition: transform 0.4s ease, opacity 0.3s ease;
+  transition: transform var(--dur-2) ease, opacity var(--dur-2) ease;
 }
 .faq-toggle span:last-child {
   transform: translateY(-50%) rotate(90deg);
@@ -1318,7 +1382,7 @@ html.loading body {
 .faq-panel {
   display: grid;
   grid-template-rows: 0fr;
-  transition: grid-template-rows 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: grid-template-rows var(--dur-3) var(--ease-out-expo);
 }
 .faq-item.open .faq-panel {
   grid-template-rows: 1fr;
@@ -1485,14 +1549,47 @@ html.loading body {
   max-height: 35vw;
 }
 
-/* ============ REDUCED MOTION ============ */
+/* ============ REDUCED MOTION ============
+   Surgical: collapse motion tokens so anything that
+   uses them becomes near-instant, then disable the
+   handful of persistent decorative animations by name.
+   Functional transitions (FAQ panel open, button colour
+   swap) keep working because their state still toggles. */
 @media (prefers-reduced-motion: reduce) {
-  * {
-    animation-duration: 0.001ms !important;
-    transition-duration: 0.001ms !important;
+  :root {
+    --dur-1: 0.01ms;
+    --dur-2: 0.01ms;
+    --dur-3: 0.01ms;
+    --dur-4: 0.01ms;
+    --dur-5: 0.01ms;
+    --dur-6: 0.01ms;
   }
+  /* Snap split-text and reveal directly to final state */
   .split-char {
     transform: none;
     opacity: 1;
+    transition: none;
+  }
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  /* Disable persistent decorative loops */
+  .grain,
+  .hero-meta-dot,
+  .marquee-track,
+  .loader-bar-fill {
+    animation: none;
+  }
+  .hero-scroll-line::after {
+    animation: none;
+    transform: translateX(0);
+    opacity: 0.6;
+  }
+  /* Snap survival-card line into view */
+  .survival-line {
+    transform: translateX(0);
+    opacity: 0.6;
   }
 }

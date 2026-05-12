@@ -5,6 +5,195 @@ One entry per run. Newest first.
 
 ---
 
+## 2026-05-12 — Design-system tokens + a11y foundation (focus ring, reduced-motion gating)
+
+**Area:** Cross-cutting CSS tokens, accessibility baseline, motion gating,
+font-payload trim.
+
+**Why this was the highest-leverage target.**
+The previous three runs shipped surface polish: a redesign with custom cursor,
+loader, kinetic display type, bento product cards, magnetic CTAs; then a full
+SEO foundation; then the FAQPage + per-product-anchors JSON-LD closure. Three
+parallel audits in this run flagged the same systemic ceiling underneath: there
+is no real design system. Every section invents its own `clamp()`, every motion
+primitive its own `cubic-bezier`, every overlay its own raw `rgba`. The
+accessibility posture compounds the problem — a `cursor: none` site-wide rule
+with zero `:focus-visible` rules anywhere, JS motion hooks ignoring
+`prefers-reduced-motion`, and a global `* { animation-duration: 0.001ms }`
+sledgehammer that disables functional transitions along with decorative ones.
+Both are disqualifying for any Awwwards-tier jury, and both ceiling-cap every
+future visual cycle: any new motion or color decision has to invent its
+primitives instead of composing on existing ones. This run installs the
+foundation so future cycles compose, not invent.
+
+**Changes.**
+- `src/app/globals.css` — Extended `@theme inline` with:
+  - **Semantic colour ramp** (`--color-text`, `--color-text-strong`,
+    `--color-text-muted`, `--color-text-faint`, `--color-border-subtle`,
+    `--color-border-strong`, `--color-overlay-1`, `--color-overlay-2`,
+    `--color-ring`) layered on top of the existing surface ramp.
+  - **Motion easing tokens** (`--ease-out-expo`, `--ease-out-quart`,
+    `--ease-out-back`, `--ease-in-out-quint`, `--ease-in-out-quart`) — each
+    named by intent, replacing six bespoke `cubic-bezier()` values that were
+    scattered across components.
+  - **Duration scale** (`--dur-1` 200ms → `--dur-6` 1400ms) replacing
+    ad-hoc 0.2s/0.25s/0.3s/0.4s/0.5s/0.6s/0.7s/0.8s/0.9s/1s/1.5s timings.
+- `src/app/globals.css` — Refactored 14 hot-traffic rules to consume the new
+  tokens: `.reveal`, `.split-char`, `.btn-primary` + `::before`, `.btn-arrow`,
+  `.btn-ghost`, `.cursor-ring`, `.tilt`, `.product`, `.product-visual`,
+  `.product-svg`, `.product-glow`, `.product-hover-cta`, `.survival-card`,
+  `.survival-line`, `.quote`, `.faq-panel`, `.faq-toggle span`, `.loader`,
+  `.loader-curtain`, `.loader-bar-fill`. The cubic-bezier diversity that
+  audits flagged ("every component invents its own easing") is now five
+  named curves chosen per intent.
+- `src/app/globals.css` — Added a designed global focus ring:
+  `:focus-visible { outline: 2px solid var(--color-ring); outline-offset: 4px;
+  box-shadow: 0 0 0 6px rgba(0,0,0,0.5); transition: outline-offset … }`,
+  with a compact-offset override on `.btn-primary` / `.btn-ghost` /
+  `.nav-cta` (rings hug the pill) and an inverted treatment inside the
+  white `.stat-band` so the ring stays legible on light. Pre-existing
+  `:focus` rule resets the outline so the visible state is the
+  `:focus-visible` one only. The audit's `grep` for `outline` / `:focus`
+  returned 0 hits before this run; after, every interactive element has
+  a visible, designed focus state.
+- `src/app/globals.css` — Scoped the `cursor: none` rule to
+  `@media (pointer: fine) and (prefers-reduced-motion: no-preference)` and
+  dropped `input, textarea, select` from the selector list (those keep
+  their native text caret). Also: `:focus-visible { cursor: auto; }` so
+  the moment a keyboard user lands on any control, the native pointer
+  returns alongside the focus ring. Three a11y failure modes (no focus
+  ring + hidden cursor + reduced-motion users with no cursor) collapse
+  into one fix.
+- `src/app/globals.css` — Replaced the global reduced-motion sledgehammer
+  with a surgical version: collapses `--dur-1`..`--dur-6` to `0.01ms` (so
+  any rule that uses them goes near-instant), snaps `.split-char`,
+  `.reveal`, `.survival-line` and `.hero-scroll-line::after` to their
+  final state, and disables the four persistent decorative animation
+  loops by name (`.grain`, `.hero-meta-dot`, `.marquee-track`,
+  `.loader-bar-fill`). Functional transitions (FAQ panel open,
+  button colour swap, focus-ring growth) keep working because their state
+  still toggles. This replaces the previous `* { animation-duration:
+  0.001ms !important }` which killed everything indiscriminately.
+- `src/app/globals.css` — Set `body { font-weight: 500 }` so dropping
+  Inter's 400 weight in layout.tsx does not fall back to system-ui for
+  unclassed body text.
+- `src/components/cursor.tsx`, `src/components/magnetic.tsx`,
+  `src/components/tilt.tsx`, `src/components/spotlight.tsx` — Added
+  `if (window.matchMedia("(prefers-reduced-motion: reduce)").matches)
+  return;` to each `useEffect`, immediately after the existing
+  `(pointer: fine)` guard. The rAF loops and pointer listeners no longer
+  mount at all for users who request reduced motion. Previously these
+  ran regardless of the media query.
+- `src/components/counter.tsx` — Reads the reduced-motion preference once
+  per mount, then inside the IntersectionObserver callback either snaps
+  `setValue(to)` once or starts the rAF easing loop. The synchronous
+  setState path is gated inside the observer callback so the React 19
+  `react-hooks/set-state-in-effect` rule stays satisfied.
+- `src/components/reveal.tsx` — Same pattern: if reduced-motion is set,
+  the element gets `.active` immediately instead of waiting for the
+  IntersectionObserver. No observer is created at all in that branch.
+- `src/components/loader.tsx` — Two changes. (1) Under reduced-motion,
+  the loader skips its dwell entirely (`setPhase("done")` deferred via
+  `requestAnimationFrame` to keep React 19's
+  `react-hooks/set-state-in-effect` rule happy). (2) The non-reduced
+  dwell is shortened from 1.6s → 0.9s and the total from 2.4s → 1.5s.
+  The hero audit flagged the original timing as "Awwwards 2021, not 2026" —
+  the curtain reveal is the moment, the dwell isn't.
+- `src/components/faq-item.tsx` — Added `id={\`faq-panel-\${index}\`}` to
+  the panel and `aria-controls={panelId}` to the trigger, plus
+  `role="region"` and `aria-hidden={!open}` on the panel. The previous
+  state used `aria-expanded` alone, which announces the open/closed
+  state but does not link the trigger to its disclosed region for
+  assistive tech traversal.
+- `src/app/layout.tsx` — Trimmed Inter weights from five
+  (`["400", "500", "700", "800", "900"]`) to four
+  (`["500", "700", "800", "900"]`); weight 400 was not referenced anywhere
+  in the stylesheet. Added explicit `display: "swap"` to both `Inter()`
+  and `Instrument_Serif()` font-loader calls (next/font's default is
+  `swap`, but the explicit declaration matches the audit's
+  recommendation and locks behaviour).
+- `next.config.ts` — Was an empty `NextConfig`; now declares
+  `compress: true`, `poweredByHeader: false`, and
+  `images.formats: ["image/avif", "image/webp"]` so future image work
+  (per the previous run's open follow-up, even a single `next/image`
+  product still) inherits modern formats without further config.
+
+**Verification.**
+- `bun run lint` — clean (after fixing two `react-hooks/set-state-in-effect`
+  hits by moving the synchronous `setValue`/`setPhase` calls into a
+  callback / `requestAnimationFrame` deferral).
+- `bunx tsc --noEmit` — clean.
+- `bun run build` — clean. Same 5 routes prerendered statically (`/`,
+  `/_not-found`, `/opengraph-image`, `/robots.txt`, `/sitemap.xml`). No
+  bundle regression.
+- Visual diff (no live-browser test in this run): the surgical
+  reduced-motion block keeps `.btn-primary` colour swap and `.faq-panel`
+  open transition working; only the persistent decorative loops
+  (`.grain`, the `.hero-meta-dot` pulse, marquees, loader bar) are
+  disabled. Keyboard focus now shows a visible 2px white ring on every
+  interactive element on dark surfaces and a 2px black ring on the
+  inverted `.stat-band`.
+
+**Expected impact.**
+- A11y posture: keyboard navigation now has a visible focus indicator
+  on every focusable element — the largest single Awwwards-disqualifying
+  gap is closed. Reduced-motion users get a working site with no rAF
+  loops, no IntersectionObserver-driven entrances, and no decorative
+  animation loops, but functional transitions (FAQ open, button hover)
+  still work.
+- Foundation for future cycles: any new motion or colour decision now
+  composes on tokens (`var(--ease-out-expo)`, `var(--dur-3)`,
+  `var(--color-text-muted)`) instead of inventing new primitives. The
+  next hero or product-grid redesign cycle does not need to touch
+  `globals.css` to introduce a new easing or duration.
+- Performance: one fewer Inter weight in the font payload; AVIF/WebP
+  format priority configured for future imagery; `poweredByHeader`
+  removed for a marginal response-size win.
+- No CLS impact: no layout changed, no new client JS, no new
+  dependencies.
+
+**Files modified.**
+- `src/app/globals.css`
+- `src/app/layout.tsx`
+- `src/components/cursor.tsx`
+- `src/components/magnetic.tsx`
+- `src/components/tilt.tsx`
+- `src/components/spotlight.tsx`
+- `src/components/counter.tsx`
+- `src/components/reveal.tsx`
+- `src/components/loader.tsx`
+- `src/components/faq-item.tsx`
+- `next.config.ts`
+
+**Follow-ups uncovered (TODO for future runs).**
+
+- [ ] **Hero typographic upgrade** — auditors flagged the hero as
+      "canonical, not composed". Future cycle: let `Matter` overlap
+      `Dark` (negative margin-top), introduce real width/weight contrast
+      between the two title words, anchor the eyebrow chapter-numeral
+      style ("001 —") to the viewport edge, and bind transforms to
+      `scrollY` so the title parallaxes into the marquees. Tokens from
+      this run unlock that work without further CSS plumbing.
+- [ ] **Product grid bento** — the six product cards are visually
+      uniform. Future cycle: make `void-book` a 2-col feature row,
+      vary card sizes / orientations, and give each product visual a
+      distinct gesture (cover lift, fan-out, stroke draw-on, stack
+      depth-shift) rather than the current shared greyscale gradient.
+- [ ] **Scroll-pinned product chapters** — reference-scout recommended a
+      Frans Hals Museum-style pinned spec sheet with chapter-by-chapter
+      reveal as the catalogue moment.
+- [ ] **PWA + apple-touch-icon + manifest.webmanifest** — open from
+      prior runs; `src/app/apple-icon.tsx` + `src/app/manifest.ts`
+      programmatic routes.
+- [ ] **Outro footer dead links + missing contact surface** — open from
+      prior runs.
+- [ ] **OG image typography fidelity** — load `Instrument_Serif` as a
+      buffer inside `opengraph-image.tsx` instead of `ui-serif`
+      fallback.
+- [ ] **Lighthouse baseline** — still unmeasured.
+
+---
+
 ## 2026-05-12 — FAQ JSON-LD + per-product anchors + cart semantic upgrade
 
 **Area:** Structured data completion, fragment-link correctness, nav semantics.

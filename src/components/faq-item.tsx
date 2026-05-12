@@ -10,6 +10,7 @@ type Props = {
 
 export function FaqItem({ index, question, children }: Props) {
   const [open, setOpen] = useState(false);
+  const panelId = `faq-panel-${index}`;
   return (
     <div className={`faq-item ${open ? "open" : ""}`}>
       <button
@@ -17,6 +18,7 @@ export function FaqItem({ index, question, children }: Props) {
         className="faq-trigger"
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
+        aria-controls={panelId}
         data-cursor="link"
       >
         <span className="faq-index">{index}</span>
@@ -26,7 +28,7 @@ export function FaqItem({ index, question, children }: Props) {
           <span />
         </span>
       </button>
-      <div className="faq-panel">
+      <div id={panelId} className="faq-panel" role="region" aria-hidden={!open}>
         <div className="faq-inner">{children}</div>
       </div>
     </div>

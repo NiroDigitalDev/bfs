@@ -11,6 +11,7 @@ export function Spotlight({ className = "" }: { className?: string }) {
     const parent = el.parentElement;
     if (!parent) return;
     if (!window.matchMedia("(pointer: fine)").matches) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     let raf = 0;
     let tx = 50;

@@ -27,6 +27,11 @@ export function Counter({
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+
+    const reduce =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
     let raf = 0;
     let start = 0;
     let started = false;
@@ -44,7 +49,11 @@ export function Counter({
         entries.forEach((entry) => {
           if (entry.isIntersecting && !started) {
             started = true;
-            raf = requestAnimationFrame(animate);
+            if (reduce) {
+              setValue(to);
+            } else {
+              raf = requestAnimationFrame(animate);
+            }
             obs.unobserve(entry.target);
           }
         });

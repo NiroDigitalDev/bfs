@@ -15,6 +15,7 @@ export function Tilt({ children, className = "", max = 8 }: Props) {
     const el = ref.current;
     if (!el) return;
     if (!window.matchMedia("(pointer: fine)").matches) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     let raf = 0;
     let tx = 0;

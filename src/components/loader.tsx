@@ -7,12 +7,21 @@ export function Loader() {
 
   useEffect(() => {
     const root = document.documentElement;
+    const reduce =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (reduce) {
+      const raf = requestAnimationFrame(() => setPhase("done"));
+      return () => cancelAnimationFrame(raf);
+    }
+
     root.classList.add("loading");
-    const t1 = window.setTimeout(() => setPhase("out"), 1600);
+    const t1 = window.setTimeout(() => setPhase("out"), 900);
     const t2 = window.setTimeout(() => {
       setPhase("done");
       root.classList.remove("loading");
-    }, 2400);
+    }, 1500);
     return () => {
       window.clearTimeout(t1);
       window.clearTimeout(t2);
