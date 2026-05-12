@@ -1,611 +1,563 @@
 import { Reveal } from "@/components/reveal";
+import { SplitText } from "@/components/split-text";
+import { Magnetic } from "@/components/magnetic";
+import { Tilt } from "@/components/tilt";
+import { Counter } from "@/components/counter";
+import { Marquee } from "@/components/marquee";
+import { Spotlight } from "@/components/spotlight";
+import { FaqItem } from "@/components/faq-item";
+import { Newsletter } from "@/components/newsletter";
+import {
+  NotebookVisual,
+  CardstockVisual,
+  SketchpadVisual,
+  StickyVisual,
+  PenVisual,
+  PlannerVisual,
+} from "@/components/product-visuals";
+
+const products = [
+  {
+    chapter: "001",
+    title: "The Void Book",
+    subtitle: "A5",
+    price: "$34",
+    spec: "120GSM · LAY-FLAT BINDING",
+    copy:
+      "200 pages of pure, light-absorbing black. Bound in matte faux-leather. Unlined, because rules are for white paper.",
+    Visual: NotebookVisual,
+    tags: ["best-seller", "ships in 48h"],
+  },
+  {
+    chapter: "002",
+    title: "Abyssal Cardstock",
+    subtitle: "A4",
+    price: "$45",
+    spec: "500GSM · PRINTER-HOSTILE",
+    copy:
+      "50 sheets of aggressively thick black card. Guaranteed to jam standard office printers and intimidate clients.",
+    Visual: CardstockVisual,
+    tags: ["heavy"],
+  },
+  {
+    chapter: "003",
+    title: "Event Horizon Pad",
+    subtitle: "Coil",
+    price: "$28",
+    spec: "160GSM · TOOTH-HEAVY",
+    copy:
+      "Top-wire bound sketchpad. Tooth-heavy texture perfect for pastels, white charcoal, and existential dread.",
+    Visual: SketchpadVisual,
+    tags: ["new"],
+  },
+  {
+    chapter: "004",
+    title: "Sticky Voids",
+    subtitle: "3-Pack",
+    price: "$15",
+    spec: "3×3 IN · HIGH TACK",
+    copy:
+      "Leave passive-aggressive notes that your roommates can barely read. Three pads of 100 sheets.",
+    Visual: StickyVisual,
+    tags: ["gift"],
+  },
+  {
+    chapter: "005",
+    title: "The Savior Pen",
+    subtitle: "0.5mm",
+    price: "$12",
+    spec: "SILVER GEL · OPAQUE",
+    copy:
+      "Opaque, liquid silver gel ink. Because standard blue ink on our paper makes you look foolish.",
+    Visual: PenVisual,
+    tags: ["pairs well"],
+  },
+  {
+    chapter: "006",
+    title: "Executive Despair",
+    subtitle: "Planner",
+    price: "$42",
+    spec: "UNDATED · SILK RIBBON",
+    copy:
+      "An undated weekly planner printed with 90% black ink on 100% black paper. For scheduling crises.",
+    Visual: PlannerVisual,
+    tags: ["unhinged"],
+  },
+];
 
 export default function Home() {
   return (
-    <>
-      {/* Navigation */}
-      <nav className="fixed w-full top-0 p-4 md:p-6 flex justify-between items-center z-50 mix-blend-difference">
-        <div className="text-xl md:text-2xl font-black tracking-[-0.04em] uppercase">
-          BFS.
-        </div>
-        <div className="hidden md:flex gap-8 text-sm font-bold tracking-wide uppercase">
-          <a
-            href="#supplies"
-            className="hover:opacity-50 transition-opacity"
-          >
-            Supplies
+    <main className="relative">
+      {/* Nav */}
+      <nav className="nav">
+        <a href="#top" className="nav-logo" data-cursor="link" aria-label="Blacks For Sale">
+          <span className="nav-logo-mark" aria-hidden>
+            ■
+          </span>
+          <span>Blacks For Sale</span>
+          <span className="nav-logo-sub">© MMXXVI</span>
+        </a>
+        <div className="nav-links">
+          <a href="#supplies" data-cursor="link">
+            <span className="nav-num">01</span> Supplies
           </a>
-          <a
-            href="#manifesto"
-            className="hover:opacity-50 transition-opacity"
-          >
-            Manifesto
+          <a href="#manifesto" data-cursor="link">
+            <span className="nav-num">02</span> Manifesto
           </a>
-          <a href="#cult" className="hover:opacity-50 transition-opacity">
-            The Cult
+          <a href="#cult" data-cursor="link">
+            <span className="nav-num">03</span> The Cult
           </a>
-          <a href="#faq" className="hover:opacity-50 transition-opacity">
-            FAQ
+          <a href="#faq" data-cursor="link">
+            <span className="nav-num">04</span> FAQ
           </a>
         </div>
-        <button className="px-5 py-2 md:px-6 md:py-2 border border-white rounded-full text-xs md:text-sm font-bold uppercase hover:bg-white hover:text-black transition-colors">
-          Cart (0)
-        </button>
+        <Magnetic strength={0.25}>
+          <button className="nav-cta" data-cursor="link">
+            <span>Cart</span>
+            <span className="nav-cta-dot" />
+            <span>0</span>
+          </button>
+        </Magnetic>
       </nav>
 
-      {/* Hero Section */}
-      <header className="min-h-[90vh] flex flex-col justify-center px-4 md:px-12 relative overflow-hidden pt-20">
-        <div className="z-10 mt-10 md:mt-20">
-          <Reveal>
-            <h1 className="text-[18vw] md:text-[12vw] lg:text-[10vw] leading-[0.85] font-black tracking-[-0.08em] uppercase">
-              Dark
-              <br />
-              <span
-                className="text-transparent"
-                style={{ WebkitTextStroke: "2px white" }}
-              >
-                Matter.
-              </span>
-            </h1>
-          </Reveal>
-          <Reveal delay="0.2s">
-            <p className="max-w-2xl mt-8 md:mt-12 text-lg md:text-2xl lg:text-3xl font-medium tracking-tight text-zinc-400">
-              You wanted a white canvas? You&apos;re on the wrong website. We
-              sell pitch-black paper, obsidian notebooks, and the absolute
-              absence of legible margins.
-            </p>
-          </Reveal>
-          <Reveal delay="0.4s" className="mt-12 md:mt-16">
-            <a
-              href="#supplies"
-              className="inline-block bg-white text-black px-8 py-4 md:px-10 md:py-5 rounded-full font-black text-sm md:text-base uppercase tracking-wider hover:scale-105 transition-transform"
-            >
-              Shop The Void
-            </a>
-          </Reveal>
-        </div>
+      {/* Hero */}
+      <header id="top" className="hero">
+        <Spotlight />
+        <div className="hero-frame">
+          <div className="hero-meta">
+            <span className="hero-meta-row">
+              <span className="hero-meta-dot" />
+              Live · Now Shipping the Void
+            </span>
+            <span className="hero-meta-row right">N 0°0′0″ — W 0°0′0″</span>
+          </div>
 
-        {/* Abstract background element */}
-        <div className="absolute top-1/2 right-0 w-[500px] h-[500px] md:w-[800px] md:h-[800px] bg-gradient-to-b from-zinc-900 to-black rounded-full blur-3xl opacity-30 -translate-y-1/2 translate-x-1/3" />
+          <h1 className="hero-title">
+            <SplitText as="span" text="Dark" stagger={0.05} />
+            <span className="hero-title-row">
+              <SplitText
+                as="span"
+                text="Matter"
+                stagger={0.05}
+                start={0.25}
+                className="hero-outline"
+              />
+              <span className="hero-period">
+                <SplitText as="span" text="." stagger={0} start={0.6} />
+              </span>
+            </span>
+            <span className="hero-eyebrow">
+              <span className="hero-eyebrow-line" />
+              <em>An exercise in subtractive design.</em>
+            </span>
+          </h1>
+
+          <div className="hero-bottom">
+            <Reveal delay="0.4s" className="hero-lede">
+              <p>
+                You wanted a white canvas? Wrong website. We sell pitch-black
+                paper, obsidian notebooks, and the absolute absence of legible
+                margins.
+              </p>
+            </Reveal>
+
+            <Reveal delay="0.5s" className="hero-ctas">
+              <Magnetic strength={0.25}>
+                <a href="#supplies" className="btn-primary" data-cursor="link" data-cursor-label="Shop">
+                  <span>Shop the Void</span>
+                  <span className="btn-arrow" aria-hidden>
+                    ↗
+                  </span>
+                </a>
+              </Magnetic>
+              <Magnetic strength={0.2}>
+                <a href="#manifesto" className="btn-ghost" data-cursor="link">
+                  Read the Manifesto
+                </a>
+              </Magnetic>
+            </Reveal>
+
+            <Reveal delay="0.6s" className="hero-stats">
+              <div>
+                <Counter to={47283} locale className="stat-num" />
+                <span className="stat-label">Voids sold</span>
+              </div>
+              <div>
+                <Counter to={99.9} decimals={1} suffix="%" className="stat-num" />
+                <span className="stat-label">Light absorbed</span>
+              </div>
+              <div>
+                <Counter to={42} suffix="+" className="stat-num" />
+                <span className="stat-label">Countries shipped</span>
+              </div>
+            </Reveal>
+          </div>
+
+          <a href="#supplies" className="hero-scroll" data-cursor="link">
+            <span className="hero-scroll-line" />
+            <span>Scroll</span>
+          </a>
+        </div>
       </header>
 
-      {/* Marquee */}
-      <Reveal>
-        <div className="w-full overflow-hidden border-y border-zinc-800 py-3 md:py-4 bg-black">
-          <div className="marquee-content text-3xl md:text-5xl lg:text-7xl font-black tracking-[-0.04em] uppercase text-zinc-800">
-            BLACK PAPER &nbsp; &bull; &nbsp; NO WHITE SPACE &nbsp; &bull;
-            &nbsp; OBSIDIAN NOTEBOOKS &nbsp; &bull; &nbsp; 500GSM VOID &nbsp;
-            &bull; &nbsp; BLACK PAPER &nbsp; &bull; &nbsp; NO WHITE SPACE
-            &nbsp; &bull; &nbsp; OBSIDIAN NOTEBOOKS &nbsp; &bull; &nbsp;
-            500GSM VOID &nbsp; &bull; &nbsp;{" "}
-          </div>
+      {/* Marquees */}
+      <section className="marquees">
+        <Marquee
+          speed={45}
+          items={[
+            "Black Paper",
+            "No White Space",
+            "Obsidian Notebooks",
+            "500GSM Void",
+            "Pretentious Stationery",
+            "Aesthetic Conviction",
+          ]}
+        />
+        <Marquee
+          reverse
+          speed={60}
+          sep="—"
+          items={[
+            "EST. The Year Color Died",
+            "Made in the Dark",
+            "Returns Accepted If You Cry",
+            "Shipped in Black Boxes",
+            "Pen World said no",
+          ]}
+        />
+      </section>
+
+      {/* Supplies */}
+      <section id="supplies" className="section">
+        <div className="section-head">
+          <span className="section-tag">CH. 01 / Supplies</span>
+          <SplitText
+            as="h2"
+            text="Stationery non grata."
+            className="section-title"
+            stagger={0.03}
+          />
+          <p className="section-lede">
+            Curated emptiness for the discerning creative. Normal pens will not
+            save you here.
+          </p>
         </div>
-      </Reveal>
 
-      {/* Products Section */}
-      <section id="supplies" className="py-24 md:py-40 px-4 md:px-12">
-        <Reveal>
-          <div className="flex flex-col lg:flex-row justify-between lg:items-end mb-16 md:mb-20">
-            <h2 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-[-0.04em] uppercase leading-none mb-6 lg:mb-0">
-              Stationery
-              <br />
-              Non Grata.
-            </h2>
-            <p className="text-zinc-500 text-base md:text-lg max-w-sm lg:text-right pb-2">
-              Curated emptiness for the discerning creative. Normal pens will
-              not save you here.
-            </p>
+        <div className="products">
+          {products.map(({ chapter, title, subtitle, price, spec, copy, Visual, tags }, i) => (
+            <Reveal key={chapter} delay={`${(i % 3) * 0.08}s`}>
+              <Tilt max={6}>
+                <article className="product" data-cursor="link" data-cursor-label="View">
+                  <div className="product-tags">
+                    {tags.map((t) => (
+                      <span key={t} className="product-tag">
+                        {t}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="product-meta">
+                    <span>{chapter}</span>
+                    <span>{subtitle}</span>
+                  </div>
+                  <div className="product-visual">
+                    <div className="product-glow" />
+                    <Visual />
+                    <span className="product-hover-cta">
+                      <span>Add to Cart</span>
+                      <span aria-hidden>↗</span>
+                    </span>
+                  </div>
+                  <div className="product-body">
+                    <h3 className="product-title">{title}</h3>
+                    <p className="product-copy">{copy}</p>
+                    <div className="product-foot">
+                      <span className="product-spec">{spec}</span>
+                      <span className="product-price">{price}</span>
+                    </div>
+                  </div>
+                </article>
+              </Tilt>
+            </Reveal>
+          ))}
+        </div>
+      </section>
+
+      {/* Stat band */}
+      <section className="stat-band">
+        <div className="stat-band-row">
+          <div>
+            <Counter to={100} suffix="%" className="stat-band-num" />
+            <span className="stat-band-label">Black</span>
           </div>
-        </Reveal>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12">
-          {/* Product 1: The Notebook */}
-          <Reveal>
-            <div className="group cursor-pointer product-card">
-              <div className="w-full aspect-[3/4] bg-[#0a0a0a] rounded-r-lg notebook-edge relative flex items-center justify-center overflow-hidden border-y border-r border-zinc-800 border-l-[6px] border-l-black">
-                <span className="opacity-0 group-hover:opacity-100 transition-opacity text-white font-bold tracking-widest uppercase z-10 bg-black/50 px-6 py-3 backdrop-blur-sm rounded-full">
-                  Add to Cart
-                </span>
-              </div>
-              <div className="mt-6 flex justify-between items-start">
-                <div className="pr-4">
-                  <h3 className="text-xl md:text-2xl font-bold uppercase tracking-tight">
-                    The Void Book (A5)
-                  </h3>
-                  <p className="text-zinc-500 mt-2 text-sm leading-relaxed">
-                    200 pages of pure, light-absorbing black. Bound in matte
-                    faux-leather. Unlined, because rules are for white paper.
-                  </p>
-                  <p className="text-xs font-mono text-zinc-600 mt-2">
-                    120GSM / LAY-FLAT BINDING
-                  </p>
-                </div>
-                <span className="text-lg md:text-xl font-medium">$34.00</span>
-              </div>
-            </div>
-          </Reveal>
-
-          {/* Product 2: Cardstock */}
-          <Reveal delay="0.1s">
-            <div className="group cursor-pointer product-card">
-              <div className="w-full aspect-[3/4] bg-[#111] cardstock-edge relative flex items-center justify-center overflow-hidden border border-zinc-800 shadow-2xl">
-                <span className="opacity-0 group-hover:opacity-100 transition-opacity text-white font-bold tracking-widest uppercase z-10 bg-black/50 px-6 py-3 backdrop-blur-sm rounded-full">
-                  Add to Cart
-                </span>
-              </div>
-              <div className="mt-6 flex justify-between items-start">
-                <div className="pr-4">
-                  <h3 className="text-xl md:text-2xl font-bold uppercase tracking-tight">
-                    Abyssal Cardstock
-                  </h3>
-                  <p className="text-zinc-500 mt-2 text-sm leading-relaxed">
-                    50 sheets of aggressively thick black card. Guaranteed to
-                    jam standard office printers and intimidate clients.
-                  </p>
-                  <p className="text-xs font-mono text-zinc-600 mt-2">
-                    500GSM / A4 SIZE
-                  </p>
-                </div>
-                <span className="text-lg md:text-xl font-medium">$45.00</span>
-              </div>
-            </div>
-          </Reveal>
-
-          {/* Product 3: Sketchpad */}
-          <Reveal delay="0.2s">
-            <div className="group cursor-pointer product-card">
-              <div className="w-full aspect-[3/4] bg-[#151515] relative flex items-center justify-center overflow-hidden border border-zinc-800 rounded-sm">
-                <div className="sketch-coil" />
-                <span className="opacity-0 group-hover:opacity-100 transition-opacity text-white font-bold tracking-widest uppercase z-10 bg-black/50 px-6 py-3 backdrop-blur-sm rounded-full">
-                  Add to Cart
-                </span>
-              </div>
-              <div className="mt-6 flex justify-between items-start">
-                <div className="pr-4">
-                  <h3 className="text-xl md:text-2xl font-bold uppercase tracking-tight">
-                    Event Horizon Pad
-                  </h3>
-                  <p className="text-zinc-500 mt-2 text-sm leading-relaxed">
-                    Top-wire bound sketchpad. Tooth-heavy texture perfect for
-                    pastels, white charcoal, and existential dread.
-                  </p>
-                  <p className="text-xs font-mono text-zinc-600 mt-2">
-                    160GSM / COIL BOUND
-                  </p>
-                </div>
-                <span className="text-lg md:text-xl font-medium">$28.00</span>
-              </div>
-            </div>
-          </Reveal>
-
-          {/* Product 4: Sticky Notes */}
-          <Reveal>
-            <div className="group cursor-pointer product-card">
-              <div className="w-full aspect-square bg-[#1a1a1a] shadow-[-5px_5px_15px_rgba(0,0,0,0.8)] relative flex items-center justify-center overflow-hidden border-t border-r border-zinc-800 mt-12 md:mt-0">
-                <div className="absolute bottom-0 left-0 w-full h-[5px] bg-zinc-900" />
-                <span className="opacity-0 group-hover:opacity-100 transition-opacity text-white font-bold tracking-widest uppercase z-10 bg-black/50 px-6 py-3 backdrop-blur-sm rounded-full">
-                  Add to Cart
-                </span>
-              </div>
-              <div className="mt-6 flex justify-between items-start">
-                <div className="pr-4">
-                  <h3 className="text-xl md:text-2xl font-bold uppercase tracking-tight">
-                    Sticky Voids (3-Pack)
-                  </h3>
-                  <p className="text-zinc-500 mt-2 text-sm leading-relaxed">
-                    Leave passive-aggressive notes that your roommates can
-                    barely read. 3 pads of 100 sheets.
-                  </p>
-                  <p className="text-xs font-mono text-zinc-600 mt-2">
-                    3x3 INCHES / HIGH TACK
-                  </p>
-                </div>
-                <span className="text-lg md:text-xl font-medium">$15.00</span>
-              </div>
-            </div>
-          </Reveal>
-
-          {/* Product 5: The Pen */}
-          <Reveal delay="0.1s">
-            <div className="group cursor-pointer product-card">
-              <div className="w-full aspect-square bg-zinc-950 flex items-center justify-center overflow-hidden border border-zinc-900 relative">
-                {/* Pen graphic */}
-                <div className="w-[80%] h-3 bg-gradient-to-r from-zinc-700 via-white to-zinc-400 rounded-full shadow-[0_0_20px_rgba(255,255,255,0.2)] -rotate-45" />
-                <span className="absolute opacity-0 group-hover:opacity-100 transition-opacity text-white font-bold tracking-widest uppercase z-10 bg-black/50 px-6 py-3 backdrop-blur-sm rounded-full">
-                  Add to Cart
-                </span>
-              </div>
-              <div className="mt-6 flex justify-between items-start">
-                <div className="pr-4">
-                  <h3 className="text-xl md:text-2xl font-bold uppercase tracking-tight">
-                    The Savior Pen
-                  </h3>
-                  <p className="text-zinc-500 mt-2 text-sm leading-relaxed">
-                    Opaque, liquid silver gel ink. Because standard blue ink on
-                    our paper makes you look foolish.
-                  </p>
-                  <p className="text-xs font-mono text-zinc-600 mt-2">
-                    0.5MM / SILVER GEL
-                  </p>
-                </div>
-                <span className="text-lg md:text-xl font-medium">$12.00</span>
-              </div>
-            </div>
-          </Reveal>
-
-          {/* Product 6: The Planner */}
-          <Reveal delay="0.2s">
-            <div className="group cursor-pointer product-card">
-              <div className="w-full aspect-[3/4] bg-[#050505] rounded-lg relative flex items-center justify-center overflow-hidden border border-zinc-800 shadow-2xl">
-                <div className="absolute top-0 right-8 w-4 h-[80%] bg-red-900 shadow-lg" />
-                <span className="opacity-0 group-hover:opacity-100 transition-opacity text-white font-bold tracking-widest uppercase z-10 bg-black/50 px-6 py-3 backdrop-blur-sm rounded-full">
-                  Add to Cart
-                </span>
-              </div>
-              <div className="mt-6 flex justify-between items-start">
-                <div className="pr-4">
-                  <h3 className="text-xl md:text-2xl font-bold uppercase tracking-tight">
-                    Executive Despair
-                  </h3>
-                  <p className="text-zinc-500 mt-2 text-sm leading-relaxed">
-                    An undated weekly planner printed with 90% black ink on 100%
-                    black paper. For scheduling crises.
-                  </p>
-                  <p className="text-xs font-mono text-zinc-600 mt-2">
-                    UNDATED / SILK RIBBON
-                  </p>
-                </div>
-                <span className="text-lg md:text-xl font-medium">$42.00</span>
-              </div>
-            </div>
-          </Reveal>
+          <div className="stat-band-line" />
+          <div>
+            <Counter to={0} className="stat-band-num" />
+            <span className="stat-band-label">White Margins</span>
+          </div>
+          <div className="stat-band-line" />
+          <div>
+            <Counter to={1} suffix="/1" className="stat-band-num" />
+            <span className="stat-band-label">Color in Stock</span>
+          </div>
+          <div className="stat-band-line" />
+          <div>
+            <Counter to={4.9} decimals={1} suffix="★" className="stat-band-num" />
+            <span className="stat-band-label">From the Cult</span>
+          </div>
         </div>
       </section>
 
       {/* Survival Guide */}
-      <section className="py-24 md:py-40 px-4 md:px-12 bg-black border-t border-zinc-900">
-        <Reveal>
-          <div className="flex flex-col lg:flex-row justify-between lg:items-end mb-16 md:mb-20">
-            <h2 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-[-0.04em] uppercase leading-none mb-6 lg:mb-0">
-              Survival
-              <br />
-              Guide.
-            </h2>
-            <p className="text-zinc-500 text-base md:text-lg max-w-sm lg:text-right pb-2">
-              You bought black paper. Now what. Here&apos;s how to not waste
-              your extremely specific purchase.
+      <section className="section">
+        <div className="section-head">
+          <span className="section-tag">CH. 02 / Survival Guide</span>
+          <SplitText
+            as="h2"
+            text="You bought it. Now what."
+            className="section-title"
+            stagger={0.03}
+          />
+          <p className="section-lede">
+            Here&apos;s how to not waste your extremely specific purchase.
+          </p>
+        </div>
+
+        <div className="survival">
+          {[
+            {
+              n: "01",
+              h: "Abandon Normal Ink",
+              p: "Your trusty Bic will betray you here. You need opaque ink: silver gel, gold metallic, or white correction-pen energy. Think of it as upgrading from tap water to champagne, except it's a pen.",
+            },
+            {
+              n: "02",
+              h: "Let the Paper Dry",
+              p: "Gel ink on dark paper takes 4–6 seconds longer to dry than you're used to. Impatient people will smudge everything and blame us. We accept no liability for your lack of impulse control.",
+            },
+            {
+              n: "03",
+              h: "Accept the Stares",
+              p: "People will look at you differently. Your barista will comment. Your coworkers will have questions. You will have no good answers. This is the price of aesthetic conviction.",
+            },
+          ].map(({ n, h, p }, i) => (
+            <Reveal key={n} delay={`${i * 0.12}s`}>
+              <div className="survival-card">
+                <span className="survival-num">{n}</span>
+                <h3>{h}</h3>
+                <p>{p}</p>
+                <span className="survival-line" />
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </section>
+
+      {/* Manifesto — sticky title */}
+      <section id="manifesto" className="manifesto">
+        <div className="manifesto-inner">
+          <aside className="manifesto-sticky">
+            <span className="section-tag">CH. 03 / Manifesto</span>
+            <SplitText
+              as="h2"
+              text="The Void Manifesto."
+              className="section-title white"
+              stagger={0.03}
+            />
+            <p className="manifesto-credo">
+              We are a stationery brand only in the most technical sense.
+              <em> Mostly we are a position.</em>
             </p>
-          </div>
-        </Reveal>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8">
-          <Reveal>
-            <div className="border border-zinc-800 p-8 md:p-10 relative group hover:border-zinc-600 transition-colors">
-              <div className="text-[8rem] md:text-[10rem] font-black text-zinc-900 leading-none absolute -top-6 -left-2 select-none group-hover:text-zinc-800 transition-colors">
-                1
-              </div>
-              <div className="relative z-10 pt-20">
-                <h3 className="text-xl md:text-2xl font-bold uppercase tracking-tight mb-4">
-                  Abandon Normal Ink
-                </h3>
-                <p className="text-zinc-400 leading-relaxed text-sm md:text-base">
-                  Your trusty Bic will betray you here. You need opaque ink:
-                  silver gel, gold metallic, or white correction-pen energy.
-                  Think of it as upgrading from tap water to champagne, except
-                  it&apos;s a pen.
-                </p>
-              </div>
-            </div>
-          </Reveal>
-          <Reveal delay="0.15s">
-            <div className="border border-zinc-800 p-8 md:p-10 relative group hover:border-zinc-600 transition-colors">
-              <div className="text-[8rem] md:text-[10rem] font-black text-zinc-900 leading-none absolute -top-6 -left-2 select-none group-hover:text-zinc-800 transition-colors">
-                2
-              </div>
-              <div className="relative z-10 pt-20">
-                <h3 className="text-xl md:text-2xl font-bold uppercase tracking-tight mb-4">
-                  Let the Paper Dry
-                </h3>
-                <p className="text-zinc-400 leading-relaxed text-sm md:text-base">
-                  Gel ink on dark paper takes 4&ndash;6 seconds longer to dry
-                  than you&apos;re used to. Impatient people will smudge
-                  everything and blame us. We accept no liability for your
-                  lack of impulse control.
-                </p>
-              </div>
-            </div>
-          </Reveal>
-          <Reveal delay="0.3s">
-            <div className="border border-zinc-800 p-8 md:p-10 relative group hover:border-zinc-600 transition-colors">
-              <div className="text-[8rem] md:text-[10rem] font-black text-zinc-900 leading-none absolute -top-6 -left-2 select-none group-hover:text-zinc-800 transition-colors">
-                3
-              </div>
-              <div className="relative z-10 pt-20">
-                <h3 className="text-xl md:text-2xl font-bold uppercase tracking-tight mb-4">
-                  Accept the Stares
-                </h3>
-                <p className="text-zinc-400 leading-relaxed text-sm md:text-base">
-                  People will look at you differently. Your barista will
-                  comment. Your coworkers will have questions. You will have no
-                  good answers. This is the price of aesthetic conviction.
-                </p>
-              </div>
-            </div>
-          </Reveal>
+          </aside>
+          <ol className="manifesto-list">
+            {[
+              {
+                t: "Anti-Legibility",
+                d: "Keep your secrets entirely safe. If you accidentally write in a standard ballpoint pen, literally nobody will be able to read it. Not even you.",
+              },
+              {
+                t: "Aesthetic Dominance",
+                d: "Pull out a solid black notebook in your next corporate meeting. Watch the color drain from the faces of your colleagues who brought yellow legal pads.",
+              },
+              {
+                t: "High Contrast Only",
+                d: "Our paper forces commitment. You must use silver, gold, or opaque white ink. It turns every grocery list into an arcane, important document.",
+              },
+              {
+                t: "Refusal as Feature",
+                d: "Where other brands optimize for legibility, we optimize for atmosphere. The product is the mood; the mood is the product.",
+              },
+            ].map((m, i) => (
+              <Reveal key={m.t} delay={`${i * 0.08}s`}>
+                <li className="manifesto-item">
+                  <span className="manifesto-num">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <div>
+                    <h4>{m.t}</h4>
+                    <p>{m.d}</p>
+                  </div>
+                </li>
+              </Reveal>
+            ))}
+          </ol>
         </div>
       </section>
 
-      {/* Philosophy / Manifesto */}
-      <section
-        id="manifesto"
-        className="py-24 md:py-40 bg-zinc-950 text-white border-y border-zinc-900"
-      >
-        <div className="max-w-7xl mx-auto px-4 md:px-12">
-          <Reveal>
-            <h2 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-[-0.04em] uppercase mb-16 md:mb-24 leading-none">
-              The Void
-              <br />
-              Manifesto.
-            </h2>
-          </Reveal>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-16">
-            <Reveal>
-              <div className="text-5xl md:text-6xl font-black text-zinc-800 mb-6">
-                01
-              </div>
-              <h4 className="text-xl md:text-2xl font-bold uppercase mb-4">
-                Anti-Legibility
-              </h4>
-              <p className="text-zinc-400 leading-relaxed text-sm md:text-base">
-                Keep your secrets entirely safe. If you accidentally write in a
-                standard ballpoint pen, literally nobody will be able to read
-                it. Not even you.
-              </p>
-            </Reveal>
-            <Reveal delay="0.2s">
-              <div className="text-5xl md:text-6xl font-black text-zinc-800 mb-6">
-                02
-              </div>
-              <h4 className="text-xl md:text-2xl font-bold uppercase mb-4">
-                Aesthetic Dominance
-              </h4>
-              <p className="text-zinc-400 leading-relaxed text-sm md:text-base">
-                Pull out a solid black notebook in your next corporate meeting.
-                Watch the color drain from the faces of your colleagues who
-                brought yellow legal pads.
-              </p>
-            </Reveal>
-            <Reveal delay="0.4s">
-              <div className="text-5xl md:text-6xl font-black text-zinc-800 mb-6">
-                03
-              </div>
-              <h4 className="text-xl md:text-2xl font-bold uppercase mb-4">
-                High Contrast Only
-              </h4>
-              <p className="text-zinc-400 leading-relaxed text-sm md:text-base">
-                Our paper forces commitment. You must use silver, gold, or
-                opaque white ink. It turns every grocery list into an arcane,
-                important document.
-              </p>
-            </Reveal>
-          </div>
-        </div>
-      </section>
-
-      {/* As Seen Nowhere */}
-      <section className="py-16 md:py-24 px-4 md:px-12 bg-black border-t border-zinc-900">
+      {/* Press */}
+      <section className="press">
         <Reveal>
-          <p className="text-center text-xs md:text-sm font-bold uppercase tracking-[0.3em] text-zinc-600 mb-12 md:mb-16">
-            As Featured In Publications That Definitely Exist
+          <p className="press-eyebrow">
+            As featured in publications that definitely exist
           </p>
         </Reveal>
-        <Reveal delay="0.2s">
-          <div className="flex flex-wrap justify-center items-center gap-x-12 gap-y-8 md:gap-x-20 max-w-5xl mx-auto">
+        <Reveal delay="0.15s">
+          <div className="press-grid">
             {[
-              "The Dark Arts Quarterly",
+              "Dark Arts Quarterly",
               "Ink & Suffering",
               "Vantablack Vogue",
               "Nihilist Stationer",
               "Pen World*",
-            ].map((pub) => (
-              <span
-                key={pub}
-                className="text-lg md:text-2xl font-black uppercase tracking-[-0.04em] text-zinc-800 hover:text-zinc-500 transition-colors cursor-default"
-              >
-                {pub}
+            ].map((p) => (
+              <span key={p} className="press-item">
+                {p}
               </span>
             ))}
           </div>
         </Reveal>
-        <Reveal delay="0.3s">
-          <p className="text-center text-[10px] text-zinc-700 mt-10">
+        <Reveal delay="0.25s">
+          <p className="press-disclaimer">
             *Pen World did not actually feature us. They said our paper
-            &ldquo;actively resists journalism.&rdquo; We consider this a
-            review.
+            “actively resists journalism.” We consider this a review.
           </p>
         </Reveal>
       </section>
 
       {/* Testimonials */}
-      <section id="cult" className="py-24 md:py-40 px-4 md:px-12 bg-black">
-        <div className="max-w-4xl mx-auto text-center">
-          <Reveal>
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-[-0.04em] uppercase mb-16 md:mb-24">
-              Words from the Cult
-            </h2>
-          </Reveal>
-
-          <div className="space-y-20 md:space-y-32">
-            <Reveal>
-              <blockquote className="relative px-6">
-                <span className="absolute -top-6 -left-2 md:-top-10 md:-left-10 text-7xl md:text-9xl text-zinc-800 font-serif leading-none">
-                  &ldquo;
+      <section id="cult" className="cult">
+        <div className="section-head center">
+          <span className="section-tag">CH. 04 / The Cult</span>
+          <SplitText
+            as="h2"
+            text="Words from the chromatically committed."
+            className="section-title center"
+            stagger={0.025}
+          />
+        </div>
+        <div className="quotes">
+          {[
+            {
+              q: "I wrote my thesis in The Void Book using a white gel pen. My professor said it was ‘hostile to read’ but gave me an A for branding.",
+              a: "Edgar A.",
+              r: "Grad Student",
+            },
+            {
+              q: "When I typed in the URL, I was sweating. When I saw they just sold very pretentious notebooks, I was relieved. Five stars.",
+              a: "Sarah T.",
+              r: "Accidental Typist",
+            },
+            {
+              q: "I bought the Abyssal Cardstock to print business cards. The printer caught fire. The cards look incredible though.",
+              a: "Marcus D.",
+              r: "Designer · Arsonist",
+            },
+            {
+              q: "My therapist asked me to keep a journal. She did not specify it had to be readable. The Void Book is technically compliance.",
+              a: "Naomi K.",
+              r: "Malicious Compliance Enthusiast",
+            },
+          ].map(({ q, a, r }, i) => (
+            <Reveal key={a} delay={`${i * 0.06}s`}>
+              <figure className="quote">
+                <span className="quote-mark" aria-hidden>
+                  “
                 </span>
-                <p className="text-xl md:text-3xl lg:text-4xl font-medium leading-tight mb-8 relative z-10 text-zinc-200">
-                  I wrote my thesis in The Void Book using a white gel pen. My
-                  professor said it was &lsquo;hostile to read&rsquo; but gave
-                  me an A for branding.
-                </p>
-                <footer className="text-zinc-500 font-bold uppercase tracking-wider text-xs md:text-sm">
-                  — Edgar A., Grad Student
-                </footer>
-              </blockquote>
+                <blockquote>{q}</blockquote>
+                <figcaption>
+                  <span className="quote-name">{a}</span>
+                  <span className="quote-role">{r}</span>
+                </figcaption>
+              </figure>
             </Reveal>
-
-            <Reveal>
-              <blockquote className="relative px-6">
-                <span className="absolute -top-6 -left-2 md:-top-10 md:-left-10 text-7xl md:text-9xl text-zinc-800 font-serif leading-none">
-                  &ldquo;
-                </span>
-                <p className="text-xl md:text-3xl lg:text-4xl font-medium leading-tight mb-8 relative z-10 text-zinc-200">
-                  When I typed in the URL, I was sweating. When I saw they just
-                  sold very pretentious notebooks, I was relieved. Five stars.
-                </p>
-                <footer className="text-zinc-500 font-bold uppercase tracking-wider text-xs md:text-sm">
-                  — Sarah T., Accidental Typist
-                </footer>
-              </blockquote>
-            </Reveal>
-
-            <Reveal>
-              <blockquote className="relative px-6">
-                <span className="absolute -top-6 -left-2 md:-top-10 md:-left-10 text-7xl md:text-9xl text-zinc-800 font-serif leading-none">
-                  &ldquo;
-                </span>
-                <p className="text-xl md:text-3xl lg:text-4xl font-medium leading-tight mb-8 relative z-10 text-zinc-200">
-                  I bought the Abyssal Cardstock to print business cards. The
-                  printer caught fire. The cards look incredible though. Would
-                  absolutely do it again.
-                </p>
-                <footer className="text-zinc-500 font-bold uppercase tracking-wider text-xs md:text-sm">
-                  — Marcus D., Graphic Designer &amp; Arsonist
-                </footer>
-              </blockquote>
-            </Reveal>
-
-            <Reveal>
-              <blockquote className="relative px-6">
-                <span className="absolute -top-6 -left-2 md:-top-10 md:-left-10 text-7xl md:text-9xl text-zinc-800 font-serif leading-none">
-                  &ldquo;
-                </span>
-                <p className="text-xl md:text-3xl lg:text-4xl font-medium leading-tight mb-8 relative z-10 text-zinc-200">
-                  My therapist asked me to keep a journal. She did not specify
-                  it had to be readable. The Void Book is technically
-                  compliance.
-                </p>
-                <footer className="text-zinc-500 font-bold uppercase tracking-wider text-xs md:text-sm">
-                  — Naomi K., Malicious Compliance Enthusiast
-                </footer>
-              </blockquote>
-            </Reveal>
-          </div>
+          ))}
         </div>
       </section>
 
       {/* FAQ */}
-      <section id="faq" className="py-24 md:py-40 px-4 md:px-12 bg-zinc-950 border-y border-zinc-900">
-        <div className="max-w-4xl mx-auto">
-          <Reveal>
-            <h2 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-[-0.04em] uppercase mb-16 md:mb-24 leading-none">
-              Frequently
-              <br />
-              Questioned.
-            </h2>
-          </Reveal>
-
-          <div className="space-y-12 md:space-y-16">
-            <Reveal>
-              <div className="border-b border-zinc-800 pb-10">
-                <h3 className="text-lg md:text-2xl font-bold uppercase tracking-tight mb-4">
-                  Why would I buy black paper?
-                </h3>
-                <p className="text-zinc-400 leading-relaxed text-sm md:text-base max-w-2xl">
-                  Why would you buy white paper? Because someone told you to?
-                  Because society normalized it? We&apos;re not here to answer
-                  your existential questions. We&apos;re here to sell you paper
-                  that matches the void inside.
-                </p>
-              </div>
-            </Reveal>
-            <Reveal>
-              <div className="border-b border-zinc-800 pb-10">
-                <h3 className="text-lg md:text-2xl font-bold uppercase tracking-tight mb-4">
-                  Can I print on it?
-                </h3>
-                <p className="text-zinc-400 leading-relaxed text-sm md:text-base max-w-2xl">
-                  Technically, yes. Practically, your printer will enter a
-                  crisis. Standard inkjet printers assume they&apos;re printing
-                  on white paper. Ours will gaslight them into producing
-                  invisible output. We recommend laser printers with white
-                  toner, or simply accepting handwriting as a personality trait.
-                </p>
-              </div>
-            </Reveal>
-            <Reveal>
-              <div className="border-b border-zinc-800 pb-10">
-                <h3 className="text-lg md:text-2xl font-bold uppercase tracking-tight mb-4">
-                  Do you ship internationally?
-                </h3>
-                <p className="text-zinc-400 leading-relaxed text-sm md:text-base max-w-2xl">
-                  Darkness has no borders. We ship to 40+ countries. Customs
-                  agents have occasionally opened our packages and been
-                  confused by the contents. &ldquo;It&apos;s just... black
-                  rectangles?&rdquo; Yes. That&apos;s the product. You&apos;re
-                  welcome.
-                </p>
-              </div>
-            </Reveal>
-            <Reveal>
-              <div className="border-b border-zinc-800 pb-10">
-                <h3 className="text-lg md:text-2xl font-bold uppercase tracking-tight mb-4">
-                  Is this an art project or a real business?
-                </h3>
-                <p className="text-zinc-400 leading-relaxed text-sm md:text-base max-w-2xl">
-                  Both. Neither. We have a tax ID and a genuine distaste for
-                  white margins. Our accountant calls it &ldquo;a real
-                  business.&rdquo; Our friends call it &ldquo;a cry for
-                  help.&rdquo; Our customers call it &ldquo;the only stationery
-                  brand that gets me.&rdquo;
-                </p>
-              </div>
-            </Reveal>
-            <Reveal>
-              <div>
-                <h3 className="text-lg md:text-2xl font-bold uppercase tracking-tight mb-4">
-                  What&apos;s your return policy?
-                </h3>
-                <p className="text-zinc-400 leading-relaxed text-sm md:text-base max-w-2xl">
-                  You may return any unopened product within 30 days. If you
-                  opened it and are disappointed that the black paper is, in
-                  fact, black &mdash; we genuinely do not know what to tell you.
-                  The name of the company is Blacks For Sale. We were not being
-                  metaphorical about the stationery.
-                </p>
-              </div>
-            </Reveal>
-          </div>
+      <section id="faq" className="faq">
+        <div className="section-head">
+          <span className="section-tag">CH. 05 / FAQ</span>
+          <SplitText
+            as="h2"
+            text="Frequently questioned."
+            className="section-title"
+            stagger={0.03}
+          />
+        </div>
+        <div className="faq-list">
+          <FaqItem index="01" question="Why would I buy black paper?">
+            Why would you buy white paper? Because someone told you to? Because
+            society normalized it? We&apos;re not here to answer your
+            existential questions. We&apos;re here to sell you paper that
+            matches the void inside.
+          </FaqItem>
+          <FaqItem index="02" question="Can I print on it?">
+            Technically, yes. Practically, your printer will enter a crisis.
+            Standard inkjet printers assume they&apos;re printing on white
+            paper. Ours will gaslight them into producing invisible output. We
+            recommend laser printers with white toner, or simply accepting
+            handwriting as a personality trait.
+          </FaqItem>
+          <FaqItem index="03" question="Do you ship internationally?">
+            Darkness has no borders. We ship to 40+ countries. Customs agents
+            have occasionally opened our packages and been confused by the
+            contents. “It&apos;s just… black rectangles?” Yes. That&apos;s the
+            product. You&apos;re welcome.
+          </FaqItem>
+          <FaqItem index="04" question="Is this an art project or a real business?">
+            Both. Neither. We have a tax ID and a genuine distaste for white
+            margins. Our accountant calls it “a real business.” Our friends
+            call it “a cry for help.” Our customers call it “the only
+            stationery brand that gets me.”
+          </FaqItem>
+          <FaqItem index="05" question="What's your return policy?">
+            You may return any unopened product within 30 days. If you opened it
+            and are disappointed that the black paper is, in fact, black — we
+            genuinely do not know what to tell you. The name of the company is
+            Blacks For Sale. We were not being metaphorical about the
+            stationery.
+          </FaqItem>
         </div>
       </section>
 
-      {/* Big Footer Call to Action */}
-      <footer className="pt-24 md:pt-40 pb-8 md:pb-12 px-4 md:px-12 bg-black flex flex-col items-center justify-center text-center relative border-t border-zinc-900 overflow-hidden">
-        <Reveal>
-          <h2 className="text-[15vw] md:text-[12vw] leading-none font-black tracking-[-0.08em] uppercase mb-10 md:mb-12">
-            FADE TO
-            <br />
-            BLACK.
-          </h2>
-        </Reveal>
-        <Reveal>
-          <button className="bg-white text-black px-10 py-5 md:px-12 md:py-6 rounded-full font-black text-lg md:text-xl uppercase tracking-widest hover:scale-110 transition-transform shadow-[0_0_40px_rgba(255,255,255,0.2)]">
-            Shop All Supplies
-          </button>
+      {/* Outro */}
+      <footer className="outro">
+        <div className="outro-grid">
+          <span>BFS / Outro</span>
+          <span>Lat 0° · Lon 0°</span>
+          <span>2026 Edition</span>
+          <span className="right">↓</span>
+        </div>
+        <SplitText
+          as="h2"
+          text="Fade to black."
+          className="outro-title"
+          stagger={0.04}
+        />
+        <Reveal delay="0.4s" className="outro-ctas">
+          <Magnetic strength={0.25}>
+            <a href="#supplies" className="btn-primary big" data-cursor="link" data-cursor-label="Shop">
+              <span>Shop All Supplies</span>
+              <span className="btn-arrow" aria-hidden>
+                ↗
+              </span>
+            </a>
+          </Magnetic>
+          <Newsletter />
         </Reveal>
 
-        {/* THE CRUCIAL DISCLAIMER */}
-        <div className="mt-24 md:mt-32 w-full max-w-5xl border-t border-zinc-900 pt-8 flex flex-col md:flex-row justify-between items-start md:items-center text-[10px] md:text-xs text-zinc-600 font-medium tracking-wide gap-6 md:gap-0">
-          <p className="max-w-2xl text-left leading-relaxed">
+        <div className="outro-base">
+          <p className="outro-disclaimer">
             <strong>LEGAL DISCLAIMER:</strong> Yes, we are fully aware of what
             this domain name sounds like. No, we do not sell people. We sell
             extremely dark paper, obsidian notebooks, and conceptual stationery.
@@ -613,19 +565,26 @@ export default function Home() {
             re-evaluate your life choices and clear your search history
             immediately.
           </p>
-          <div className="flex flex-wrap gap-4 uppercase font-bold text-zinc-500">
-            <a href="#" className="hover:text-white transition-colors">
+          <div className="outro-links">
+            <a href="#" data-cursor="link">
               Terms
             </a>
-            <a href="#" className="hover:text-white transition-colors">
+            <a href="#" data-cursor="link">
               Privacy
             </a>
-            <a href="#" className="hover:text-white transition-colors">
+            <a href="#" data-cursor="link">
               Contact
+            </a>
+            <a href="#" data-cursor="link">
+              Instagram
             </a>
           </div>
         </div>
+
+        <div className="outro-wordmark" aria-hidden>
+          BFS
+        </div>
       </footer>
-    </>
+    </main>
   );
 }
