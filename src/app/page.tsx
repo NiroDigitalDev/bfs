@@ -15,75 +15,18 @@ import {
   PenVisual,
   PlannerVisual,
 } from "@/components/product-visuals";
+import { products as productData, type ProductId } from "@/data/products";
 
-const products = [
-  {
-    chapter: "001",
-    title: "The Void Book",
-    subtitle: "A5 · Unlined",
-    price: "$34",
-    spec: "120 GSM · LAY-FLAT · 192 PP",
-    copy:
-      "Hardbound A5. One hundred and ninety-two pages of matte coated black, calibrated to refuse reflectance. Unlined, unmargined, unsentimental.",
-    Visual: NotebookVisual,
-    tags: ["core series", "48h dispatch"],
-  },
-  {
-    chapter: "002",
-    title: "Abyssal Cardstock",
-    subtitle: "A4 · Dyed Through",
-    price: "$45",
-    spec: "500 GSM · 50 SHEETS",
-    copy:
-      "Fifty sheets, dyed through the core. Heavy enough to register as material. Feed it by hand or feed it to the laser. Either is permitted.",
-    Visual: CardstockVisual,
-    tags: ["heavy stock"],
-  },
-  {
-    chapter: "003",
-    title: "Event Horizon Pad",
-    subtitle: "Top-Bound",
-    price: "$28",
-    spec: "160 GSM · 40 LEAVES",
-    copy:
-      "Top-bound forty-leaf pad with a tooth ground for pastel, charcoal, and gouache. Twin-loop wire. Quietly demanding of the hand holding it.",
-    Visual: SketchpadVisual,
-    tags: ["studio"],
-  },
-  {
-    chapter: "004",
-    title: "Sticky Voids",
-    subtitle: "Triptych",
-    price: "$15",
-    spec: "3 × 3 IN · 3 × 100",
-    copy:
-      "Three pads, one hundred leaves each, three inches square. High-tack adhesive, low-residue release. Instruction for those who already understood.",
-    Visual: StickyVisual,
-    tags: ["low-volume"],
-  },
-  {
-    chapter: "005",
-    title: "The Savior Pen",
-    subtitle: "Rollerball",
-    price: "$12",
-    spec: "0.5 MM · SILVER PIGMENT",
-    copy:
-      "A 0.5 mm rollerball loaded with opaque silver-pigment gel. Acid-free, archival, calibrated for our paper and tolerant of yours.",
-    Visual: PenVisual,
-    tags: ["pairs with 001"],
-  },
-  {
-    chapter: "006",
-    title: "Executive Despair",
-    subtitle: "Annual",
-    price: "$42",
-    spec: "UNDATED · 52 SPREADS",
-    copy:
-      "Undated weekly. Fifty-two spreads deboss-struck at ninety percent K on one hundred gsm black. Bordeaux foil along the spine. Plans persist on faith.",
-    Visual: PlannerVisual,
-    tags: ["limited"],
-  },
-];
+const productVisuals: Record<ProductId, React.ComponentType> = {
+  "void-book": NotebookVisual,
+  "abyssal-cardstock": CardstockVisual,
+  "event-horizon-pad": SketchpadVisual,
+  "sticky-voids": StickyVisual,
+  "savior-pen": PenVisual,
+  "executive-despair": PlannerVisual,
+};
+
+const products = productData.map((p) => ({ ...p, Visual: productVisuals[p.id] }));
 
 export default function Home() {
   return (

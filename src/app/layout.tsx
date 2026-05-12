@@ -1,9 +1,11 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Instrument_Serif } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { Cursor } from "@/components/cursor";
 import { Loader } from "@/components/loader";
 import { ScrollProgress } from "@/components/scroll-progress";
+import { site, siteUrl } from "@/lib/site";
+import { products } from "@/data/products";
 import "./globals.css";
 
 const inter = Inter({
@@ -20,9 +22,104 @@ const instrument = Instrument_Serif({
 });
 
 export const metadata: Metadata = {
-  title: "Blacks For Sale · Stationery in the absence of light",
-  description:
-    "Notebooks, cardstock, and pens engineered around a single hue. Small runs, 48-hour dispatch, for the chromatically committed.",
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: `${site.name} · ${site.tagline}`,
+    template: `%s · ${site.name}`,
+  },
+  description: site.description,
+  applicationName: site.name,
+  authors: [{ name: site.name }],
+  creator: site.name,
+  publisher: site.name,
+  category: "Stationery",
+  keywords: [
+    "black notebook",
+    "black stationery",
+    "black paper",
+    "black cardstock",
+    "matte black notebook",
+    "silver gel pen",
+    "white-on-black notebook",
+    "minimalist stationery",
+    "editorial stationery",
+  ],
+  alternates: {
+    canonical: "/",
+  },
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  openGraph: {
+    type: "website",
+    url: "/",
+    siteName: site.name,
+    title: `${site.name} · ${site.tagline}`,
+    description: site.shareDescription,
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${site.name} · ${site.tagline}`,
+    description: site.shareDescription,
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#000000",
+  colorScheme: "dark",
+  width: "device-width",
+  initialScale: 1,
+};
+
+const organizationLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: site.name,
+  url: siteUrl,
+  logo: `${siteUrl}/opengraph-image`,
+  description: site.description,
+  slogan: site.tagline,
+};
+
+const productCatalogLd = {
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  name: `${site.name} — Catalogue`,
+  itemListOrder: "https://schema.org/ItemListOrderAscending",
+  numberOfItems: products.length,
+  itemListElement: products.map((p, i) => ({
+    "@type": "ListItem",
+    position: i + 1,
+    item: {
+      "@type": "Product",
+      "@id": `${siteUrl}/#${p.id}`,
+      name: p.title,
+      description: p.copy,
+      category: "Stationery",
+      brand: { "@type": "Brand", name: site.name },
+      offers: {
+        "@type": "Offer",
+        url: `${siteUrl}/#supplies`,
+        price: p.priceAmount,
+        priceCurrency: p.currency,
+        availability: "https://schema.org/InStock",
+      },
+    },
+  })),
 };
 
 export default function RootLayout({
@@ -41,6 +138,14 @@ export default function RootLayout({
         <Cursor />
         {children}
         <Analytics />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(productCatalogLd) }}
+        />
       </body>
     </html>
   );
