@@ -188,3 +188,11 @@ items:
     surface: catalogue
     tags: [pdp, route, asymmetric-title, specimen-plate, related-products, view-transitions, breadcrumb, jsonld-product, og-image, sitemap]
     summary: Six SSG product detail pages mirroring the hero typographic spread (asymmetric two-word title, hairline colophon dl, magnetic AddToCart, related siblings), with per-product OG images, Product + BreadcrumbList JSON-LD, sitemap entries, and View Transitions API setup for shared specimen across route change.
+
+  - id: site-chrome-pathname-aware
+    title: SiteChrome wrapper — pathname-aware ChapterRail + RunningFolio
+    commit: pending
+    date: 2026-05-13
+    surface: chrome
+    tags: [chrome, system, site-chrome, pathname, usePathname, foundation, ssg, regression-clean]
+    summary: Extracts the homepage chrome (ChapterRail + RunningFolio) into a single pathname-aware client wrapper that renders only on `/`. /supplies/[id] PDP and 404 SSR HTML now correctly omit `chapter-rail`/`folio` markup, freeing those surfaces for their own editorial spreads. Foundation subtask 1/2 of the parent "Shopify style checkout" Notion task — also unblocks the planned /journal route.

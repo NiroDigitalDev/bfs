@@ -251,3 +251,59 @@ items:
     notes: |
       Reference — Locomotive. Highest single-move impact in the scout's
       backlog but also the biggest. Save for a ship with the headroom.
+
+  - id: hero-type-instrumental
+    title: Make hero type behave — variable-axis + italic-roman swap + ligature alternates
+    ship: |
+      Promote "Dark Matter." from set to typeset. Variable-axis grade
+      tied to scrollY, italic-roman swap on pointer-over the wordmark,
+      ligature alternates cycling on a slow loop. SplitText already
+      handles per-char; the work is in the per-char interaction state
+      machine.
+    severity: high
+    effort: L
+    class: distinctive
+    status: open
+    opened_on: 2026-05-13
+    last_verified: 2026-05-13
+    notes: |
+      Source — 2026-05 critic ("hero is the only display moment, and
+      it is conservative"). Reference — Bureau Borsche. Strongest
+      single-surface lift on Awwwards rubric.
+
+  - id: catalogue-spread-asymmetry
+    title: Break every third chapter into a full-bleed double-truck spread
+    ship: |
+      Replace uniform even/odd `data-orientation` with single, single,
+      spread, single, single, spread. Spread = left 4-column body with
+      gutter marginalia, right full-bleed plate. Catalogue stops being
+      a column pretending to be a spread.
+    severity: high
+    effort: L
+    class: distinctive
+    status: open
+    opened_on: 2026-05-13
+    last_verified: 2026-05-13
+    notes: |
+      Source — 2026-05 critic ("layout still respects the grid too
+      much"). file:line page.tsx:202, 386, 448, 530, 587 — six
+      identical section-head preambles to break.
+
+  - id: motion-vocabulary-beyond-reveal
+    title: Per-surface motion vocabulary — Reveal stops being the answer to everything
+    ship: |
+      Replace Reveal-as-default-section-enter with surface-specific
+      motion: catalogue scroll-bound page-turn between chapters,
+      manifesto holds masthead while list slides under, codex
+      re-typesets numerals on enter. Motion becomes navigation,
+      not decoration.
+    severity: medium
+    effort: L
+    class: distinctive
+    status: open
+    opened_on: 2026-05-13
+    last_verified: 2026-05-13
+    notes: |
+      Source — 2026-05 critic ("motion is a vocabulary of one word:
+      reveal"). Reference — Locomotive. Overlaps with the existing
+      `view-transitions-page-turn` backlog item — likely consolidate.

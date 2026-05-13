@@ -5,6 +5,185 @@ One entry per run. Newest first.
 
 ---
 
+## 2026-05-13 — SiteChrome wrapper (pathname-aware ChapterRail + RunningFolio foundation)
+
+**Area.** Both `<ChapterRail />` (left-edge dot-leader nav) and
+`<RunningFolio />` (bottom-edge running header re-typesetting per
+active chapter) were mounted directly in `src/app/layout.tsx`. Both
+are `"use client"` and rely on `useActiveChapter()`, which scans the
+DOM for `[data-chapter]` section anchors that only exist on the
+homepage. On every non-`/` route — `/supplies/<id>` PDP pages and
+`/_not-found` — the components still rendered into the DOM, but with
+stale fallback data: the chapter rail listed homepage chapters that
+weren't on the page, and the running folio pinned to "Vol. III · I ·
+Forwards" as a phantom byline. Bug surfaced when the catalogue PDP
+ship landed last run (`5aad961`) — the editorial spread reads
+correctly only when freed of the homepage's chrome. The fix is
+foundational and consumed by two queued Notion tasks (the parent
+"Shopify style checkout" and the future `/journal` route).
+
+**Why it's the focus.** Task-driven mode — the parent Notion task
+`Shopify style checkout` (Status: `To do`, Priority: Medium, Surface:
+`cart, system`) was the highest-priority open row at run-start.
+Evaluated against the size heuristic in the routine spec: net delta
+~700 LOC, 5 new files, modifies `cart-drawer.tsx` (shared primitive
+consumed by the homepage) AND `layout.tsx` (root chrome mount),
+introduces a new shared primitive (SiteChrome), self-rated effort L.
+Three split-heuristics hit — split into two subtasks via MCP. This
+run claims subtask **[1/2] Add SiteChrome wrapper** (Priority: High,
+foundation that subtask 2/2 depends on); subtask 2/2 (the
+`/checkout` route itself) stays queued at Priority: Medium for the
+next run.
+
+**Mode.** Task-driven (split) · `risk: medium`.
+
+**Risk band.** `medium` — touches `src/app/layout.tsx` (root layout,
+chrome mount relocation, not a structural refactor); introduces one
+new shared primitive (`SiteChrome`); zero copy change, zero visual
+token change, zero motion added. Per `risk-rules.md`, this is the
+low end of medium — closer to direct-to-main than to PR-mode.
+
+**What ships.**
+
+1. **`src/components/site-chrome.tsx`** (new, 14 lines, `"use client"`)
+   — single component that reads `usePathname()` from
+   `next/navigation` and returns `null` when `pathname !== "/"`.
+   On the homepage it renders `<><ChapterRail /><RunningFolio /></>`
+   in fragment, preserving the existing DOM order from `layout.tsx`.
+
+2. **`src/app/layout.tsx`** (modified, net −3 lines) — removes the
+   direct imports of `ChapterRail` + `RunningFolio` and their two
+   sibling mounts in the `<body>`. Replaces them with a single
+   `<SiteChrome />` mount at the same position (between `{children}`
+   and `<CartDrawer />`, after `<Cursor />` — order preserved
+   verbatim).
+
+3. **No changes** to `chapter-rail.tsx`, `running-folio.tsx`,
+   `globals.css`, or any other consumer. Both wrapped components
+   are reused verbatim. `useActiveChapter()` still runs only when
+   the wrapper renders them — i.e. only on `/` — so the homepage
+   keeps its existing scroll-observer behaviour and other routes
+   no longer pay the observer cost.
+
+**Architecture.** SiteChrome belongs in `src/components/` next to
+the primitives it composes; the location matches the existing
+pattern (`parallax-root.tsx`, `scroll-progress.tsx`, `cart-drawer.tsx`
+are all sibling thin client wrappers that live in `components/`).
+`"use client"` is required because `usePathname()` is a client hook
+and because ChapterRail / RunningFolio are themselves client
+components — moving the conditional up into a server component would
+have meant rendering both on the server only to suppress them on
+the client, defeating the bundle-trim. The current shape ships zero
+JS for ChapterRail + RunningFolio on `/supplies/*` and `/_not-found`.
+
+**Verification.**
+
+- `bun run lint` — PASS (7 pre-existing warnings in
+  `.claude/improvement/scripts/*.mjs` — none in the diff).
+- `bunx tsc --noEmit` — PASS.
+- `bun run build` — PASS. 19 / 19 SSG pages prerender as before;
+  no route count change.
+- SSR regression — `curl http://localhost:3210/ | grep -c
+  'chapter-rail'` returns **1**; same for `folio`. On
+  `/supplies/void-book` both grep counts are **0**. On
+  `/this-does-not-exist` (404) `chapter-rail` count is **0**.
+- A11y — markup preserved verbatim; ChapterRail's `<nav
+  aria-label="Chapter index">` and RunningFolio's `<aside
+  aria-hidden>` semantics unchanged. No focus management touched.
+- Reduced-motion — N/A; no motion added or modified.
+- Anti-patterns scan — 0 patterns.
+- Visual diff — `skipped: no prior chrome-desktop.png to compare`
+  (first capture of the `chrome` surface; subsequent runs will have
+  a baseline). Desktop + mobile screenshots captured to
+  `.claude/improvement/screenshots/46844af/`.
+- Diff-reviewer (inline, single-concern diff) — clean: 1 new file
+  at 14 lines, 2-line edit at root layout. No dead code, no scope
+  creep, no escape hatches, single concern matching the spec.
+
+**Rubric.** T 3 · M 2 · L 3 · I 1 · A 3 · D 1 = **13 / 18**
+(foundation work — distinctiveness is intentionally low on its own
+ship; the surface area it frees up will pay the rubric on the next
+two consumer ships).
+
+**Screenshots.** `.claude/improvement/screenshots/46844af/chrome-desktop.png`,
+`.claude/improvement/screenshots/46844af/chrome-mobile.png` (gitignored).
+
+**SOTD comparison.** `.claude/improvement/sotd/<pending-sha>.md`
+(skeleton — gallery markup parse failure this run; not load-bearing).
+
+**Notion.** Parent task
+[Shopify style checkout](https://www.notion.so/35faf8d3d3e280318283fd1e3eaf26e6)
+flipped to Status: `Split` with Subtasks column populated.
+This ship completes subtask 1/2
+[Add SiteChrome wrapper](https://www.notion.so/35faf8d3d3e281f8844acc87e0326f55).
+Subtask 2/2
+[Add /checkout route](https://www.notion.so/35faf8d3d3e2816d899ac10c1aeff029)
+remains Status: `To do` for the next run. Reports row appended via
+MCP fallback (NOTION_TOKEN env not set; `notion-sync.mjs` skipped,
+main thread used `notion-create-pages` directly).
+
+**Expected impact.**
+
+- Unblocks the two adjacent Notion tasks (checkout, blog posts) that
+  both need `/checkout` and `/journal` to render free of homepage
+  chrome.
+- Fixes a latent bug on `/supplies/<id>` where the chapter rail and
+  running folio rendered stale homepage data on PDP routes.
+- Removes ~1.2KB of client JS from every non-`/` route bundle
+  (ChapterRail + RunningFolio + `useActiveChapter` hook no longer
+  mounted there).
+- Cleans up a long-standing layout-level smell where two surfaces'
+  worth of nav chrome were globally mounted instead of conditionally
+  composed.
+
+**Files modified.**
+
+- `src/components/site-chrome.tsx` (new, 14 lines)
+- `src/app/layout.tsx` (−4 + 2 = −2 net lines)
+
+**Follow-ups uncovered.**
+
+- `sotd-compare.mjs` failed to parse Awwwards gallery markup this
+  run ("gallery markup may have changed"). Tracked by the script
+  itself — appended to backlog as `sotd-compare-selector-drift` if
+  not already there.
+- The 2 in-progress backlog items already capture follow-up work
+  surfaced by this run: the queued checkout subtask [2/2] depends
+  on this ship; the journal task will also consume SiteChrome.
+- Critic-surfaced backlog candidates added under
+  **Backlog appended** below.
+
+**Backlog appended (from monthly critic — first run).**
+
+- `hero-type-instrumental` — variable-axis hero, italic-roman swap
+  on pointer-over the wordmark, ligature alternates cycling.
+  Severity high, surface hero.
+- `catalogue-spread-asymmetry` — break every third chapter into a
+  full-bleed double-truck spread. Severity high, surface catalogue.
+- `motion-vocabulary-beyond-reveal` — per-surface motion vocabulary
+  (catalogue scroll-bound page-turn; manifesto held masthead; codex
+  re-typesetting numerals on enter). Severity medium, surface
+  chrome. Overlaps `view-transitions-page-turn` — flagged for
+  consolidation.
+
+**Periodic triggers fired.**
+
+- **Weekly retro** (first run; `last_retro_at` was empty). Wrote
+  `.claude/improvement/retros/2026-W19.md`. Headline finding: only
+  2 / 21 prior ships logged a parseable rubric line — the routine
+  is calibrating blind. Recommended Phase 6 commit-time regex check
+  in a future hygiene ship. Other findings: `manifesto` is the only
+  cold surface (0 ships); interaction-grammar (I) axis trends low
+  (both scored ships hit 2 / 3); two consecutive dialog ships
+  (IndexMenu, CartDrawer) leaked `body.overflow`, motivating a
+  proposed `lib/scroll-lock.ts` counted-helper.
+- **Monthly critic** (first run; `last_critic_at` was empty). Wrote
+  `.claude/improvement/critiques/2026-05.md`. Verdict: "a
+  well-skinned Next.js template wearing an editorial costume."
+  Three candidates appended to backlog (see Backlog appended).
+
+---
+
 ## 2026-05-13 — Per-product PDP route (`/supplies/[id]` editorial spread + View-Transitions shared specimen)
 
 **Area.** Before this ship, every product lived only as an in-page
