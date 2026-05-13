@@ -4,7 +4,7 @@ import { CHAPTERS } from "@/data/chapters";
 import { useActiveChapter } from "@/lib/use-active-chapter";
 
 export function RunningFolio() {
-  const activeId = useActiveChapter();
+  const { activeId } = useActiveChapter();
   const active = CHAPTERS.find((c) => c.id === activeId) ?? CHAPTERS[0];
 
   return (

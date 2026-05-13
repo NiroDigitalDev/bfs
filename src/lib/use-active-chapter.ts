@@ -1,11 +1,21 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { CHAPTERS } from "@/data/chapters";
 
-export function useActiveChapter(): string {
-  const [activeId, setActiveId] = useState<string>(CHAPTERS[0].id);
-  const ratiosRef = useRef<Map<string, number>>(new Map());
+export type ChapterScroll = {
+  activeId: string;
+  ratios: Record<string, number>;
+};
+
+const initialRatios = (): Record<string, number> =>
+  Object.fromEntries(CHAPTERS.map((c) => [c.id, 0]));
+
+export function useActiveChapter(): ChapterScroll {
+  const [state, setState] = useState<ChapterScroll>(() => ({
+    activeId: CHAPTERS[0].id,
+    ratios: initialRatios(),
+  }));
 
   useEffect(() => {
     const targets = CHAPTERS.map((c) => document.getElementById(c.id)).filter(
@@ -13,24 +23,25 @@ export function useActiveChapter(): string {
     );
     if (targets.length === 0) return;
 
-    const ratios = ratiosRef.current;
-    targets.forEach((el) => ratios.set(el.id, 0));
-
     const observer = new IntersectionObserver(
       (entries) => {
-        for (const entry of entries) {
-          ratios.set(entry.target.id, entry.intersectionRatio);
-        }
-        let topId = CHAPTERS[0].id;
-        let topRatio = -1;
-        for (const c of CHAPTERS) {
-          const r = ratios.get(c.id) ?? 0;
-          if (r > topRatio) {
-            topRatio = r;
-            topId = c.id;
+        setState((prev) => {
+          const next: Record<string, number> = { ...prev.ratios };
+          for (const entry of entries) {
+            next[entry.target.id] = entry.intersectionRatio;
           }
-        }
-        if (topRatio > 0) setActiveId(topId);
+          let topId = prev.activeId;
+          let topRatio = -1;
+          for (const c of CHAPTERS) {
+            const r = next[c.id] ?? 0;
+            if (r > topRatio) {
+              topRatio = r;
+              topId = c.id;
+            }
+          }
+          const activeId = topRatio > 0 ? topId : prev.activeId;
+          return { activeId, ratios: next };
+        });
       },
       {
         rootMargin: "-30% 0px -50% 0px",
@@ -42,5 +53,5 @@ export function useActiveChapter(): string {
     return () => observer.disconnect();
   }, []);
 
-  return activeId;
+  return state;
 }

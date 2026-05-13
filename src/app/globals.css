@@ -815,6 +815,12 @@ html.loading body {
   display: inline-block;
   color: #fff;
   margin-left: 0.02em;
+  /* Scroll-bound fade: 1.0 -> 0.55 over the first 600px of scroll.
+     --scroll-y is written by <ParallaxRoot /> and reduced-motion gated
+     at the source, so under reduced-motion the var stays unset and
+     CSS reads the fallback 0 — opacity stays at 1 always. */
+  opacity: clamp(0.55, calc(1 - var(--scroll-y, 0) * 0.00075), 1);
+  will-change: opacity;
 }
 .hero-period .split-char {
   -webkit-text-stroke: 0;
@@ -3721,17 +3727,21 @@ html.loading body {
 
 .chapter-rail-rule {
   display: inline-block;
-  width: 14px;
+  /* --rail-fill is set inline (0..1) from each chapter's IntersectionRatio.
+     The rule draws itself in from 14px to 32px as its target section
+     enters the read band — bound to scroll, not to hover. */
+  width: calc(14px + clamp(0, var(--rail-fill, 0), 1) * 18px);
   height: 1px;
   background: currentColor;
-  opacity: 0.55;
+  opacity: calc(0.45 + clamp(0, var(--rail-fill, 0), 1) * 0.55);
   transition: width var(--dur-3) var(--ease-out-expo),
     opacity var(--dur-2) var(--ease-out-expo);
 }
 
 .chapter-rail-link:hover .chapter-rail-rule,
+.chapter-rail-link:focus-visible .chapter-rail-rule,
 .chapter-rail-link[aria-current="true"] .chapter-rail-rule {
-  width: 26px;
+  width: 32px;
   opacity: 1;
 }
 
@@ -3755,6 +3765,17 @@ html.loading body {
   }
   .chapter-rail-label {
     transform: none;
+  }
+  /* Ignore scroll-bound --rail-fill under reduced motion — snap to a
+     binary baseline-vs-active state so the rule isn't twitching with
+     every scroll-step IntersectionObserver tick. */
+  .chapter-rail-rule {
+    width: 14px;
+    opacity: 0.55;
+  }
+  .chapter-rail-link[aria-current="true"] .chapter-rail-rule {
+    width: 32px;
+    opacity: 1;
   }
 }
 

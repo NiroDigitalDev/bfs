@@ -307,3 +307,217 @@ items:
       Source — 2026-05 critic ("motion is a vocabulary of one word:
       reveal"). Reference — Locomotive. Overlaps with the existing
       `view-transitions-page-turn` backlog item — likely consolidate.
+
+  - id: hero-period-will-change-cleanup
+    title: Drop `will-change: opacity` from .hero-period once effect is stable
+    ship: |
+      The hero-period scroll-fade (shipped this run) declared
+      `will-change: opacity` to hint the compositor. `will-change` is
+      best applied transiently — keeping it set permanently can pin
+      the element to its own layer indefinitely and waste memory.
+      Once the effect proves stable across browsers, either remove
+      the declaration or scope it behind a hover/scroll-start trigger.
+    severity: low
+    effort: S
+    class: perf
+    status: open
+    files:
+      - src/app/globals.css:814
+    opened_on: 2026-05-13
+    last_verified: 2026-05-13
+    notes: |
+      Source — perf-a11y agent follow-up on the hero-period-scroll-fade
+      ship (commit pending). Non-blocking observation. Watch a few runs
+      with the fade live, then drop the hint if no compositor jank
+      surfaces.
+
+  - id: skip-link-main-landmark
+    title: Add skip-link + `<main>` landmark — first Tab target is currently a decorative element
+    ship: |
+      In `src/app/layout.tsx`, prepend a `<a class="skip-link"
+      href="#main">Skip to content</a>` as the first body child, wrap
+      `{children}` in `<main id="main" tabIndex={-1}>`, and add a
+      `.skip-link` rule in globals.css using the existing focus-ring
+      token (off-canvas by default, visible on focus). Closes a real
+      WCAG hole — current first Tab on every route lands on
+      `<Cursor />` / `<Loader />` / `<ScrollProgress />` decoratives.
+    severity: high
+    effort: S
+    class: a11y
+    status: open
+    files:
+      - src/app/layout.tsx:171-205
+      - src/app/globals.css
+    opened_on: 2026-05-13
+    last_verified: 2026-05-13
+    notes: |
+      Source — motion-a11y auditor run on 2026-05-13. Scored only 8/18
+      on the rubric (T1 M0 L1 I2 A3 D1) so it lost the focus race this
+      run; held as a high-severity hygiene item because A jumps from
+      1 → 3 and clears the disqualification gate. Pick this on a
+      future low-rubric-quorum run or pair it with another a11y move.
+
+  - id: magnetic-tilt-mq-subscription
+    title: Magnetic + Tilt — subscribe to matchMedia change events and reset transforms on bail
+    ship: |
+      Magnetic (`src/components/magnetic.tsx:17-18`) and Tilt
+      (`src/components/tilt.tsx:17-18`) read `(pointer: fine)` and
+      `(prefers-reduced-motion: reduce)` once at mount. If the user
+      toggles reduced-motion or hot-plugs a trackpad, the existing
+      effect doesn't re-run and any `el.style.transform` set by the
+      last pointer event sticks. Fix — subscribe to both
+      `matchMedia(...).addEventListener("change", ...)` in the effect;
+      on bail, clear `el.style.transform = ""` and the `--mx/--my`
+      custom properties.
+    severity: medium
+    effort: S
+    class: a11y
+    status: open
+    files:
+      - src/components/magnetic.tsx:17-18
+      - src/components/tilt.tsx:17-18
+    opened_on: 2026-05-13
+    last_verified: 2026-05-13
+    notes: |
+      Source — motion-a11y auditor 2026-05-13. Real correctness edge
+      case (mid-session media-query flip) but very rare in practice.
+      Score 9/18 — low rubric pick but cheap, isolated, and a
+      defensible "do it because it's right" hygiene item.
+
+  - id: hairline-opacity-token-sweep
+    title: Tokenize hairline opacities — 0.32 / 0.42 / 0.55 used interchangeably across globals.css
+    ship: |
+      Introduce three new tokens (`--color-line-faint: rgba(255,255,255,0.32)`,
+      `--color-line-mid: 0.42`, `--color-line-strong: 0.55`) in the
+      :root token block; sweep `src/app/globals.css` replacing literal
+      `rgba(255,255,255,0.32–0.55)` hairline / muted-ink uses with the
+      token. Zero visible delta if the rounding stays in band.
+    severity: low
+    effort: M
+    class: hygiene
+    status: open
+    files:
+      - src/app/globals.css
+    opened_on: 2026-05-13
+    last_verified: 2026-05-13
+    notes: |
+      Source — motion-a11y auditor 2026-05-13 (found ~17 literal sites
+      across hairline-heavy surfaces — codex, spec-plate, related grid,
+      folio). Existing tokens `--color-text-muted` / `--color-text-faint`
+      cover ink but not line. Single-PR sweep, no behavioural change.
+
+  - id: outro-anchor-normalize
+    title: Normalize outro nav anchors to `/#anchor` form
+    ship: |
+      `src/app/page.tsx:690-708` uses bare hash anchors (`#supplies`,
+      `#manifesto`, `#cult`, `#faq`). On non-`/` routes these resolve
+      to nothing. Switch to absolute `/#anchor` form so any future
+      cross-route mount (footer/SiteChrome expansion) works.
+    severity: low
+    effort: S
+    class: hygiene
+    status: open
+    files:
+      - src/app/page.tsx:690-708
+    opened_on: 2026-05-13
+    last_verified: 2026-05-13
+    notes: |
+      Source — colophon auditor 2026-05-13. Outro currently only
+      renders on `/` so latent until the IA grows; cheap insurance.
+
+  - id: colophon-edition-token-sweep
+    title: Source Edition / Lat-Lon / Year from `site.ts` across colophon, 404, OG image
+    ship: |
+      `src/lib/site.ts:17` already exports `site.edition = "Edition III
+      · MMXXVI"` and related publisher fields, but three surfaces
+      retype the string by hand: `src/app/page.tsx:610-612`,
+      `src/app/not-found.tsx:130-132`, `src/app/opengraph-image.tsx:36`.
+      Drift risk on the next edition bump. Also: add a missing
+      "Edition" row to the colophon dl (`page.tsx:642-678`) so the
+      live value is read in the masthead register.
+    severity: medium
+    effort: S
+    class: hygiene
+    status: open
+    files:
+      - src/lib/site.ts:17
+      - src/app/page.tsx:610-612
+      - src/app/not-found.tsx:130-132
+      - src/app/opengraph-image.tsx:36
+    opened_on: 2026-05-13
+    last_verified: 2026-05-13
+    notes: |
+      Source — colophon auditor 2026-05-13. Single-S-effort move that
+      touches three surfaces and adds a publisher-mark row.
+
+  - id: press-disclaimer-aa-bump
+    title: `.press-disclaimer` at 10px / 0.35 alpha fails WCAG AA — bump to 0.55 or 12px
+    ship: |
+      `src/app/globals.css:2231-2233` declares `.press-disclaimer` at
+      10px and `rgba(255,255,255,0.35)` over `#050505` — contrast
+      ≈ 3.5:1, fails AA body-copy (needs 4.5:1). Bump color to
+      `rgba(255,255,255,0.55)` (≈ 6.7:1) OR raise to 12px (which would
+      shift the threshold to the 3:1 large-text rule but the alpha is
+      still tight).
+    severity: medium
+    effort: S
+    class: a11y
+    status: open
+    files:
+      - src/app/globals.css:2231-2233
+    opened_on: 2026-05-13
+    last_verified: 2026-05-13
+    notes: |
+      Source — motion-a11y auditor 2026-05-13. Real AA violation but
+      tiny copy is currently a decorative disclaimer — pair with the
+      next a11y-themed ship.
+
+  - id: use-active-chapter-shared-observer
+    title: ChapterRail + RunningFolio instantiate two IntersectionObservers
+    ship: |
+      Both `src/components/chapter-rail.tsx` and
+      `src/components/running-folio.tsx` call `useActiveChapter()`,
+      each spinning up its own IntersectionObserver on the same five
+      chapter elements. Lift the observer behind a shared
+      `useSyncExternalStore` (or a small singleton in
+      `src/lib/use-active-chapter.ts`) so one observer feeds both
+      consumers. Premature at n=2 consumers but the natural cleanup
+      after the chapter-rail-scrollbound-fill ship lifted ratios into
+      React state.
+    severity: low
+    effort: S
+    class: perf
+    status: open
+    files:
+      - src/lib/use-active-chapter.ts:18-46
+      - src/components/chapter-rail.tsx:7
+      - src/components/running-folio.tsx:7
+    opened_on: 2026-05-13
+    last_verified: 2026-05-13
+    notes: |
+      Source — perf-a11y on ship of chapter-rail-scrollbound-fill.
+      Was tolerable pre-ship because the second observer only set
+      activeId state; now both consumers also receive the ratios
+      map object on every IO tick, doubling render churn.
+
+  - id: chapter-rail-geometry-tokens
+    title: Tokenize chapter-rail width / opacity literals
+    ship: |
+      The rail rule width range (14px / 32px / 18px delta) and
+      opacity ramp (0.45 / 0.55) live as literals in
+      `src/app/globals.css:3728-3776`. Promote to local custom
+      properties at the `.chapter-rail-rule` rule (or to root tokens
+      if any other rail-style chrome ever joins it) so the
+      reduced-motion fallback and the calc() draw don't repeat
+      magic numbers.
+    severity: low
+    effort: S
+    class: hygiene
+    status: open
+    files:
+      - src/app/globals.css:3728-3776
+    opened_on: 2026-05-13
+    last_verified: 2026-05-13
+    notes: |
+      Source — diff-reviewer on ship of chapter-rail-scrollbound-fill.
+      Not blocking; pure tidy-up.
