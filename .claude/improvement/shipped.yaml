@@ -262,7 +262,7 @@ items:
 
   - id: split-text-word-break-fix
     title: SplitText display titles wrap mid-character at line edges — add `white-space: nowrap` to `.split-word`
-    commit: pending
+    commit: fe9e6af
     date: 2026-05-13
     surface: system
     tags: [splittext, primitive, css-utility, white-space-nowrap, inline-block, word-wrap, display-type, clamp-display, hero, faq, pdp, journal, codex, manifesto, outro, 404, regression-fix, layout-fix, ssr-stable, no-markup-change, no-js-delta]

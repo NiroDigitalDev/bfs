@@ -9,8 +9,8 @@
 version: 1
 
 # Last-run telemetry — written at the end of every run.
-last_run_at: 2026-05-13T20:00:00Z
-last_run_commit: 3b14a27
+last_run_at: 2026-05-13T21:00:00Z
+last_run_commit: fe9e6af
 last_run_mode: shipped   # shipped | no-focus | pr-opened
 
 # Anti-stagnation — incremented on every no-focus run, reset to 0 on ship.
@@ -20,7 +20,7 @@ consecutive_no_focus_runs: 0
 
 # Shipped-count — incremented on every shipped (not no-focus) run.
 # When this becomes a multiple of 10, Phase 0 fires the rubric-calibrator.
-shipped_count: 29   # +1: nav-cart-overlap-fix direct-to-main (task-driven, low risk — Notion task Cart button overflows the nav; .nav grid-child fix: `justify-self: end` was on `.nav-cta` but the `<Magnetic>` wrapper became the actual grid child; move to `.nav > .magnetic` + add `display: inline-flex`; add `column-gap: 32px` for 5th-link future-proofing; 7-LOC CSS-only ship)
+shipped_count: 30   # +1: split-text-word-break-fix direct-to-main (task-driven, medium risk — Notion task Hero display-type breaks mid-word; .split-word lacked white-space: nowrap so inline-block .split-char siblings became wrap opportunities; FAQ display 'Questions, patiently answered.' shredded PATIENTLY → PATIE/NTLY at line edges; one CSS rule addition + 5-line WHY comment to globals.css:311–321; affects every clamp-display title wrapped in <SplitText> sitewide; 6-LOC CSS-only ship; SHIPPED-COUNT IS NOW A MULTIPLE OF 10 — next run's Phase 0 should fire rubric-calibrator if last_calibration_at gap also ≥ 7 days)
 
 # Periodic cron triggers — Phase 0 compares against today's date and
 # fires the corresponding agent when the gap exceeds the cadence.
