@@ -361,6 +361,87 @@ async function releaseTask(pageId) {
   console.log(`released: ${pageId}`);
 }
 
+// ------- split-task -------
+
+async function splitTask(state, parentId, jsonPath) {
+  // Read a JSON file with the subtask definitions, create N new Task rows
+  // (Status: To do), mark the parent as Split, and cross-reference both
+  // directions. JSON shape:
+  //   {
+  //     "parent_title": "Editorial Journal — full scope",  (used as prefix; optional)
+  //     "parent_url": "https://notion.so/<id>",            (auto-derived if absent)
+  //     "subtasks": [
+  //       { "title": "[1/3] Add SiteChrome wrapper",
+  //         "priority": "High",
+  //         "ship_description": "...",
+  //         "notes": "..." },
+  //       ...
+  //     ]
+  //   }
+  if (!existsSync(jsonPath)) throw new Error(`json file not found: ${jsonPath}`);
+  const data = JSON.parse(readFileSync(jsonPath, 'utf8'));
+  if (!Array.isArray(data.subtasks) || data.subtasks.length < 2) {
+    throw new Error('split-task requires data.subtasks with at least 2 entries');
+  }
+
+  // Fetch parent to get its current title + URL.
+  const parent = await notionFetch(`/pages/${parentId}`, { method: 'GET' });
+  const parentUrl =
+    data.parent_url ||
+    parent.url ||
+    `https://www.notion.so/${parentId.replace(/-/g, '')}`;
+  const parentTitle =
+    (parent.properties?.Title?.title || []).map((t) => t.plain_text).join('') ||
+    data.parent_title ||
+    '(parent)';
+
+  // Create each subtask under the same data source as the parent.
+  const subtaskRefs = [];
+  const total = data.subtasks.length;
+  for (let i = 0; i < total; i++) {
+    const st = data.subtasks[i];
+    const titlePrefix = `[${i + 1}/${total}] `;
+    const fullTitle = st.title.startsWith('[') ? st.title : titlePrefix + st.title;
+    const body = {
+      parent: { data_source_id: state.tasks_data_source_id },
+      properties: {
+        Title: { title: richText(fullTitle) },
+        Status: selectValue('To do'),
+        Priority: selectValue(st.priority || parent.properties?.Priority?.select?.name || 'Medium'),
+        'Ship description': { rich_text: richText(st.ship_description || '') },
+        Parent: { rich_text: richText(`${parentTitle} — ${parentUrl}`) },
+        Notes: { rich_text: richText(st.notes || `Subtask ${i + 1} of ${total} (split from parent).`) },
+      },
+    };
+    let r;
+    try {
+      r = await notionFetch('/pages', { method: 'POST', body: JSON.stringify(body) });
+    } catch {
+      const fallback = { ...body, parent: { database_id: state.tasks_data_source_id } };
+      r = await notionFetch('/pages', { method: 'POST', body: JSON.stringify(fallback) });
+    }
+    subtaskRefs.push({ id: r.id, url: r.url, title: fullTitle });
+  }
+
+  // Mark the parent as Split and list the subtask URLs in its Subtasks
+  // column. Status: Split makes check-tasks ignore it (filter is To do).
+  const subtaskList = subtaskRefs.map((s) => `${s.title} → ${s.url}`).join('\n');
+  await notionFetch(`/pages/${parentId}`, {
+    method: 'PATCH',
+    body: JSON.stringify({
+      properties: {
+        Status: selectValue('Split'),
+        Subtasks: { rich_text: richText(subtaskList) },
+      },
+    }),
+  });
+
+  console.log(`split: ${parentId} → ${subtaskRefs.length} subtasks`);
+  for (const s of subtaskRefs) {
+    console.log(`subtask: ${s.id} ${s.title}`);
+  }
+}
+
 // ------- append-report -------
 
 async function appendReport(state, jsonPath) {
@@ -452,9 +533,18 @@ async function main() {
         if (!jsonArg) throw new Error('append-report requires --json-file=<path>');
         await appendReport(state, jsonArg.slice('--json-file='.length));
         break;
+      case 'split-task': {
+        const parentId = args[0];
+        const jf = args.find((a) => a.startsWith('--json-file='));
+        if (!parentId || !jf) {
+          throw new Error('split-task requires <parent-page-id> --json-file=<path>');
+        }
+        await splitTask(state, parentId, jf.slice('--json-file='.length));
+        break;
+      }
       default:
         console.log(
-          `skipped: unknown subcommand "${cmd}" — try check-tasks | claim-task | complete-task | release-task | append-report | derive-surface`,
+          `skipped: unknown subcommand "${cmd}" — try check-tasks | claim-task | complete-task | release-task | split-task | append-report | derive-surface`,
         );
     }
   } catch (e) {
