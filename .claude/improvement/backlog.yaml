@@ -471,3 +471,53 @@ items:
       Source — motion-a11y auditor 2026-05-13. Real AA violation but
       tiny copy is currently a decorative disclaimer — pair with the
       next a11y-themed ship.
+
+  - id: use-active-chapter-shared-observer
+    title: ChapterRail + RunningFolio instantiate two IntersectionObservers
+    ship: |
+      Both `src/components/chapter-rail.tsx` and
+      `src/components/running-folio.tsx` call `useActiveChapter()`,
+      each spinning up its own IntersectionObserver on the same five
+      chapter elements. Lift the observer behind a shared
+      `useSyncExternalStore` (or a small singleton in
+      `src/lib/use-active-chapter.ts`) so one observer feeds both
+      consumers. Premature at n=2 consumers but the natural cleanup
+      after the chapter-rail-scrollbound-fill ship lifted ratios into
+      React state.
+    severity: low
+    effort: S
+    class: perf
+    status: open
+    files:
+      - src/lib/use-active-chapter.ts:18-46
+      - src/components/chapter-rail.tsx:7
+      - src/components/running-folio.tsx:7
+    opened_on: 2026-05-13
+    last_verified: 2026-05-13
+    notes: |
+      Source — perf-a11y on ship of chapter-rail-scrollbound-fill.
+      Was tolerable pre-ship because the second observer only set
+      activeId state; now both consumers also receive the ratios
+      map object on every IO tick, doubling render churn.
+
+  - id: chapter-rail-geometry-tokens
+    title: Tokenize chapter-rail width / opacity literals
+    ship: |
+      The rail rule width range (14px / 32px / 18px delta) and
+      opacity ramp (0.45 / 0.55) live as literals in
+      `src/app/globals.css:3728-3776`. Promote to local custom
+      properties at the `.chapter-rail-rule` rule (or to root tokens
+      if any other rail-style chrome ever joins it) so the
+      reduced-motion fallback and the calc() draw don't repeat
+      magic numbers.
+    severity: low
+    effort: S
+    class: hygiene
+    status: open
+    files:
+      - src/app/globals.css:3728-3776
+    opened_on: 2026-05-13
+    last_verified: 2026-05-13
+    notes: |
+      Source — diff-reviewer on ship of chapter-rail-scrollbound-fill.
+      Not blocking; pure tidy-up.

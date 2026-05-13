@@ -204,3 +204,11 @@ items:
     surface: hero
     tags: [hero, hero-period, scroll-y, opacity, css-var, parallax-root, reduced-motion, decorative-punctuation, scroll-bound]
     summary: The period (the only solid mark in the otherwise outlined "Dark Matter." headline) now binds its opacity to the existing --scroll-y CSS variable already written by <ParallaxRoot />. Fades from 1.0 at scroll-y=0 to 0.55 at scroll-y=600px, then clamps. Pure-CSS, zero JS delta. Reduced-motion is handled at the source — ParallaxRoot opts out under prefers-reduced-motion, so the var stays unset and CSS reads the fallback 0, keeping the period at opacity 1. Turns the load-bearing punctuation of the hero into a scroll meter without adding any new primitive.
+
+  - id: chapter-rail-scrollbound-fill
+    title: Chapter-rail hairlines draw themselves in as their chapter enters the read band
+    commit: pending
+    date: 2026-05-13
+    surface: chrome
+    tags: [chrome, chapter-rail, intersection-observer, scroll-bound, css-var, rail-fill, reduced-motion, motion-vocabulary, hook-refactor]
+    summary: The five .chapter-rail-rule hairlines now bind their width (14px → 32px) and opacity (0.45 → 1.0) to each chapter's live IntersectionRatio via a new `--rail-fill` CSS custom property set inline per link. useActiveChapter() refactored from `string` to `{ activeId, ratios }` so the same IntersectionObserver that drives the active-chapter highlight also exposes the per-chapter progress map (zero second observer added). Reduced-motion snaps the rule to a 14px-baseline / 32px-active binary so the rail doesn't twitch on every scroll-tick. Hover / focus-visible / aria-current still force the full draw — keyboard users always see the active rail at its maximum. CSS-only motion vocabulary lift; net +29 LOC.

@@ -5,6 +5,165 @@ One entry per run. Newest first.
 
 ---
 
+## 2026-05-13 — Chapter-rail hairlines draw in as their chapter enters the read band
+
+**Area.** The fixed left-edge chapter rail on `/` (`src/components/chapter-rail.tsx`,
+styled at `src/app/globals.css:3648-3766`) lists the five chapters as
+numeral · hairline rule · italic-serif label. The hairline `.chapter-rail-rule`
+previously shipped two visual states: a 14px @ 0.55 alpha baseline for
+inactive chapters, and a 26px @ 1.0 alpha "active" state forced by
+`:hover`, `[aria-current="true"]`, or `:focus-visible`. The active flag
+is set by `useActiveChapter()` (`src/lib/use-active-chapter.ts`), which
+already ran an `IntersectionObserver` with threshold steps
+`[0, 0.1, 0.25, 0.5, 0.75, 1]` and *stored* each chapter's live
+`intersectionRatio` in a `useRef` — but never exposed it to consumers.
+The ratios were thrown away each tick after picking the active id.
+
+**Why it's the focus.** Autonomous run — no Notion task in `To do` is
+actionable on `main` (the single `To do` row, `[2/2] /journal SEO`,
+depends on PR #5's `src/lib/journal.ts` and `src/app/journal/*` which
+have not merged; cannot ship its modifications against files that
+don't exist). Fell through to standard discovery. The motion-vocabulary
+auditor surfaced this as the highest-D-axis-lift × lowest-effort
+candidate (T 2 · M 3 · L 3 · I 3 · A 3 · D 3 = 17/18); the historian
+confirmed no overlapping backlog item and the hook's existing observer
+already had the data we needed. Surface freshness: chrome was 2 ships
+ago (`site-chrome-pathname-aware`, 472dc7c), 1 surface behind the just-
+shipped hero — so the rotation argument held. Tiebreaker against the
+hero-outline-scroll-fill move went to chrome on lower-effort + better
+surface cadence.
+
+**Mode.** `Shipped` — autonomous, no Notion task drove this.
+
+**Risk band.** `low` — touches one scoped component, its hook, one
+consumer (running-folio), and a 12-line CSS block; no shared primitive
+modified; no API consumed by anything outside `src/components/`.
+
+**What ships.**
+- `.chapter-rail-rule` width now binds to a per-link inline
+  `--rail-fill` custom property (0..1): `width: calc(14px + clamp(0, var(--rail-fill, 0), 1) * 18px)`
+  and matching `opacity: calc(0.45 + clamp(0, var(--rail-fill, 0), 1) * 0.55)`.
+  As a chapter scrolls into the read band, its rail rule physically
+  draws itself in from 14px to 32px and brightens from 0.45 alpha to 1.0.
+- Hover, focus-visible, and `aria-current="true"` keep their existing
+  "forced-full" semantics — they pin the rule to 32px @ 1.0 alpha
+  regardless of scroll position, so keyboard users always see the
+  active rail at its maximum draw.
+- `useActiveChapter()` refactored from `string` to
+  `{ activeId: string; ratios: Record<string, number> }`. The same
+  observer (one per consumer; see follow-ups) now lifts its ratios
+  map into React state, so `ChapterRail` can re-render each `<a>`'s
+  inline `--rail-fill` whenever the underlying ratio crosses an
+  IntersectionObserver threshold.
+- `RunningFolio` updated to destructure `{ activeId }` from the new
+  hook shape — no behaviour change for the folio.
+- Reduced-motion block at `globals.css:3757-3786` now also overrides
+  the calc to snap the rail to a 14px-baseline / 32px-active **binary**
+  state. Users with `prefers-reduced-motion: reduce` never see
+  per-scroll-tick width changes; only the binary "current section"
+  signal.
+
+**Architecture.** Pure refactor + CSS-var bridge. No new client deps,
+no new keyframes, no new components. The hook still uses a single
+`IntersectionObserver` per consumer with the same threshold array;
+the only material change is that `intersectionRatio` is no longer
+discarded after the active-id calculation — it's surfaced via the
+hook's return shape and applied to the DOM as a CSS custom property.
+The CSS-var bridge means the *animation* itself remains pure CSS
+(transitioning `width` and `opacity` with the existing
+`--dur-3 / --ease-out-expo` tokens) — JavaScript only writes a number
+at each threshold crossing, never mutates style every frame.
+
+**Verification.**
+- Lint: PASS (7 pre-existing warnings in `.claude/improvement/scripts/*.mjs`, unrelated).
+- Typecheck: PASS — no missed consumers.
+- Build: PASS — 19 static pages prerendered in 450.8ms (878ms total
+  compile). No new warnings.
+- SSR regression-spotter:
+  - Homepage `/` — `.chapter-rail` x1, `.chapter-rail-link` x5,
+    `.chapter-rail-rule` x5 (each carrying `style="--rail-fill:0"` —
+    deterministic SSR; first-paint matches what client renders before
+    any IO callback runs, no hydration mismatch surface).
+  - `.folio` still populated (`folio-numeral`, `folio-label`,
+    `folio-folio` all present).
+  - `/supplies/void-book` — `.chapter-rail` x0, `.folio` x0
+    (`SiteChrome` pathname gating still works after the hook refactor).
+  - `/_not-found` — `.chapter-rail` x0, `.folio` x0.
+- Lighthouse: **skipped** — CSS-only width/opacity transitions with
+  zero JS-budget delta; the perf signal is too noisy for the cost.
+- Anti-patterns: 1 finding — `inline-style` on `chapter-rail.tsx:25`
+  for `style={{ "--rail-fill": fill } as CSSProperties}`. This is the
+  canonical idiom for passing CSS custom properties through React;
+  not an escape hatch. Acknowledged.
+
+**Rubric.** `T 2 · M 3 · L 3 · I 3 · A 3 · D 3 = 17 / 18` —
+distinctive band. M 3 because the refactor lifts a value that was
+already being computed but discarded, so the cost is essentially
+"surface what's there." D 3 because bound-to-progress hairlines are
+specifically the Locomotive / Awwwards-grade motion vocabulary that
+template Next.js sites don't ship — every standard chrome nav
+toggles a binary "active" tick; ours has now 100 intermediate states.
+
+**Screenshots.**
+- `.claude/improvement/screenshots/aceb93e/chapter-rail-scrollbound-fill-desktop.png`
+- `.claude/improvement/screenshots/aceb93e/chapter-rail-scrollbound-fill-mobile.png`
+
+**Visual diff.** Skipped — first capture of this surface id, no prior
+`chapter-rail-scrollbound-fill-desktop.png` to compare. Next run on
+the same surface will produce a delta.
+
+**SOTD comparison.** `sotd-compare.mjs` reported
+`could not parse SOTD entry — gallery markup may have changed`.
+Skipped; logged as a tooling follow-up rather than blocking the ship.
+
+**Notion.** Reports row will be appended after commit. No Task drove
+this run (the one open `To do` was dependency-blocked by PR #5).
+
+**Expected impact.** The left-edge chrome reads as a scroll meter,
+not a binary highlight — the rail now narrates *how deep* you are
+into each chapter, not just *which one is current*. Each hairline
+acts like a film progress bar for its section. Pairs naturally with
+the just-shipped `hero-period-scroll-fade` to extend "scroll-bound
+typographic instruments" into a consistent vocabulary across hero
+and chrome.
+
+**Files modified.**
+- `src/lib/use-active-chapter.ts` (+21 / -15)
+- `src/components/chapter-rail.tsx` (+4 / -1)
+- `src/components/running-folio.tsx` (+1 / -1)
+- `src/app/globals.css` (+18 / -3)
+
+Net delta: +44 / -20 LOC.
+
+**Follow-ups uncovered.**
+- `use-active-chapter-shared-observer` (low/S/perf) — `ChapterRail`
+  and `RunningFolio` both call `useActiveChapter()`, so the page
+  spins up two IntersectionObservers on the same 5 chapter elements.
+  Tolerable pre-ship; now slightly more wasteful since each consumer
+  receives the full ratios map per tick. Lift the observer behind a
+  shared store (`useSyncExternalStore` or a singleton).
+- `chapter-rail-geometry-tokens` (low/S/hygiene) — the rail rule's
+  width range (14 / 32 / 18) and opacity ramp (0.45 / 0.55) are
+  duplicated between the calc() expression and the reduced-motion
+  fallback. Tokenize to local custom properties on the rail.
+- `sotd-compare.mjs` parser is broken (recorded in `state.yaml`
+  already; surfacing here too).
+
+**Backlog closed-by-drift.** None — historian verified all 23 open
+items still real this run.
+
+**Periodic triggers fired.** None — `last_retro_at` and
+`last_critic_at` both today (2026-05-13); `shipped_count` was 23
+(not a multiple of 10); `consecutive_no_focus_runs` was 0 (no
+creativity-reset due).
+
+**Review.** Skipped — the `/review` skill is GitHub-PR-focused and
+this is a direct-to-main low-risk ship. The diff-reviewer agent in
+Phase 5 covered the same scope (PASS-WITH-NITS: one hardcoded-
+geometry nit, already logged as follow-up `chapter-rail-geometry-tokens`).
+
+---
+
 ## 2026-05-13 — Hero period as scroll-bound mark (opacity fades over first 600px)
 
 **Area.** The hero on `/` ends in a single solid period — `"Dark
