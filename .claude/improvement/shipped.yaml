@@ -246,7 +246,7 @@ items:
 
   - id: nav-cart-overlap-fix
     title: Nav cart pill — fix right-edge overlap from <Magnetic> wrapping
-    commit: pending
+    commit: 3b14a27
     date: 2026-05-13
     surface: nav
     tags: [nav, cart, chrome, css-grid, magnetic, justify-self, column-gap, layout-fix, regression, ssr-only, no-js-delta]

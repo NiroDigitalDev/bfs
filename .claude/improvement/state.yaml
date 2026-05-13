@@ -9,8 +9,8 @@
 version: 1
 
 # Last-run telemetry — written at the end of every run.
-last_run_at: 2026-05-13T19:00:00Z
-last_run_commit: 204bc81
+last_run_at: 2026-05-13T20:00:00Z
+last_run_commit: 3b14a27
 last_run_mode: shipped   # shipped | no-focus | pr-opened
 
 # Anti-stagnation — incremented on every no-focus run, reset to 0 on ship.
@@ -20,7 +20,7 @@ consecutive_no_focus_runs: 0
 
 # Shipped-count — incremented on every shipped (not no-focus) run.
 # When this becomes a multiple of 10, Phase 0 fires the rubric-calibrator.
-shipped_count: 28   # +1: pdp-quantity-selector direct-to-main (task-driven, medium risk — Notion task PDP quantity selector; new <QuantitySelector /> primitive + cart.add(qty) extension + <PDPAddToCart /> sibling export wired into every /supplies/<id>, italic-serif oldstyle-nums display, hairline-rule pill, keyboard arrows, reduced-motion guard)
+shipped_count: 29   # +1: nav-cart-overlap-fix direct-to-main (task-driven, low risk — Notion task Cart button overflows the nav; .nav grid-child fix: `justify-self: end` was on `.nav-cta` but the `<Magnetic>` wrapper became the actual grid child; move to `.nav > .magnetic` + add `display: inline-flex`; add `column-gap: 32px` for 5th-link future-proofing; 7-LOC CSS-only ship)
 
 # Periodic cron triggers — Phase 0 compares against today's date and
 # fires the corresponding agent when the gap exceeds the cadence.
@@ -31,9 +31,9 @@ last_calibration_at: ""        # event-driven (every 10th ship) — also capture
 # Optional integrations status — Phase 0 self-checks these on startup
 # and degrades gracefully when they're absent or broken.
 gh_available: true           # `gh auth status` ok this run
-playwright_available: true   # capture-ship.mjs wrote press-desktop + press-mobile under 106498a/
-lighthouse_available: unknown  # perf-a11y skipped lighthouse (CSS-only ship, mid-page surface — poor signal-to-cost)
-sotd_parser_available: false   # sotd-compare.mjs: "could not parse SOTD entry — gallery markup may have changed" (still broken — re-investigation queued)
+playwright_available: true   # capture-ship.mjs wrote nav-desktop + nav-mobile under 9538882/
+lighthouse_available: unknown  # perf-a11y skipped lighthouse (CSS-only nav-chrome ship, low-impact LCP/CLS surface — poor signal-to-cost)
+sotd_parser_available: false   # sotd-compare.mjs: "could not parse SOTD entry — gallery markup may have changed" (still broken — sotd-parser-fix backlog item queued)
 
 # Daily improvements.md archival check — Phase 0 reads size and rotates
 # if exceeded. Recorded here so a freshly-archived run doesn't try again.
