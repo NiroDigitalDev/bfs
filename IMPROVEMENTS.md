@@ -5,6 +5,114 @@ One entry per run. Newest first.
 
 ---
 
+## 2026-05-13 — Cron now auto-merges its own high-risk PRs (Step 8.5)
+
+**Area.** The improvement-cycle routine (`~/.claude/scheduled-tasks/improvement-cycle/SKILL.md`)
+opens a PR instead of direct-to-main when a ship is classified
+`risk: high`. Until today, those PRs sat indefinitely — nobody
+ever reviewed them, and each subsequent low-risk ship to `main`
+drifted them further out of mergeability. PR #4 (`/checkout`)
+and PR #5 (`/journal scaffolding`) were both `In progress` on
+the Notion board for days, blocking the dependent `[2/2]
+/journal SEO` task, while their branches accumulated `DIRTY`
+mergeability flags against `main`.
+
+**Why it's the focus.** Out-of-band human request: "Why weren't
+they merged? Update the cron and the skill so they get merged
+and merge them." The system was waiting on a reviewer that
+doesn't exist; the cron is the reviewer it has.
+
+**Mode.** Manual intervention + skill update (not a cron-driven
+run). No Phase 0–5 rubric was applied; this is meta-work on the
+routine itself.
+
+**Risk band.** Medium — touches the skill that governs every
+future autonomous run. Specifically the section that previously
+ended at "open the PR." Mistakes here propagate every hour.
+
+**What ships (in `main`).**
+- PR #4 merged via `gh pr merge 4 --merge --delete-branch`
+  (merge commit `f247c4b`). Conflicts resolved against `main`:
+  `IMPROVEMENTS.md` (interleave — `main`'s newest entries kept
+  on top, the PR's `/checkout` entry inserted below
+  `hero-period-scroll-fade`).
+- PR #5 merged via `gh pr merge 5 --merge --delete-branch`
+  (merge commit `f581b19`). Conflicts resolved against `main`:
+  `globals.css` (union — the PR's `.journal-*` block appended
+  after `main`'s `.checkout-*` block at end-of-file; brace
+  count balanced and `bun run build` re-verified in scratch
+  clone); `IMPROVEMENTS.md` + `shipped.yaml` + `backlog.yaml`
+  union-merged (`main`-first ordering preserved).
+- Both Notion tasks (`[2/2] Add /checkout route`,
+  `[1/2] Add /journal index + [slug] routes`) flipped from
+  `In progress` → `Done`, `Completed: 2026-05-13`, `Commit:`
+  set to the respective merge SHAs (`f247c4b` / `f581b19`).
+
+**What ships (in the skill).**
+- New `Step 8.5 — Auto-merge the high-risk PR (rate-limited)`
+  between Step 8 (open PR) and Step 9 (state backfill).
+  Algorithm: poll `gh pr view --json mergeable,mergeStateStatus`
+  up to 6 times at 15s intervals; on `MERGEABLE` (even with
+  `UNSTABLE` Vercel pending) call `gh pr merge --merge
+  --delete-branch`; on `CONFLICTING/DIRTY` resolve in a scratch
+  clone (union-merge for prose logs, "take `main` + append PR's
+  net additions" for CSS/TS source), re-verify `bun run build`,
+  push, re-poll; on CI failure or 90s timeout, log the PR to
+  backlog as `pr-merge-stalled-<slug>` / `pr-ci-failure-<slug>`
+  and set `last_run_mode = pr-opened`.
+- After successful auto-merge, the routine returns to the
+  working tree, `git checkout main && git pull --ff-only`, so
+  the next steps operate on the merged tip.
+- Notion `complete-task` is invoked with the merge-commit SHA
+  (not the feature commit) for task-driven high-risk ships.
+- Phase 0's `pr-status.mjs` description re-scoped — it now
+  primarily catches the residue Step 8.5 left behind (failed
+  auto-merges + human-merged PRs between runs) rather than
+  being the routine's primary close-the-loop mechanism.
+- `last_run_mode` doctrine updated: `shipped` for low/medium
+  ships AND for high-risk ships that auto-merged the same run;
+  `pr-opened` reserved for Step 8.5 leftovers.
+- Workflow header amended:
+  `Phase 6 — log, screenshot, diff, sotd, commit, push,
+  auto-merge, state-write`.
+
+**Verification.**
+- PR #4 merge: local `bun run build` in scratch clone passed;
+  `/checkout` prerendered alongside all existing routes; no
+  loss of chapter-rail / hero-period work.
+- PR #5 merge: local `bun run build` in scratch clone passed;
+  `/journal` + `/journal/vol-iii-no-1-the-typography-of-black`
+  prerendered alongside `/checkout` and all PDPs (`19 → 21+`
+  static routes).
+- Local `main` fast-forwarded to `f581b19`; `git status` clean.
+- Both Notion task pages confirm `Status: Done`,
+  `Completed: 2026-05-13`, matching merge SHAs.
+
+**Follow-ups uncovered.**
+- The `[2/2] /journal SEO — per-post OG images + RSS feed +
+  sitemap entries` Notion task is now **unblocked** — next
+  hourly run should pick it up in task-driven mode.
+- The new Step 8.5 has not yet been exercised by the cron
+  itself; the first autonomous high-risk ship after this
+  change is the real test. If the conflict-resolution logic
+  proves too aggressive for source files, refine to a per-file
+  strategy table rather than the current "union for prose /
+  `main`+append for source."
+- `pr-status.mjs` should ideally be updated to recognise
+  `pr-merge-stalled-<slug>` entries and re-attempt auto-merge
+  on subsequent runs rather than only relying on Step 8.5's
+  first attempt. Tracked as a low-severity tooling follow-up.
+
+**Risk-rules note.** The risk classification in
+`.claude/improvement/risk-rules.md` is unchanged. Whether a
+ship branches to PR-mode (i.e. needs auto-merge) is still
+determined by the existing thresholds — adding a new route,
+modifying a shared primitive, etc. The change is only that
+PR-mode no longer means "wait for human" — it means
+"open PR → run gates again → auto-merge if green."
+
+---
+
 ## 2026-05-13 — Chapter-rail hairlines draw in as their chapter enters the read band
 
 **Area.** The fixed left-edge chapter rail on `/` (`src/components/chapter-rail.tsx`,
