@@ -5,6 +5,238 @@ One entry per run. Newest first.
 
 ---
 
+## 2026-05-13 — Journal scaffolding (`/journal` index + `[slug]` post + seed piece + `.journal-prose`)
+
+**Area.** BFS shipped its catalogue (six PDPs at `5aad961`), its
+chrome refactor (SiteChrome at `472dc7c`), and a checkout PR is
+in-flight (`#4`). The next surface the site needs is editorial:
+a Journal where the editorial register (italic-serif voice,
+hairlines, oversized display type) carries long-form pieces that
+the homepage and PDPs can't. This run lays the foundation —
+two new public routes, a typed post registry, three new components,
+a reusable `.journal-prose` CSS block, and a seed piece in the BFS
+voice (*The typography of black. — Notes on a single hue.*).
+
+**Why it's the focus.** Task-driven mode — the highest-priority
+`To do` row in the Notion Tasks DB at run-start was **Blog posts**
+(Priority: Low, but the only un-paused To-do). Size evaluation flagged
+it as oversized for a single ship: net delta ~700 LOC; > 6 files;
+> 1 new public route (4); > 10 acceptance criteria (11); multiple
+distinct features (journal infra + per-post OG images + RSS + sitemap
+entries). Split via MCP into:
+
+- **[1/2]** Journal scaffolding + seed post + `.journal-prose`
+  (this run).
+- **[2/2]** SEO layer: per-post OG image, RSS feed, sitemap entries,
+  `<link rel="alternate">` (queued, To do, depends on [1/2]).
+
+**Mode.** Task-driven (split) · `risk: high` (PR-mode).
+
+**Risk band.** Promoted from the task's `medium` hint to **`high`**
+by `risk-rules.md`:
+
+- Net change `~1518` lines under `src/` (`+803` in `globals.css`,
+  `+715` in new files) — well past the 250-line high threshold.
+- 7 new/modified files under `src/` (within medium 4–8, not a
+  trigger on its own).
+- Adds 2 new public-facing routes (medium-tier SEO trigger).
+
+PR-mode branch + `gh pr create` per the routine.
+
+**What ships.**
+
+1. **`src/lib/journal.ts`** (new, 84 lines) — `JournalPost` type +
+   `getAllPosts()` (sorted desc by `publishedAt`), `getPostBySlug()`,
+   `getPostIndex()`, `getRelatedPosts(slug, n)`, plus pure helpers
+   `romanNumeral(n)` and `formatJournalDate(iso)`. Type-only imports
+   on the registry side keep the runtime cycle broken.
+2. **`src/data/journal/index.ts`** (new, 4 lines) — registry export
+   `journalPosts: JournalPost[] = [voliiiNo1]`. New posts append here.
+3. **`src/data/journal/vol-iii-no-1.tsx`** (new, 58 lines) — seed
+   piece. Slug `vol-iii-no-1-the-typography-of-black`. Title *The
+   typography of black.* Subtitle *Notes on a single hue.* Body is
+   a JSX component with two `<h2>`s, three `<p>`s, one `<blockquote>`,
+   all in the BFS editorial register. Serves as the reference
+   implementation for future post components.
+4. **`src/app/journal/page.tsx`** (new, 150 lines, Server Component)
+   — index. Renders header (italic-serif eyebrow, display "The
+   *Journal*", italic-serif lede), `<ol>` of `<JournalPostCard>`
+   entries, footer with magnetic *Return to the volume* link.
+   Emits `Blog` JSON-LD inline (`@type: Blog` with `blogPost[]`
+   `@type: BlogPosting` array, publisher Organization). Metadata
+   canonical `/journal`, OG / Twitter, robots `index/follow`.
+5. **`src/app/journal/[slug]/page.tsx`** (new, 126 lines, Server
+   Component) — post page. Exports `generateStaticParams` (all
+   slugs), `generateMetadata` (per-post title, description, canonical,
+   OG type `article`, `publishedTime`, `tags`, Twitter). Emits two
+   JSON-LD scripts inline: `Article` (`@id`, `headline`, `description`,
+   `datePublished`, `dateModified`, `image` pointing at the per-post
+   OG route reserved for [2/2], `author` `Person`, `publisher`
+   `Organization`, `mainEntityOfPage` `WebPage`, `keywords`) and
+   `BreadcrumbList` (Journal → post).
+6. **`src/components/journal-post-card.tsx`** (new, 60 lines) —
+   index list-item: roman numeral edge, italic-serif date, `<h2>`
+   title with stroke-dashoffset underline draw-in on hover, italic-
+   serif subtitle aside, excerpt, *Read the piece →* magnetic link
+   (arrow translateX on hover). Wrapped in `<Reveal>` for stagger.
+7. **`src/components/journal-post-frame.tsx`** (new, 175 lines) —
+   article wrapper for `[slug]/page.tsx`. Nav (mirroring the PDP
+   nav but with a Journal link), italic-serif breadcrumb (`← Vol.
+   III · Journal` → post title `aria-current="page"`), asymmetric
+   hero spread (eyebrow with roman numeral + date, two-word display
+   `<h1>` with word-1 solid + word-2 `-webkit-text-stroke` outline
+   via `SplitText`, italic-serif subtitle aside with hairline, byline),
+   `<article class="journal-prose">{Body}</article>`, footer (tags as
+   hairline-bordered italic-serif chips, magnetic *Return to the
+   journal* link, edition signoff), and `<RelatedJournalPosts>`.
+8. **`src/components/related-journal-posts.tsx`** (new, 58 lines) —
+   2 sibling cards selected by `getRelatedPosts(slug, 2)`. Tilted
+   hairline-bordered figure frame with a roman numeral glyph and a
+   bottom rule, meta column with date / `<h3>` title / italic-serif
+   subtitle / *Read the piece ↗* arrow.
+9. **`src/app/globals.css`** (modified, `+803` lines, no deletions)
+   — appended a dedicated journal block. Sections: index header
+   (`.journal-eyebrow`, `.journal-display` two-line clamp(56-144px),
+   italic-serif `.journal-lede`); `.journal-entries` list rules
+   (96px / 56px grid columns, hairline dividers, roman numeral edge);
+   `.journal-entry-link` stroke-dashoffset underline draw-in on title
+   hover; `.journal-entry-cta` italic-serif with translating arrow;
+   `.journal-post-hero` 80px / 48px grid spread; two-word `<h1>` with
+   `.journal-post-outline` stroke; `.journal-post-aside` hairline-
+   prefixed italic; `.journal-prose` body type (18px serif, 1.55
+   line-height, `<h2>` 32px italic with hairline-rule under, `<h3>`
+   22px italic, `<blockquote>` 24px italic with left hairline,
+   `<ul>` / `<ol>` markers in dim italic, `<code>` and `<pre>` on
+   2-step alpha mono plates, anchors with stroke-dashoffset underline
+   draw-in); `.journal-post-foot` tags chip row + magnetic return;
+   `.journal-related` 2-col grid (1-col on `≤720px`) with tilted
+   hairline-bordered frames; `@media (prefers-reduced-motion: reduce)`
+   block at the end suppressing arrow translates, link underline
+   draws, and tilt-hover transitions across the entire surface.
+
+**Site chrome.** Zero change. `SiteChrome` (commit `472dc7c`) already
+returns `null` for any `pathname !== "/"`, so `/journal` and
+`/journal/<slug>` render without `chapter-rail` or `folio` markup
+out of the box. Regression-spotter confirms.
+
+**Architecture.** Posts live as TypeScript modules (`.tsx`), not
+MDX. Each post is a JSX component, so it can use BFS primitives
+(`<Reveal>`, `<SplitText>`, `<Magnetic>`, `<Tilt>`, the hairline
+vocabulary) freely. Trade-off: harder for non-engineers to add a
+post, but on a 1-author press that's the right call — every piece
+is a typographic decision, and MDX would push us toward a generic
+register. The registry pattern (`src/data/journal/index.ts`) makes
+adding a post a 3-line change: new component file, append to the
+registry, set `publishedAt`. Type-only imports keep the runtime cycle
+clean. `journal-post-card.tsx` and `journal-post-frame.tsx` are
+plain Server Components — only `<Reveal>`, `<SplitText>`,
+`<Magnetic>`, `<Tilt>` carry `"use client"`. The Article + Breadcrumb
+JSON-LD live inline in `[slug]/page.tsx` (matching the PDP pattern
+at `supplies/[id]/page.tsx`); the index page emits Blog JSON-LD
+inline.
+
+**Verification.**
+
+- `bun run lint` — PASS (7 pre-existing warnings in
+  `.claude/improvement/scripts/*.mjs` — none in the diff).
+- `bun run build` — PASS. 21 / 21 SSG pages prerender (was 19;
+  `+2` for `/journal` and `/journal/vol-iii-no-1-the-typography-of-
+  black`). No build warnings.
+- SSR regression on `.next/server/app/`:
+  - `/journal` — `<h1 class="journal-display">` present,
+    `<article class="journal-entry...">` present, `journal-entry-link`
+    present.
+  - `/journal/vol-iii-no-1-the-typography-of-black` —
+    `<h1 class="journal-post-title">` present; inline
+    `"@type":"Article"` JSON-LD with `https://schema.org` context
+    matches; `BreadcrumbList` matches; `journal-prose` wrapper
+    matches; *Return to the journal* string present.
+  - `/journal` AND `/journal/<slug>` — `0` matches for
+    `chapter-rail` and `class="folio` (SiteChrome doing its job).
+  - `/` — still emits `chapter-rail` and `class="folio` (homepage
+    chrome intact; no regression).
+- A11y — `<h1>` on both routes; `<article aria-labelledby>` per
+  index entry; `<nav aria-label="Breadcrumb">` with ordered list +
+  `aria-current="page"` on the leaf; `aria-hidden` on decorative
+  numerals / rules; tag list wrapped in `<ul aria-label="Tags">`;
+  body text alpha ≥ 0.7, meta text ≥ 0.5.
+- Reduced-motion — explicit `@media (prefers-reduced-motion:
+  reduce)` block neutralises arrow translates, underline draw-ins,
+  and tilt-hover transitions across the surface. `<Reveal>` and
+  `<SplitText>` already guard internally.
+- Anti-patterns scan — `patterns: 0` (no hardcoded colors outside
+  the existing `rgba(255,255,255, …)` register, no `any`, no
+  `@ts-ignore`, no `console.*`).
+- Screenshots captured to
+  `.claude/improvement/screenshots/1394722/journal-{index,post}-{desktop,mobile}.png`.
+- Visual diff — `skipped` (no prior `journal-index` or `journal-
+  post` baseline; first capture).
+
+**Rubric.** T 3 · M 2 · L 3 · I 2 · A 3 · D 2 = **15 / 18** —
+distinctive band, just at Awwwards-grade threshold. D scores 2
+because journal infrastructure is inherently commodity; individual
+posts can later score higher on T and D via their composition.
+
+**Screenshots.** `.claude/improvement/screenshots/1394722/journal-
+index-desktop.png`, `journal-index-mobile.png`, `journal-post-
+desktop.png`, `journal-post-mobile.png` (gitignored, informational).
+
+**SOTD comparison.** `skipped: could not parse SOTD entry — gallery
+markup may have changed` (pre-existing `sotd_parser_available:
+false` flag in state.yaml).
+
+**Notion.**
+
+- Parent task ("Blog posts", `35faf8d3d3e2808087fdccbf3dc4beed`)
+  marked `Status: Split`, Subtasks column populated with the two
+  split mentions.
+- This subtask (`35faf8d3d3e28180aa97f5357182eb58`) claimed at
+  `Status: In progress`, Started = 2026-05-13.
+- Reports row appended for this run.
+
+**Expected impact.** Editorial surface lands. The site can now host
+long-form pieces in BFS's voice without needing a separate CMS or a
+markdown pipeline. Search engines pick up `Article` JSON-LD on the
+seed piece and `Blog` JSON-LD on the index. Internal nav from
+`/journal` and post nav threads back to the homepage, but the
+homepage doesn't yet link to `/journal` — that's an intentional
+follow-up so the IA change of adding a 5th top-level nav item can
+get its own ship.
+
+**Files modified.**
+
+- `src/lib/journal.ts` (new)
+- `src/data/journal/index.ts` (new)
+- `src/data/journal/vol-iii-no-1.tsx` (new)
+- `src/app/journal/page.tsx` (new)
+- `src/app/journal/[slug]/page.tsx` (new)
+- `src/components/journal-post-card.tsx` (new)
+- `src/components/journal-post-frame.tsx` (new)
+- `src/components/related-journal-posts.tsx` (new)
+- `src/app/globals.css` (`+803` lines)
+
+**Follow-ups uncovered.**
+
+- Subtask [2/2] (queued in Notion): per-post `opengraph-image.tsx`,
+  `/journal/rss.xml/route.ts`, `sitemap.ts` entries, `<link
+  rel="alternate" type="application/rss+xml">` on `/journal` head.
+- Homepage nav does not yet expose `/journal`. Adding a 5th top-
+  level link is an IA change that deserves its own ship — keep it
+  out of [2/2] and queue a fresh Notion task once the journal has
+  >1 piece.
+- Post-page Lighthouse not run this session (no `lighthouse.mjs`
+  trigger fired); a manual run on `/journal/vol-iii-no-1-the-
+  typography-of-black` would be reassuring before [2/2] lands.
+
+**Backlog closed-by-drift.** None this run.
+
+**Periodic triggers fired.** None — retro / critic both ran
+2026-05-13; calibration is event-driven on `shipped_count % 10 == 0`
+(currently 22); creativity-reset gated on `consecutive_no_focus_runs
+>= 2` (currently 0).
+
+---
+
 ## 2026-05-13 — SiteChrome wrapper (pathname-aware ChapterRail + RunningFolio foundation)
 
 **Area.** Both `<ChapterRail />` (left-edge dot-leader nav) and

@@ -196,3 +196,11 @@ items:
     surface: chrome
     tags: [chrome, system, site-chrome, pathname, usePathname, foundation, ssg, regression-clean]
     summary: Extracts the homepage chrome (ChapterRail + RunningFolio) into a single pathname-aware client wrapper that renders only on `/`. /supplies/[id] PDP and 404 SSR HTML now correctly omit `chapter-rail`/`folio` markup, freeing those surfaces for their own editorial spreads. Foundation subtask 1/2 of the parent "Shopify style checkout" Notion task — also unblocks the planned /journal route.
+
+  - id: journal-scaffolding-route-and-seed-post
+    title: /journal index + [slug] route + seed post + .journal-prose
+    commit: pending
+    date: 2026-05-13
+    surface: system
+    tags: [journal, route, ssg, editorial, article-jsonld, blog-jsonld, breadcrumb-jsonld, journal-prose, split-text, reveal, magnetic, tilt, foundation]
+    summary: Editorial Journal surface — /journal index, /journal/[slug] post page (asymmetric two-word display title, outline-stroke word 2, italic-serif aside, byline), reusable .journal-prose CSS block (h2/h3/p/blockquote/code/pre/anchors all in BFS register), seed piece "The typography of black." with full JSX body, RelatedJournalPosts component, Article + Breadcrumb + Blog JSON-LD, prefers-reduced-motion guard. Subtask 1/2 of parent "Blog posts" Notion task; [2/2] (OG images + RSS + sitemap entries) queued.
