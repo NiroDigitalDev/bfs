@@ -312,6 +312,12 @@ html.loading body {
   display: inline-block;
   overflow: hidden;
   vertical-align: top;
+  /* Each .split-char is an inline-block atom; without nowrap the browser treats
+     them as wrap opportunities and breaks display titles mid-word at line edges
+     (e.g. PATIENTLY → PATIE / NTLY at the FAQ display title). Keep chars on the
+     same line; word breaks still happen between .split-word siblings via the
+     .split-space separators in the parent .split flow. */
+  white-space: nowrap;
 }
 .split-space {
   display: inline-block;

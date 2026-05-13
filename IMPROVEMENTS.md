@@ -5,6 +5,160 @@ One entry per run. Newest first.
 
 ---
 
+## 2026-05-13 — SplitText display titles wrap mid-character at line edges — fix `.split-word` to nowrap
+
+**Area.** Shared CSS for the `<SplitText>` primitive in
+[src/app/globals.css:307–331](src/app/globals.css:307) — specifically the
+`.split-word` rule. Affects every clamp-display title that consumes
+`<SplitText>`: hero `'Dark Matter.'`
+([src/app/page.tsx:99–115](src/app/page.tsx:99)), all FAQ / catalogue /
+manifesto / codex / outro `<SplitText>`-wrapped `<h2 class="section-title">`
+heads, every `/supplies/<id>` PDP title
+([src/app/supplies/[id]/page.tsx:222–250](src/app/supplies/%5Bid%5D/page.tsx:222)),
+every `/journal/<slug>` post title
+([src/components/journal-post-frame.tsx](src/components/journal-post-frame.tsx)),
+`/checkout` sealed state `<h1 class="checkout-sealed-title">`, and the
+404 `'Not found.'` composition at
+[src/app/not-found.tsx:38–55](src/app/not-found.tsx:38).
+
+**Why it's the focus.** Notion task
+[Hero display-type breaks mid-word at the right edge](https://www.notion.so/35faf8d3d3e28186aaf2c77347d913bf) —
+flagged as a visible bug at standard desktop viewports with `Priority: High`,
+`Status: To do`, surface `[hero, system, catalogue]`. The hourly cron entered
+task-driven mode on this row; it had the highest priority of all open `To do`
+tasks in the BFS Tasks DB. The brief named the FAQ display title
+`'Questions, patiently answered.'` as the most visible failure case
+(`PATIENTLY` shredding as `PATIE` / `NTLY` across the line edge), but a
+single-file investigation revealed the bug lives in the `<SplitText>`
+primitive itself — every section using the clamp-display vocabulary is
+latently affected.
+
+**Mode.** Task-driven.
+
+**Risk band.** Medium — CSS-only edit (1 file, +6 / 0 LOC) but to a utility
+class consumed by a shared primitive (`<SplitText>`), and the rule is
+load-bearing for every display title in the site. Captured both viewports
+under [.claude/improvement/screenshots/56b61ad/](.claude/improvement/screenshots/56b61ad/)
+(`faq-desktop.png`, `faq-mobile.png`, `hero-wrap-fix-desktop.png`,
+`hero-wrap-fix-mobile.png`) to surface the visible change.
+
+**What ships.** A one-line rule addition (+5 lines of WHY comment) to the
+`.split-word` rule in [src/app/globals.css:311–321](src/app/globals.css:311):
+
+- **Add `white-space: nowrap` to `.split-word`.** Each word stays whole as
+  an atomic inline-block; word breaks still happen between `.split-word`
+  siblings via the `.split-space` separators in the parent `.split`
+  inline-flow.
+
+**Architecture.** `<SplitText>` ([src/components/split-text.tsx:42–69](src/components/split-text.tsx:42))
+renders the input string as: `.split` (inline-block) `>` per-word
+`.split-word` (inline-block, overflow hidden) `>` per-character
+`.split-char` (inline-block, initial transform `translateY(110%) rotate(8deg)`,
+opacity 0). The IntersectionObserver flips `.split-active` on the root
+when 15% of the element enters the viewport, which transitions all
+chars to their final position (the entrance motion the site is known
+for). The bug: because `.split-char` is `inline-block`, the browser
+treats each char as a break opportunity inside its parent
+`.split-word`. When a single word's chars exceed the line width
+(`PATIENTLY` at the FAQ display scale clamp(48px, 8vw, 144px) is wide
+enough to push the third char past the right edge once the inline flow
+has consumed line 1 with `QUESTIONS,`), the browser wraps at the
+nearest break opportunity — between chars, not at a word boundary.
+`white-space: nowrap` on `.split-word` forbids that wrap; the word
+becomes an atomic inline-block and overflows its line-box's content
+edge only if it's wider than the line — which it never is at the
+configured clamps + container max-widths for any standard desktop
+viewport (verified visually at 1440 desktop and 390 mobile). Hero
+`.hero-word` is already `display: block` so the asymmetric two-word
+composition was unaffected, but the fix is defensive there too.
+
+**Verification.**
+- `bun run lint` → clean (only pre-existing script warnings in
+  `.claude/improvement/scripts/*` carried over from prior runs).
+- `bunx tsc --noEmit` → clean.
+- `bun run build` → clean; all 18 routes prerender successfully.
+- `anti-patterns.mjs` → 0 findings.
+- `diff-reviewer`-equivalent self-review on the diff → no over-engineering,
+  no escape hatches, no scope creep; the comment block is justified
+  because the WHY (chars are inline-block atoms; without nowrap they
+  become wrap opportunities) is not obvious from the CSS alone and
+  prevents a future "simplifying" refactor from re-introducing the bug.
+- `capture-ship.mjs --surface=faq` at desktop (1440×900) + mobile
+  (390×844) confirms `QUESTIONS,` / `PATIENTLY` / `ANSWERED.` render
+  as three clean lines, no mid-character wrap, no horizontal
+  scrollbar.
+- `regression-spotter`-equivalent SSR grep → no markup change; SSR
+  HTML is byte-identical for `.split-word` / `.split-char` spans.
+
+**Rubric.** T 2 · M 1 · L 2 · I 2 · A 2 · D 1 = 10 / 18 — solid mid-band
+on a bug fix. Typography (T=2) because the strongest typographic moment
+on the site is restored, not improved. Motion (M=1) untouched. Layout
+(L=2) is the core fix dimension. Interaction (I=2) — no new patterns
+but display titles now behave correctly under all viewports.
+Accessibility (A=2) — neutral; the aria-label on `.split` is the
+canonical source for AT users and is unchanged. Distinctiveness
+(D=1) — bug fix, no new register.
+
+**Screenshots.**
+- `.claude/improvement/screenshots/56b61ad/faq-desktop.png` — primary
+  verification target. FAQ display title renders as 3 clean lines.
+- `.claude/improvement/screenshots/56b61ad/faq-mobile.png` — mobile
+  390-wide; same 3-line wrap.
+- `.claude/improvement/screenshots/56b61ad/hero-wrap-fix-desktop.png` —
+  homepage hero unchanged (`DARK` / `MATTER.`).
+- `.claude/improvement/screenshots/56b61ad/hero-wrap-fix-mobile.png` —
+  homepage hero mobile unchanged.
+
+**Visual diff.** `visual-diff.mjs` skipped both viewports — no prior
+ship had `hero-wrap-fix-*.png` baselines (the surface id is new). The
+FAQ screenshots are the canonical visual evidence; future runs touching
+display titles will diff against these.
+
+**SOTD comparison.** `sotd-compare.mjs` → `skipped: could not parse
+SOTD entry — gallery markup may have changed` (the parser has been
+broken for several runs; queued as a backlog item).
+
+**Notion.** Reports row will be appended via MCP `notion-create-pages`
+on the BFS Reports DS
+(`d5e22a6f-6794-411b-b959-12c6b1bdce5a`). Task
+[35faf8d3-d3e2-8186-aaf2-c77347d913bf](https://www.notion.so/35faf8d3d3e28186aaf2c77347d913bf)
+flipped from `In progress` → `Done` via `update-page`, with
+`Completed = 2026-05-13`, `Commit = <sha>`, and `Surface = hero, system,
+catalogue` (matches the original task tags + derives cleanly from the
+single-file CSS diff).
+
+**Expected impact.** The strongest typographic moment on the site is no
+longer being shredded by a layout bug. Specifically:
+- The FAQ display title `'Questions, patiently answered.'` reads
+  cleanly at every viewport ≥ 1024.
+- Every other clamp-display surface (hero, PDP, journal post, codex,
+  manifesto, outro, 404, checkout sealed) is defended against the same
+  failure mode if titles ever change length or fonts re-load.
+- The forthcoming `[2/2] /journal SEO — per-post OG images + RSS feed +
+  sitemap entries` and the journal index display heading promotion to
+  the clamp-display vocabulary (see Notion task
+  `35faf8d3-d3e2-8147-b2a0-dadeb0e69bf6`) no longer carry the latent
+  word-break risk.
+
+**Files modified.**
+- [src/app/globals.css](src/app/globals.css) (`.split-word` rule at lines
+  311–321; +6 / 0 LOC).
+
+**Follow-ups uncovered.**
+- `sotd-parser-fix` — `sotd-compare.mjs` parser stays broken; the SOTD
+  gallery markup has shifted away from the parser's expected DOM. (Carried
+  over — already in backlog.)
+- `visual-diff-baselines-for-faq-and-hero-wrap-fix` (low) — next run
+  touching `.split-word` or any clamp-display title should produce a
+  visual diff against today's `faq-*.png` and `hero-wrap-fix-*.png`
+  baselines. Capture-ship already wrote them at HEAD 56b61ad; the diff
+  script just needs a prior baseline to compare against.
+
+**Periodic triggers fired.** None this run (next retro due in 7 days,
+next critic due in ~24 days, next calibration at shipped_count = 30).
+
+---
+
 ## 2026-05-13 — Nav cart pill — fix right-edge overlap from `<Magnetic>` wrapping
 
 **Area.** Site chrome — homepage nav (`src/app/page.tsx:41–73`) + `.nav` /
