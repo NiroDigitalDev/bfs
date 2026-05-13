@@ -5,6 +5,300 @@ One entry per run. Newest first.
 
 ---
 
+## 2026-05-13 — /checkout route (editorial Bind & Dispatch form + sealed success state)
+
+**Area.** The cart drawer's terminal CTA (`Cross the threshold`) had,
+until this ship, been a dead-end — it triggered an inline "Sealed"
+confirm flash and then `cart.clear()` after 1.6s, with no actual
+checkout surface to consign the order to. Last run's subtask 1/2
+(`SiteChrome`, `472dc7c`) shipped the foundation so a non-`/` route
+could opt out of the homepage chrome; this ship lands the dependent
+subtask 2/2 — the `/checkout` route itself — and rewires the cart
+drawer to navigate there.
+
+**Why it's the focus.** Task-driven mode — Notion task
+`[2/2] Add /checkout route — editorial form + success state + cart
+CTA` was the only Medium-priority `To do` row at run-start, and the
+foundation (subtask 1/2) was already shipped, unblocking it. Size
+evaluation against the split heuristic: 5 files (`> 6` threshold not
+hit), 1 new public route (`> 1` not hit), 1 shared primitive
+touched (`>= 2` not hit), 9 acceptance criteria (`> 10` not hit),
+self-rated effort L with ~600 LOC (the single criterion that hit).
+Only 1 heuristic out of the required 2 → **no further split**. Ship
+as one focused PR.
+
+**Mode.** Task-driven · `risk: high` (PR-opened).
+
+**Risk band.** `high` — modifies `src/components/cart-drawer.tsx`
+(listed shared primitive in `risk-rules.md`), adds a new
+public-facing route (`/checkout`), net delta `~1300 lines added`
+across `src/` (~744 globals.css + ~610 components/page). Three
+high-band triggers fired; the routine branches to PR mode per
+`risk-rules.md` rather than committing direct-to-main.
+
+**What ships.**
+
+1. **`src/app/checkout/page.tsx`** (new, 37 lines, Server Component)
+   — `/checkout` route shell. Header is `BFS` wordmark + `h1`
+   eyebrow `Checkout · Bind & dispatch` (italic-serif smallcaps) +
+   folio `Folio · 007`, separated by a hairline rule. Below: a
+   two-column grid (`minmax(0, 1.45fr) minmax(280px, 1fr)` at
+   `≥ 900px`, single column on mobile) holding the `<CheckoutForm />`
+   client island on the left and the `<CheckoutSummary />` client
+   island on the right. Metadata: `title: "Checkout"` (resolved
+   through `layout.tsx`'s `template` to `Checkout · BFS`),
+   `description`, `robots: { index: false, follow: true }`,
+   canonical `/checkout`. No `Server Component → client island`
+   prop ferrying; both islands read from `@/lib/cart.ts` directly.
+
+2. **`src/components/checkout-form.tsx`** (new, 425 lines,
+   `"use client"`) — the form itself. Three `<Reveal>`-wrapped
+   `<section>` steps, each with an italic Roman-numeral chip, an
+   italic-serif smallcaps `<h2>` heading (`Step I · Correspondence`,
+   `Step II · Dispatch`, `Step III · Bind & seal`), and a hairline
+   rule under each heading. **Step I** holds `email` (required,
+   `type="email"`, `inputMode="email"`) + a custom-styled
+   newsletter checkbox. **Step II** holds the dispatch fields
+   (`firstName`, `lastName` side-by-side; `country` select with 10
+   options defaulting to `United States`; `addressLine1` required,
+   `addressLine2`, `city`, `region`, `postalCode`, `notes`
+   textarea). All inputs are underline-only (no box border) with a
+   `1px rgba(255,255,255,0.32)` bottom hairline that brightens to
+   `0.6` on focus and `0.42` on hover; labels translate `-2px` on
+   `:focus-within`. **Step III** holds the consignment radio set
+   (`<fieldset>`/`<legend id={...}>` wired via `aria-labelledby`,
+   three options: By check · By wire · Cash on dispatch; custom
+   hairline circle marks that fill on selection and pre-tint to
+   40% alpha on hover) plus the Magnetic-wrapped submit CTA
+   `Place the order with the press`. CTA disabled when the cart
+   is empty, with a `<p id="checkout-empty-msg">` italic-serif
+   note wired via `aria-describedby` explaining the state.
+   `onSubmit` captures a snapshot of the live cart lines (so the
+   success ledger can render after `cart.clear()`), clears the
+   cart, flips `sealed` state to `true`, and moves focus to the
+   success container after an 80ms tick. The success state is an
+   inline replacement (no route change) that renders a `<SplitText
+   text="Sealed">` display word at `clamp(72px, 14vw, 240px)`, an
+   italic-serif `<em>Dispatch in 48 hours.</em>` aside with a
+   hairline rule, the captured-line ledger as a `<dl>`, and a
+   Magnetic `Return to the volume` CTA. An `aria-live="polite"`
+   sr-only `<p role="status">` announces "Order sealed. Dispatch
+   in 48 hours." on flip.
+
+3. **`src/components/checkout-summary.tsx`** (new, 148 lines,
+   `"use client"`) — the right rail. Reads `cart.getCart()` via
+   `useSyncExternalStore` (same pattern as `cart-drawer.tsx`).
+   `position: sticky; top: clamp(24px, 4vw, 48px)` at `≥ 900px`,
+   collapses inline on mobile. Heading is `§ Edition · in hand`
+   in italic-serif smallcaps, followed by a hairline rule. Empty
+   state: italic-serif "No selections held." plus a dimmed
+   sub-line. Populated state: a `<ul role="list">` of line items,
+   each row a `grid-template-columns: 56px 1fr auto` of (small
+   `product-visuals` figure scaled `0.55`, italic-serif chapter
+   numeral + title + qty-times-unit-price, line total in
+   oldstyle-nums). Hover dims sibling rows to `0.5` alpha
+   (read-the-line affordance). Totals block: italic-serif `dl`
+   with `Subtotal`, `Shipping · 48-hour dispatch · gratis`
+   (faint), hairline rule, and an oversized italic-serif
+   `clamp(28px, 3vw, 32px)` grand total. Footer: italic-serif
+   `Return to the volume` link to `/` with a `background-size: 0%
+   1px → 100% 1px` underline draw-in on hover and a
+   `translate(2px, -2px)` arrow nudge.
+
+4. **`src/app/globals.css`** (modified, `+744 −0` lines) — appended
+   a new `.checkout*` block at end-of-file, after the View
+   Transitions block. Block covers: container layout, head row,
+   grid, step headings, fields grid (`repeat(4, minmax(0, 1fr))`
+   with `.full`/`.half`/`.quarter` modifiers responsive to `640px`),
+   underline inputs + select chevron, custom checkbox + custom
+   radio marks with hairline circles, submit CTA with a
+   `scaleX(0) → scaleX(1)` filled-background reveal on hover (kept
+   at `0.08` alpha so it reads as a subtle fill rather than a
+   solid swap), sealed success state with a
+   `clip-path: inset(0 0 100% 0) → inset(0 0 0 0)` 720ms
+   `--ease-out-expo` sweep (named `@keyframes checkoutSealEnter`),
+   sealed ledger `dl` styling, summary rail with sticky position +
+   line items + totals + return link, and a
+   `@media (prefers-reduced-motion: reduce)` block that disables
+   the sweep, the input/label transitions, the CTA fill, and the
+   return-link underline draw. Block exclusively uses existing
+   tokens (`--color-line-2`, `--ease-out-quart`, `--ease-out-expo`,
+   `--dur-1` through `--dur-4`, `--font-serif`, `--font-sans`,
+   `--color-ring`); no new tokens introduced.
+
+5. **`src/components/cart-drawer.tsx`** (modified, `+9 −25`)
+   — replaces the dead-end button CTA with a `next/link <Link
+   href="/checkout">` styled identically (kept the existing
+   `.cart-drawer-cta`/`-label`/`-glyph` class hooks and the
+   `data-cursor="link"` attribution). Copy changes
+   `Cross the threshold` → `Proceed to checkout` and
+   `Sealed` confirm flash → removed entirely (the form handles
+   sealing). Fineprint copy adjusted to `Bind & dispatch on the
+   next page. No payment routed in this volume.`. Click binds
+   `handleClose` so the drawer collapses before the route
+   transition (preserves focus-trap teardown + scroll-lock
+   release + return-focus restoration). Removed unused
+   `confirming` state + `onCheckout` setTimeout handler and the
+   `data-confirming` / `cart-drawer-cta-confirm` /
+   `cart-drawer-cta-glyph-check` markup — the confirm flash is
+   no longer relevant since the actual seal happens on the
+   `/checkout` page.
+
+**Architecture.** Both `<CheckoutForm />` and `<CheckoutSummary />`
+are independent client islands rather than a single combined island
+because (a) `CheckoutForm` holds form-local state (`sealed`,
+`captured`, `consignment`) that should not leak to the summary, and
+(b) `CheckoutSummary` subscribes to the cart store with its own
+`useSyncExternalStore`, which lets the summary update live as a user
+adjusts items in the cart drawer before navigating to `/checkout`
+(or in another tab via the `storage` event). The Server Component
+shell stays slim (37 lines, no client cost beyond what each island
+contributes), and the SSR HTML still contains the `<h1>`, the three
+`<h2>` step headings, and the input/select/radio markup verbatim —
+the islands hydrate the form state in place. The success state is
+in-component rather than a `/checkout/sealed` route per the spec's
+intent (the sealing is the moment, not the destination).
+
+The form does **not** dispatch a network request. This is editorial
+content theatre, not a real payment surface. The product copy and
+microcopy ("48-hour dispatch · gratis", "No payment routed in this
+volume") frame the page as a brand demonstration, not a commerce
+flow. A future ship would add a Server Action `onSubmit` if/when an
+actual order-capture endpoint exists; for now `cart.clear()` plus
+the local sealed state mirrors the existing pattern from the
+previous cart-drawer confirm flash.
+
+The `cart-drawer.tsx` modification is intentionally minimal — only
+the CTA element + its surrounding fineprint change. All focus-trap
+logic (the `useEffect` that listens for `Escape`/`Tab` and traps
+within `panelRef`), the scroll-lock (`document.body.style.overflow =
+"hidden"`), the scrim, the return-focus tracking
+(`returnFocusRef.current`), and the open/close event plumbing
+(`OPEN_EVT`/`CHANGE_EVT`) are untouched. The `<Link>` `onClick`
+calls `handleClose()` synchronously so the drawer collapses before
+the App Router navigation begins.
+
+**Verification.**
+
+- `bun run lint`: 0 errors. 7 pre-existing warnings in
+  `.claude/improvement/scripts/*.mjs` (unrelated to this diff).
+- `bunx tsc --noEmit`: clean.
+- `bun run build`: prerenders `/checkout` as a Static (`○`) route
+  alongside the existing 5 + 6 PDPs + 6 OG image routes (20 total
+  pages generated, up from 19 last run).
+- SSR HTML `/checkout` (`.next/server/app/checkout.html`):
+  - `<h1 class="checkout-eyebrow">Checkout · Bind & dispatch</h1>`
+    present.
+  - Three step `<h2>` headings present
+    (`Step I · Correspondence`, `Step II · Dispatch`,
+    `Step III · Bind & seal`) plus a fourth summary `<h2>`
+    (`Edition · in hand`).
+  - `input type="email"` with `required` + `aria-required="true"`.
+  - `select name="country"` with **10** options
+    (`<option>` count via grep).
+  - Three `input type="radio" name="consignment"` options, with
+    `by-check` as the default checked value.
+  - `<button type="submit">` with label
+    `Place the order with the press`.
+  - `<meta name="robots" content="noindex, follow">` emitted.
+  - Cart summary rail `<aside class="checkout-summary">` with the
+    empty-state copy `<em>No selections held.</em>` (correct for
+    SSR — cart is empty during prerender).
+  - `chapter-rail` and `folio` class signatures: **0 hits**
+    (SiteChrome correctly hides the homepage chrome on `/checkout`).
+- SSR HTML `/` (`.next/server/app/index.html`):
+  `chapter-rail` and `folio` signatures still present (homepage
+  chrome unaffected; regression-clean against the 21 surfaces that
+  previously rendered chrome).
+- `anti-patterns.mjs`: 0 findings.
+- `capture-ship.mjs`: skipped this run (PR-mode — visual capture
+  will run after merge as part of the backfill commit; the
+  PR description carries the SSR-grep verification instead).
+- `visual-diff.mjs`: skipped (no baseline for `/checkout`).
+- `lighthouse.mjs`: deferred — will run on merged main per
+  `perf-a11y.md`.
+- `sotd-compare.mjs`: skipped — gallery markup parse failed
+  upstream (`could not parse SOTD entry — gallery markup may have
+  changed`); recorded as a follow-up.
+
+**Rubric.** `T 3 · M 2 · L 3 · I 3 · A 3 · D 2 = 16 / 18`
+(distinctive band, matches the Notion task's self-rated score).
+Typography (T) holds full marks via the italic-serif smallcaps step
+headings, the oldstyle-nums in the summary totals, and the
+oversized italic display `Sealed.`. Motion (M) is deliberately
+restrained — three new keyframe-style transitions
+(`checkoutSealEnter`, the CTA `scaleX(0→1)` fill, the return-link
+`background-size` underline draw) all gated on reduced-motion. D
+scores 2 because checkout flows are inherently a less-ownable
+surface; the `By check · By wire · Cash on dispatch` consignment
+microcopy + the `Sealed.` success composition carry the
+distinctiveness.
+
+**Screenshots.** Skipped this run (PR-mode auto-capture is
+deferred until merge). The PR diff carries the typographic spec
+verbatim; a manual review can spot-check the live preview if Vercel
+preview deploys are wired.
+
+**SOTD comparison.** Skipped (parser failure upstream).
+
+**Notion.** Task `[2/2] Add /checkout route` (page id
+`35faf8d3-d3e2-816d-899a-c10c1aeff029`) claimed at run-start
+(`Status: In progress`, `Started: 2026-05-13`). Will flip to
+`Done` with the merge SHA via `notion-sync.mjs complete-task` once
+the PR lands on `main`. Reports row appended under
+`60cc3221-8e8a-42da-b926-20cd32d6c8bb` (Reports DB) with
+`Mode: PR-opened`.
+
+**Expected impact.**
+
+- Closes the dead-end CTA in the cart drawer — the editorial
+  promise of "Cross the threshold" / "Sealed" now lands on an
+  actual surface instead of a setTimeout flash.
+- Adds a new public-facing static page to the volume (Folio · 007
+  in the existing folio numbering scheme).
+- Removes ~16 lines of obsolete state from `cart-drawer.tsx`
+  (the `confirming` flag, the `onCheckout` setTimeout, the
+  `cart-drawer-cta-confirm` + `-glyph-check` markup) — net JS
+  saving on every page that includes the drawer (i.e. every
+  page).
+- Establishes the underline-input + custom radio/checkbox idiom
+  for future form surfaces (contact form, newsletter reset path,
+  any future trade enquiry route).
+
+**Files modified.**
+
+- `src/app/checkout/page.tsx` (new)
+- `src/components/checkout-form.tsx` (new)
+- `src/components/checkout-summary.tsx` (new)
+- `src/app/globals.css` (modified — appended `.checkout*` block)
+- `src/components/cart-drawer.tsx` (modified — CTA + fineprint
+  rewire; removed `confirming` state)
+
+**Follow-ups uncovered.**
+
+- `sotd-compare.mjs` parser failed (`gallery markup may have
+  changed`) — separate hygiene fix to restore the SOTD comparison
+  artifact pipeline.
+- `/checkout` Lighthouse pass: a11y ≥ 90 + perf budget capture
+  to be run on merged `main` (PR-mode defers this).
+- Visual capture-ship for `/checkout` (desktop + mobile) on merged
+  `main` for the screenshot registry.
+- A future ship can wire a Server Action handler at
+  `/checkout` for actual order capture (currently the form is a
+  brand demonstration — `cart.clear()` + local sealed state).
+- The new underline-input idiom is a reusable design vocabulary
+  — extract into a small set of utility classes (`.bfs-input`,
+  `.bfs-checkbox`, `.bfs-radio`) if a second form surface ships.
+
+**Backlog closed-by-drift.** None this run.
+
+**Periodic triggers fired.** None this run (`last_retro_at` and
+`last_critic_at` both 2026-05-13 — already same-day; `shipped_count`
+22 — not a calibration multiple; `consecutive_no_focus_runs` 0 — no
+creativity reset).
+
+---
+
 ## 2026-05-13 — SiteChrome wrapper (pathname-aware ChapterRail + RunningFolio foundation)
 
 **Area.** Both `<ChapterRail />` (left-edge dot-leader nav) and
