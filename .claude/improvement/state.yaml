@@ -9,9 +9,9 @@
 version: 1
 
 # Last-run telemetry — written at the end of every run.
-last_run_at: 2026-05-13T13:20:00Z
-last_run_commit: 2231628
-last_run_mode: pr-opened   # shipped | no-focus | pr-opened
+last_run_at: 2026-05-13T14:30:00Z
+last_run_commit: b183b27
+last_run_mode: shipped   # shipped | no-focus | pr-opened
 
 # Anti-stagnation — incremented on every no-focus run, reset to 0 on ship.
 # When this hits >= 2, Phase 0 fires the creativity-reset agent before
@@ -20,7 +20,7 @@ consecutive_no_focus_runs: 0
 
 # Shipped-count — incremented on every shipped (not no-focus) run.
 # When this becomes a multiple of 10, Phase 0 fires the rubric-calibrator.
-shipped_count: 22   # unchanged — PR-opened run (shipped_count only ticks on merge to main); PR #5 (/journal scaffolding) awaits merge
+shipped_count: 23   # +1: hero-period-scroll-fade direct-to-main (low risk, autonomous, no Notion task — PR #4 + PR #5 still awaiting merge)
 
 # Periodic cron triggers — Phase 0 compares against today's date and
 # fires the corresponding agent when the gap exceeds the cadence.
@@ -31,14 +31,14 @@ last_calibration_at: ""        # event-driven (every 10th ship) — also capture
 # Optional integrations status — Phase 0 self-checks these on startup
 # and degrades gracefully when they're absent or broken.
 gh_available: true           # `gh auth status` ok this run
-playwright_available: unknown  # capture-ship.mjs skipped (PR-mode — visual capture deferred to merge)
-lighthouse_available: unknown
+playwright_available: true   # capture-ship.mjs wrote hero-desktop + hero-mobile under 896f4a7/
+lighthouse_available: unknown  # perf-a11y skipped lighthouse (CSS-only opacity tween — poor signal-to-cost)
 sotd_parser_available: false   # sotd-compare.mjs: "could not parse SOTD entry — gallery markup may have changed"
 
 # Daily improvements.md archival check — Phase 0 reads size and rotates
 # if exceeded. Recorded here so a freshly-archived run doesn't try again.
 last_archival_at: ""
-improvements_md_bytes: 167333
+improvements_md_bytes: 176219
 
 # Notion integration — fixed IDs for the BFS workspace surfaces. The
 # routine reads Tasks at Phase 0 (task-driven mode override) and writes

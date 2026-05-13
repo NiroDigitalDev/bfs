@@ -199,7 +199,7 @@ items:
 
   - id: hero-period-scroll-fade
     title: Hero period as scroll-bound mark — opacity fades 1.0 → 0.55 over first 600px
-    commit: pending
+    commit: b183b27
     date: 2026-05-13
     surface: hero
     tags: [hero, hero-period, scroll-y, opacity, css-var, parallax-root, reduced-motion, decorative-punctuation, scroll-bound]
