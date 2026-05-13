@@ -180,3 +180,11 @@ items:
     surface: nav
     tags: [nav, mobile, toc, dialog, focus-trap, dot-leader, folio, italic-serif, scroll-lock]
     summary: Replaces the missing mobile nav with a full-bleed editorial Table of Contents overlay (dot-leader entries, folio page numbers, focus-trapped dialog, reduced-motion compliant).
+
+  - id: pdp-supplies-route
+    title: Per-product PDP route — /supplies/[id] editorial spread + view-transition shared specimen
+    commit: pending
+    date: 2026-05-13
+    surface: catalogue
+    tags: [pdp, route, asymmetric-title, specimen-plate, related-products, view-transitions, breadcrumb, jsonld-product, og-image, sitemap]
+    summary: Six SSG product detail pages mirroring the hero typographic spread (asymmetric two-word title, hairline colophon dl, magnetic AddToCart, related siblings), with per-product OG images, Product + BreadcrumbList JSON-LD, sitemap entries, and View Transitions API setup for shared specimen across route change.

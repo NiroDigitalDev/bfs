@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Reveal } from "@/components/reveal";
 import { SplitText } from "@/components/split-text";
 import { Magnetic } from "@/components/magnetic";
@@ -281,6 +282,27 @@ export default function Home() {
                     <Magnetic strength={0.18}>
                       <AddToCart productId={id} productTitle={title} />
                     </Magnetic>
+                    <Link
+                      href={`/supplies/${id}`}
+                      className="chapter-spec-link"
+                      data-cursor="link"
+                      data-cursor-label="Read"
+                      aria-label={`Read the spec for ${title}`}
+                    >
+                      <span className="chapter-spec-label">
+                        <em>Read the spec</em>
+                      </span>
+                      <span className="chapter-spec-arrow" aria-hidden>
+                        <svg
+                          viewBox="0 0 24 12"
+                          aria-hidden
+                          className="chapter-spec-arrow-svg"
+                        >
+                          <line x1="0" y1="6" x2="22" y2="6" />
+                          <polyline points="16,1 22,6 16,11" fill="none" />
+                        </svg>
+                      </span>
+                    </Link>
                     <a
                       href={`#${id}`}
                       className="chapter-permalink"

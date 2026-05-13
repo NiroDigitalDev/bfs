@@ -4421,3 +4421,693 @@ html.loading body {
     opacity: 1;
   }
 }
+
+/* ============ CHAPTER · READ-THE-SPEC LINK ============
+   Italic-serif inline lockup that sits between the magnetic Add-to-cart
+   and the § permalink. Hover unspools the arrow rule via stroke-dashoffset;
+   focus-visible draws the hairline ring. */
+.chapter-spec-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 4px;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 14px;
+  letter-spacing: 0;
+  color: rgba(255, 255, 255, 0.62);
+  text-decoration: none;
+  transition: color var(--dur-2) var(--ease-out-quart);
+}
+.chapter-spec-link:hover,
+.chapter-spec-link:focus-visible {
+  color: #fff;
+}
+.chapter-spec-label {
+  display: inline-block;
+  line-height: 1;
+}
+.chapter-spec-label em {
+  font-style: italic;
+}
+.chapter-spec-arrow {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: 26px;
+  height: 12px;
+  overflow: visible;
+}
+.chapter-spec-arrow-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  stroke: currentColor;
+  stroke-width: 1;
+  fill: none;
+  stroke-linecap: square;
+  stroke-linejoin: miter;
+  stroke-dasharray: 28;
+  stroke-dashoffset: 28;
+  transition: stroke-dashoffset var(--dur-3) var(--ease-out-quart);
+}
+.chapter-spec-link:hover .chapter-spec-arrow-svg,
+.chapter-spec-link:focus-visible .chapter-spec-arrow-svg {
+  stroke-dashoffset: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .chapter-spec-arrow-svg {
+    transition: none;
+    stroke-dashoffset: 0;
+  }
+}
+
+/* ============ PRODUCT DETAIL PAGE (PDP) ============
+   /supplies/<id>. Mirrors the homepage's typographic register — hero-stack,
+   asymmetric two-word title, hairline colophon dl, magnetic CTA — but
+   composed for a single specimen, not a catalogue. Reuses Reveal, SplitText,
+   Magnetic, Tilt, SpecimenPlate, AddToCart. No new client primitives. */
+.pdp {
+  position: relative;
+  min-height: 100vh;
+  padding-bottom: clamp(60px, 8vw, 120px);
+}
+
+/* Hide site chrome (chapter rail / running folio) on PDP routes — their
+   anchor targets only exist on the homepage. Future ships will replace this
+   with a path-aware <SiteChrome /> primitive; for now a sibling selector
+   keeps the change scoped to CSS. */
+main.pdp ~ .chapter-rail,
+main.pdp ~ .folio {
+  display: none;
+}
+
+/* Lighter PDP nav — drops the IndexMenu, keeps the same skeleton */
+.pdp-nav {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: linear-gradient(
+    to bottom,
+    rgba(5, 5, 5, 0.78) 0%,
+    rgba(5, 5, 5, 0.6) 75%,
+    rgba(5, 5, 5, 0) 100%
+  );
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+/* Breadcrumb — italic-serif smallcaps, hairline rule under */
+.pdp-breadcrumb {
+  position: relative;
+  padding: clamp(16px, 2vw, 28px) clamp(20px, 4vw, 56px);
+  margin-top: clamp(8px, 1.5vw, 16px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.pdp-breadcrumb ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 10px;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 14px;
+  letter-spacing: 0;
+  color: rgba(255, 255, 255, 0.55);
+}
+.pdp-breadcrumb li {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.pdp-breadcrumb-link {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  color: rgba(255, 255, 255, 0.62);
+  text-decoration: none;
+  transition: color var(--dur-2) var(--ease-out-quart),
+    transform var(--dur-2) var(--ease-out-quart);
+}
+.pdp-breadcrumb-link:hover,
+.pdp-breadcrumb-link:focus-visible {
+  color: #fff;
+}
+.pdp-breadcrumb-arrow {
+  font-style: normal;
+  display: inline-block;
+  transition: transform var(--dur-2) var(--ease-out-quart);
+}
+.pdp-breadcrumb-link:hover .pdp-breadcrumb-arrow,
+.pdp-breadcrumb-link:focus-visible .pdp-breadcrumb-arrow {
+  transform: translateX(-4px);
+}
+.pdp-breadcrumb-current {
+  color: rgba(255, 255, 255, 0.85);
+  font-style: normal;
+  font-family: var(--font-sans);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: 10px;
+}
+
+/* Hero spread — display title, asymmetric two-word lockup, edge stem */
+.pdp-hero {
+  position: relative;
+  padding: clamp(48px, 8vw, 120px) clamp(20px, 4vw, 56px) clamp(24px, 4vw, 56px);
+  min-height: 70vh;
+  display: flex;
+  align-items: center;
+}
+.pdp-edge {
+  display: none;
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: clamp(28px, 3vw, 48px);
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  user-select: none;
+  z-index: 2;
+}
+@media (min-width: 900px) {
+  .pdp-edge {
+    display: flex;
+  }
+}
+.pdp-edge-stem {
+  display: inline-flex;
+  align-items: center;
+  gap: 18px;
+  transform: rotate(-90deg);
+  transform-origin: center;
+  white-space: nowrap;
+  font-family: var(--font-sans);
+  text-transform: uppercase;
+  letter-spacing: 0.32em;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.45);
+}
+.pdp-edge-num {
+  font-variant-numeric: oldstyle-nums;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.7);
+}
+.pdp-edge-rule {
+  display: inline-block;
+  width: 80px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.32);
+}
+.pdp-edge-label {
+  font-style: italic;
+  font-family: var(--font-serif);
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.pdp-hero-frame {
+  position: relative;
+  width: 100%;
+}
+.pdp-hero-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+  margin-bottom: clamp(24px, 4vw, 56px);
+}
+.pdp-hero-meta-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.pdp-hero-meta-row.right {
+  text-align: right;
+}
+.pdp-hero-meta-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background: #fff;
+  border-radius: 50%;
+}
+.pdp-eyebrow {
+  display: inline-block;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: clamp(14px, 1.6vw, 18px);
+  color: rgba(255, 255, 255, 0.65);
+  margin-bottom: clamp(14px, 2vw, 24px);
+  letter-spacing: 0;
+}
+
+.pdp-title-stack {
+  position: relative;
+  margin-top: clamp(8px, 1.5vw, 18px);
+}
+.pdp-title {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(56px, 12vw, 196px);
+  line-height: 0.88;
+  letter-spacing: -0.03em;
+  margin: 0;
+  text-transform: none;
+  text-wrap: balance;
+}
+.pdp-word {
+  display: block;
+  position: relative;
+}
+.pdp-word-1 {
+  letter-spacing: -0.03em;
+}
+.pdp-word-2 {
+  margin-top: clamp(-0.16em, -1.6vw, -0.05em);
+  padding-left: clamp(4vw, 8vw, 12vw);
+  letter-spacing: -0.02em;
+}
+.pdp-outline {
+  color: transparent;
+  -webkit-text-stroke: clamp(1px, 0.16vw, 2.5px) #f4f4f4;
+}
+.pdp-period {
+  display: inline-block;
+  color: #fff;
+  margin-left: 0.02em;
+}
+.pdp-period .split-char {
+  -webkit-text-stroke: 0;
+}
+.pdp-aside {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: clamp(14px, 2vw, 22px);
+  padding-left: clamp(4vw, 8vw, 12vw);
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: clamp(18px, 2vw, 26px);
+  color: rgba(255, 255, 255, 0.62);
+}
+.pdp-aside-line {
+  display: inline-block;
+  width: clamp(40px, 6vw, 100px);
+  height: 1px;
+  background: rgba(255, 255, 255, 0.32);
+  flex-shrink: 0;
+}
+
+/* Specimen plate — large, centered, the figure carries the page */
+.pdp-specimen {
+  position: relative;
+  padding: clamp(32px, 5vw, 80px) clamp(20px, 4vw, 56px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(16px, 2vw, 28px);
+}
+.pdp-specimen-frame {
+  position: relative;
+  width: min(100%, 920px);
+  aspect-ratio: 4 / 5;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.03) 0%,
+    rgba(255, 255, 255, 0) 60%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 2px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  isolation: isolate;
+  transform-style: preserve-3d;
+  transition: border-color var(--dur-3) var(--ease-out-quart);
+}
+@media (min-width: 720px) {
+  .pdp-specimen-frame {
+    aspect-ratio: 3 / 4;
+    max-height: 78vh;
+  }
+}
+.pdp-specimen-frame:hover {
+  border-color: rgba(255, 255, 255, 0.14);
+}
+.pdp-specimen-light {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    260px circle at var(--mx, 50%) var(--my, 50%),
+    rgba(255, 255, 255, 0.08),
+    transparent 70%
+  );
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity var(--dur-2) var(--ease-out-quart);
+}
+.pdp-specimen-frame:hover .pdp-specimen-light {
+  opacity: 1;
+}
+.pdp-specimen-specular {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.04) 50%,
+    transparent 70%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+.pdp-specimen-cap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  font-family: var(--font-sans);
+  text-transform: uppercase;
+  letter-spacing: 0.24em;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.55);
+  text-align: center;
+  justify-content: center;
+}
+
+/* Body — lede + colophon dl + magnetic CTA */
+.pdp-body {
+  position: relative;
+  padding: clamp(40px, 6vw, 96px) clamp(20px, 4vw, 56px) 0;
+  max-width: 980px;
+  margin: 0 auto;
+  display: grid;
+  gap: clamp(28px, 4vw, 56px);
+}
+.pdp-lede p {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: clamp(22px, 2.6vw, 32px);
+  line-height: 1.34;
+  color: rgba(255, 255, 255, 0.86);
+  letter-spacing: -0.005em;
+  text-wrap: balance;
+}
+.pdp-colophon {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+.pdp-colophon-row {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  align-items: baseline;
+  padding: clamp(12px, 1.6vw, 20px) 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  gap: 18px;
+}
+@media (min-width: 720px) {
+  .pdp-colophon-row {
+    grid-template-columns: 200px 1fr;
+  }
+}
+.pdp-colophon-key {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--color-fog);
+  margin: 0;
+}
+.pdp-colophon-val {
+  margin: 0;
+  font-size: 15px;
+  color: var(--color-text);
+  letter-spacing: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.pdp-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+.pdp-actions-aside {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.55);
+}
+.pdp-actions-aside em {
+  color: #fff;
+  font-style: italic;
+  font-size: 16px;
+}
+
+/* Related — two siblings */
+.related {
+  position: relative;
+  padding: clamp(56px, 8vw, 120px) clamp(20px, 4vw, 56px) 0;
+  max-width: 1240px;
+  margin: 0 auto;
+}
+.related-head {
+  margin-bottom: clamp(28px, 4vw, 56px);
+}
+.related-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.55);
+  letter-spacing: 0;
+}
+.related-eyebrow-rule {
+  display: inline-block;
+  width: 40px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.32);
+}
+.related-title {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(32px, 4vw, 56px);
+  line-height: 1;
+  margin: 12px 0 0;
+  color: #fff;
+  letter-spacing: -0.01em;
+}
+.related-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: clamp(20px, 3vw, 36px);
+  grid-template-columns: 1fr;
+}
+@media (min-width: 720px) {
+  .related-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.related-item {
+  position: relative;
+}
+.related-link {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 18px;
+  text-decoration: none;
+  color: inherit;
+  padding: 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  transition: border-color var(--dur-2) var(--ease-out-quart);
+}
+.related-link:hover,
+.related-link:focus-visible {
+  border-top-color: rgba(255, 255, 255, 0.45);
+}
+.related-figure {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.02) 0%,
+    rgba(255, 255, 255, 0) 70%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 2px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  isolation: isolate;
+  transition: border-color var(--dur-3) var(--ease-out-quart);
+}
+.related-figure-light {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    160px circle at var(--mx, 50%) var(--my, 50%),
+    rgba(255, 255, 255, 0.06),
+    transparent 70%
+  );
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity var(--dur-2) var(--ease-out-quart);
+}
+.related-link:hover .related-figure-light,
+.related-link:focus-visible .related-figure-light {
+  opacity: 1;
+}
+.related-meta {
+  display: grid;
+  gap: 6px;
+}
+.related-plate {
+  font-family: var(--font-sans);
+  text-transform: uppercase;
+  letter-spacing: 0.24em;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.55);
+}
+.related-name {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(22px, 2.4vw, 32px);
+  line-height: 1.1;
+  margin: 0;
+  color: #fff;
+}
+.related-sub {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+}
+.related-sub em {
+  font-style: italic;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 14px;
+  font-family: var(--font-serif);
+  color: rgba(255, 255, 255, 0.7);
+}
+.related-arrow {
+  display: inline-block;
+  margin-top: 8px;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.6);
+  transition: color var(--dur-2) var(--ease-out-quart),
+    transform var(--dur-2) var(--ease-out-quart);
+}
+.related-link:hover .related-arrow,
+.related-link:focus-visible .related-arrow {
+  color: #fff;
+  transform: translateX(4px);
+}
+
+/* Outro — return to the volume */
+.pdp-outro {
+  position: relative;
+  padding: clamp(60px, 8vw, 120px) clamp(20px, 4vw, 56px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(20px, 3vw, 36px);
+  max-width: 1240px;
+  margin: 0 auto;
+  text-align: center;
+}
+.pdp-outro-rule {
+  display: block;
+  width: clamp(80px, 12vw, 200px);
+  height: 1px;
+  background: rgba(255, 255, 255, 0.24);
+}
+.pdp-outro-line {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: clamp(16px, 1.8vw, 22px);
+  color: rgba(255, 255, 255, 0.62);
+}
+.pdp-outro-line em {
+  font-style: italic;
+  color: #fff;
+}
+
+/* ============ VIEW TRANSITIONS — shared specimen ============
+   When the browser supports the View Transitions API, the homepage
+   chapter figure and the PDP specimen become a single shared element
+   across the route change. Reduced-motion users get the standard
+   navigation transition (browser-native respect). */
+@supports (view-transition-name: x) {
+  main .chapter[id="void-book"] .chapter-figure-frame {
+    view-transition-name: figure-void-book;
+  }
+  main .chapter[id="abyssal-cardstock"] .chapter-figure-frame {
+    view-transition-name: figure-abyssal-cardstock;
+  }
+  main .chapter[id="event-horizon-pad"] .chapter-figure-frame {
+    view-transition-name: figure-event-horizon-pad;
+  }
+  main .chapter[id="sticky-voids"] .chapter-figure-frame {
+    view-transition-name: figure-sticky-voids;
+  }
+  main .chapter[id="savior-pen"] .chapter-figure-frame {
+    view-transition-name: figure-savior-pen;
+  }
+  main .chapter[id="executive-despair"] .chapter-figure-frame {
+    view-transition-name: figure-executive-despair;
+  }
+  main.pdp[data-product="void-book"] .pdp-specimen-frame {
+    view-transition-name: figure-void-book;
+  }
+  main.pdp[data-product="abyssal-cardstock"] .pdp-specimen-frame {
+    view-transition-name: figure-abyssal-cardstock;
+  }
+  main.pdp[data-product="event-horizon-pad"] .pdp-specimen-frame {
+    view-transition-name: figure-event-horizon-pad;
+  }
+  main.pdp[data-product="sticky-voids"] .pdp-specimen-frame {
+    view-transition-name: figure-sticky-voids;
+  }
+  main.pdp[data-product="savior-pen"] .pdp-specimen-frame {
+    view-transition-name: figure-savior-pen;
+  }
+  main.pdp[data-product="executive-despair"] .pdp-specimen-frame {
+    view-transition-name: figure-executive-despair;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  main .chapter .chapter-figure-frame,
+  main.pdp .pdp-specimen-frame {
+    view-transition-name: none;
+  }
+}
