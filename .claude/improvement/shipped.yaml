@@ -183,7 +183,7 @@ items:
 
   - id: pdp-supplies-route
     title: Per-product PDP route — /supplies/[id] editorial spread + view-transition shared specimen
-    commit: pending
+    commit: 5aad961
     date: 2026-05-13
     surface: catalogue
     tags: [pdp, route, asymmetric-title, specimen-plate, related-products, view-transitions, breadcrumb, jsonld-product, og-image, sitemap]
