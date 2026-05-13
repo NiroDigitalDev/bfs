@@ -9,8 +9,8 @@
 version: 1
 
 # Last-run telemetry — written at the end of every run.
-last_run_at: 2026-05-13T09:30:00Z
-last_run_commit: 5aad961
+last_run_at: 2026-05-13T10:30:00Z
+last_run_commit: 472dc7c
 last_run_mode: shipped   # shipped | no-focus | pr-opened
 
 # Anti-stagnation — incremented on every no-focus run, reset to 0 on ship.
@@ -20,24 +20,24 @@ consecutive_no_focus_runs: 0
 
 # Shipped-count — incremented on every shipped (not no-focus) run.
 # When this becomes a multiple of 10, Phase 0 fires the rubric-calibrator.
-shipped_count: 21   # post-pdp-supplies-route ship
+shipped_count: 22   # post-site-chrome-pathname-aware ship
 
 # Periodic cron triggers — Phase 0 compares against today's date and
 # fires the corresponding agent when the gap exceeds the cadence.
-last_retro_at: ""           # weekly cadence (≥ 7 days since last run → fire retro)
-last_critic_at: ""          # monthly cadence (≥ 28 days → fire critic)
-last_calibration_at: ""     # event-driven (every 10th ship) — also captured here for telemetry
+last_retro_at: 2026-05-13      # weekly cadence (≥ 7 days since last run → fire retro)
+last_critic_at: 2026-05-13     # monthly cadence (≥ 28 days → fire critic)
+last_calibration_at: ""        # event-driven (every 10th ship) — also captured here for telemetry
 
 # Optional integrations status — Phase 0 self-checks these on startup
 # and degrades gracefully when they're absent or broken.
-gh_available: unknown        # set to true/false after `gh auth status` check each run
-playwright_available: unknown
+gh_available: true           # `gh auth status` ok this run
+playwright_available: true   # capture-ship.mjs succeeded
 lighthouse_available: unknown
 
 # Daily improvements.md archival check — Phase 0 reads size and rotates
 # if exceeded. Recorded here so a freshly-archived run doesn't try again.
 last_archival_at: ""
-improvements_md_bytes: 0
+improvements_md_bytes: 167333
 
 # Notion integration — fixed IDs for the BFS workspace surfaces. The
 # routine reads Tasks at Phase 0 (task-driven mode override) and writes
@@ -51,4 +51,4 @@ notion:
   tasks_database_id: "f0d21637-51a7-4748-89f7-e8fedff3cb87"
   projects_data_source_id: "256af8d3-d3e2-805a-affe-000ba3c6f3f9"
   mcp_server_prefix: "mcp__625e67a9-bbc3-4f5e-b0ed-f5619218dd84__"
-  available: unknown  # set to true/false after Phase 0 probe
+  available: true     # MCP fallback used this run (NOTION_TOKEN not set)

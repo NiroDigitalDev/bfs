@@ -191,7 +191,7 @@ items:
 
   - id: site-chrome-pathname-aware
     title: SiteChrome wrapper — pathname-aware ChapterRail + RunningFolio
-    commit: pending
+    commit: 472dc7c
     date: 2026-05-13
     surface: chrome
     tags: [chrome, system, site-chrome, pathname, usePathname, foundation, ssg, regression-clean]
