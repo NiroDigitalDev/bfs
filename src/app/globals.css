@@ -3769,3 +3769,135 @@ html.loading body {
     animation: none;
   }
 }
+
+
+/* ============ RUNNING FOLIO ============
+   Fixed bottom-edge running header that re-typesets per active chapter.
+   Mirrors a print magazine's running folio: chapter mark on the left,
+   page number on the right. Reuses the chapter-rail intersection signal
+   via the shared useActiveChapter() hook so both stay in sync.
+   Hidden under 900px (matches chapter-rail breakpoint). */
+.folio {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 16px;
+  z-index: 70;
+  display: none;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 32px;
+  padding: 0 28px;
+  pointer-events: none;
+  mix-blend-mode: difference;
+  color: rgba(255, 255, 255, 0.55);
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  animation: folio-rise 700ms var(--ease-out-expo) 200ms both;
+}
+
+@media (min-width: 900px) {
+  .folio {
+    display: flex;
+  }
+}
+
+.folio-edge {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 10px;
+  line-height: 1;
+}
+
+.folio-mark {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 14px;
+  letter-spacing: 0;
+  text-transform: none;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1;
+  transform: translateY(1px);
+}
+
+.folio-slot {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 10px;
+  overflow: hidden;
+  animation: folio-typeset 540ms var(--ease-out-expo) both;
+}
+
+.folio-numeral,
+.folio-folio {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 14px;
+  letter-spacing: 0;
+  text-transform: none;
+  color: #fff;
+  line-height: 1;
+  font-feature-settings: "lnum" 1;
+}
+
+.folio-label {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 14px;
+  letter-spacing: 0;
+  text-transform: none;
+  color: rgba(255, 255, 255, 0.78);
+  line-height: 1;
+}
+
+.folio-sep {
+  opacity: 0.42;
+  font-weight: 700;
+}
+
+.folio-page,
+.folio-edition {
+  font-variant-numeric: tabular-nums;
+}
+
+@keyframes folio-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes folio-typeset {
+  0% {
+    transform: translateY(7px);
+    opacity: 0;
+    clip-path: inset(0 0 100% 0);
+  }
+  60% {
+    clip-path: inset(0 0 0 0);
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .folio {
+    animation: none;
+  }
+  .folio-slot {
+    animation: none;
+  }
+}

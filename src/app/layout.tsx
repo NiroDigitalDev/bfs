@@ -5,6 +5,7 @@ import { Cursor } from "@/components/cursor";
 import { Loader } from "@/components/loader";
 import { ScrollProgress } from "@/components/scroll-progress";
 import { ChapterRail } from "@/components/chapter-rail";
+import { RunningFolio } from "@/components/running-folio";
 import { ParallaxRoot } from "@/components/parallax-root";
 import { CartDrawer } from "@/components/cart-drawer";
 import { site, siteUrl } from "@/lib/site";
@@ -180,6 +181,7 @@ export default function RootLayout({
         <Cursor />
         {children}
         <ChapterRail />
+        <RunningFolio />
         <CartDrawer />
         <Analytics />
         <script

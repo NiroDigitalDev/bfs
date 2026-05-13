@@ -5,6 +5,149 @@ One entry per run. Newest first.
 
 ---
 
+## 2026-05-13 — Running folio (fixed bottom-edge running header, re-typesets per chapter)
+
+**Area.** A new piece of editorial chrome: a fixed bottom-edge running
+folio that re-typesets per active chapter. Print magazines carry this
+on every spread — chapter mark on one side, page number on the other.
+The site already had a sticky chapter rail on the right; what it
+lacked was the second half of the print conceit, the *running header*
+that names where you are in the publication. With the folio added,
+the page now reads as a continuous spread rather than a long scroll.
+
+**Why it's the focus.** Three auditors and a reference scout returned
+in parallel. Strongest finding was the gap between the editorial
+register already shipped (Instrument Serif display, hairlines, italic
+numerals, publisher's mark, codex, errata ribbon) and the chrome that
+*frames* it. The chapter rail tracks position but doesn't name it as
+a folio would; the nav names the publication but is invisible after
+the first scroll. A running folio is the missing connective tissue —
+distinctive enough for SOTD, low surface, reuses the chapter rail's
+intersection signal, lands without disturbing anything else shipped.
+
+Bureau Borsche / Locomotive / Family New York all carry running
+folios in their editorial work. None I know of currently do it as a
+re-typesetting transition on a single-page commerce site, which makes
+it ownable.
+
+**What ships.**
+
+- Fixed bottom-edge running folio, mix-blend-difference (legible over
+  any ground), z-index 70 (below chapter-rail 90 and cart-drawer 80,
+  so an open cart cleanly covers it).
+- Two columns, justified to the viewport edges:
+  - **Left:** `§ <numeral> · <label>` — the section glyph and italic
+    serif chapter title.
+  - **Right:** `p. <folio> · MMXXVI` — italic serif folio number and
+    edition year.
+- Re-typesets on chapter change: each "slot" remounts via React
+  `key={activeId}`, firing the `folio-typeset` keyframe — old line
+  clips out as new line rises 7px with a clip-path reveal (~540ms,
+  `--ease-out-expo`).
+- Initial mount uses a separate `folio-rise` keyframe (700ms with a
+  200ms delay) so the folio fades in after the page has settled, not
+  during the loader sequence.
+- Hidden under 900px (matches the chapter-rail breakpoint — the
+  editorial chrome is desktop-first; mobile gets the nav alone).
+- `aria-hidden` on the wrapper: the folio is supplementary visual
+  chrome; the chapter rail is the navigable index.
+- Reduced-motion: both keyframes disabled, folio swaps instantly.
+- Tabular numerals on the year via `font-variant-numeric` so MMXXVI
+  doesn't jitter (vestigial for Roman, but in place for future
+  Arabic folio editions).
+
+**Architecture.**
+
+- `src/data/chapters.ts` *(new)* — single source of truth for the
+  chapter list. Each chapter has `id`, `numeral`, `label`, and a new
+  `folio` field (printable page number, e.g. `"014"`). Both the
+  chapter rail and the running folio import from here, so chapter
+  drift between the two pieces of chrome is impossible.
+- `src/lib/use-active-chapter.ts` *(new)* — shared
+  `useActiveChapter()` hook. Inlines the IntersectionObserver pattern
+  that previously lived in `chapter-rail.tsx`. Same rootMargin
+  (`-30% 0px -50% 0px`) and threshold set. Each consumer gets its
+  own observer instance, which is cheaper than wiring a context
+  provider for two subscribers.
+- `src/components/chapter-rail.tsx` — refactored to consume the
+  shared `CHAPTERS` and `useActiveChapter()`. Behaviour unchanged.
+- `src/components/running-folio.tsx` *(new)* — the new folio.
+- `src/app/layout.tsx` — mounts `<RunningFolio />` immediately after
+  `<ChapterRail />`.
+- `src/app/globals.css` — new `.folio*` block at the file tail, two
+  keyframes (`folio-rise`, `folio-typeset`), reduced-motion override.
+
+**Verification.**
+
+- `bun run lint` — clean.
+- `bunx tsc --noEmit` — clean.
+- `bun run build` — clean. Five routes prerendered: `/`,
+  `/_not-found`, `/opengraph-image`, `/robots.txt`, `/sitemap.xml`.
+- `bun run start` + `curl /` — SSR markup contains all expected
+  classes: `.folio`, `.folio-edge-left`, `.folio-edge-right`,
+  `.folio-mark`, `.folio-slot`, `.folio-numeral`, `.folio-label`,
+  `.folio-folio`, `.folio-page`, `.folio-edition`. Status 200.
+- No regressions observed in adjacent chrome (chapter rail, nav,
+  scroll-progress, cart island). z-index audit: folio sits at 70,
+  cleanly under chapter rail (90) and cart drawer (80).
+
+**Expected impact.**
+
+- Reads as an *edition*, not a webpage — every chapter is named and
+  paginated at the page edge.
+- Tightens the editorial language: the folio uses the same Instrument
+  Serif italic + hairline-adjacent vocabulary already shipped in the
+  chapter rail, codex, and colophon.
+- SOTD jury point: distinctive, motion-considered, reduced-motion
+  respected, doesn't add to the bundle in any meaningful way (one
+  client component, two CSS keyframes).
+- No SEO impact (the folio is `aria-hidden` chrome, not content).
+- No perf regression (one extra IntersectionObserver, ~0 cost; no
+  scroll handler added).
+
+**Files modified.**
+
+- `src/data/chapters.ts` *(new)*
+- `src/lib/use-active-chapter.ts` *(new)*
+- `src/components/chapter-rail.tsx`
+- `src/components/running-folio.tsx` *(new)*
+- `src/app/layout.tsx`
+- `src/app/globals.css`
+
+**Follow-ups uncovered (TODO for future runs).**
+
+- [ ] **Outro footer dead links** — still real (`href="#"` on Terms,
+      Privacy, Studio, Instagram, etc.). Highest-leverage hygiene gap
+      left on the site. Should be the next ship.
+- [ ] **No contact surface.** Studio email is buried in the colophon
+      only; no visible "Get in touch" affordance.
+- [ ] **`/cart` button has no destination.** Currently opens the
+      drawer only; either wire to a `/cart` route or accept drawer-only
+      as the design intent and remove the misleading `href`.
+- [ ] **OG image still uses `ui-serif` fallback.** Instrument Serif
+      should be loaded as a buffer inside `opengraph-image.tsx` so
+      shared previews carry the actual brand serif.
+- [ ] **Missing `apple-touch-icon` + `manifest.webmanifest`.**
+      Favicon exists; iOS bookmarks and Android PWA installs still
+      fall back to a light icon on non-dark backgrounds.
+- [ ] **Outro disclosure copy.** Mentions "back button is in the
+      upper-left of this window" — wrong on Windows and mobile.
+      Generalise.
+- [ ] **Newsletter form has no reset path.** After submit the input
+      stays disabled forever; add a "ready again" affordance after a
+      brief pause.
+- [ ] **Cart checkout state copy ambiguity.** "Sealed" reads as
+      transaction-complete but no payment routes. Either ship explicit
+      "no charge occurred" copy or rename the CTA to match the
+      editorial mode.
+- [ ] **Reference-scout backlog (not yet shipped).** Optical-size
+      axis swap on scroll; live kerning/ligature swap on hovered
+      product titles; baseline-break errata in field-notes spreads;
+      View Transitions API page-turn between portrait and codex.
+- [ ] **Lighthouse baseline.** Still unmeasured.
+
+---
+
 ## 2026-05-13 — Custom editorial 404 — "Not / Found." composition, rotated 404 spine, errata ribbon
 
 **Area.** A new top-level route: the 404 page. Previously the site shipped
