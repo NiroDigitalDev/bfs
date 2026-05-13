@@ -1,0 +1,184 @@
+# Improvement-cycle backlog — source of truth for open work.
+#
+# IMPROVEMENTS.md is the prose history. This file is the working state.
+# Every run: the historian VERIFIES each `open` item against current code
+# before reporting. Items found "no longer real" are flipped to
+# `status: closed-by-drift` with a verified-on date — never silently
+# dropped. New follow-ups uncovered by a ship are appended here, not
+# only buried in the prose log.
+#
+# Status values:
+#   open               — still real, eligible to be picked as a focus
+#   in-progress        — being shipped in the current run (transient)
+#   shipped            — completed; should also appear in shipped.yaml
+#   closed-by-drift    — verified as no longer real (already fixed
+#                        elsewhere, removed, or scope evaporated)
+#   wontfix            — explicitly declined; record the reason
+#
+# Severity: critical | high | medium | low
+# Effort:   S (≤1h) | M (1–3h) | L (>3h)
+# Class:    hygiene | a11y | seo | perf | distinctive | system
+#
+# Schema per item:
+#   id:            unique kebab-case slug
+#   title:         short imperative
+#   ship:          one-line description of the concrete deliverable
+#   severity:      …
+#   effort:        …
+#   class:         …
+#   status:        …
+#   files:         [list of file:line anchors as of opened_on]
+#   opened_on:     ISO date
+#   last_verified: ISO date (set by historian)
+#   notes:         optional free text
+
+version: 1
+items:
+  - id: newsletter-reset-path
+    title: Newsletter form locks forever after submit
+    ship: Auto-reset submitted state after ~4s or add explicit "Send another" affordance
+    severity: high
+    effort: S
+    class: hygiene
+    status: open
+    files:
+      - src/components/newsletter.tsx:6-37
+    opened_on: 2026-05-13
+    last_verified: 2026-05-13
+    notes: |
+      disabled={submitted} is set true on submit and never cleared.
+      Returning visitors can't re-submit.
+
+  - id: contact-surface
+    title: No contact surface above the colophon
+    ship: |
+      Add a dedicated short contact slot mid-site (after manifesto)
+      OR raise studio email into the nav. Decide per ship.
+    severity: high
+    effort: M
+    class: hygiene
+    status: open
+    files:
+      - src/app/page.tsx:638-648
+      - src/app/page.tsx:674-680
+    opened_on: 2026-05-13
+    last_verified: 2026-05-13
+    notes: Currently buried ~95% down the page in colophon and outro nav only.
+
+  - id: og-image-serif-embed
+    title: OG image still falls back to ui-serif
+    ship: Embed Instrument Serif as base64 buffer in opengraph-image.tsx
+    severity: medium
+    effort: M
+    class: distinctive
+    status: open
+    files:
+      - src/app/opengraph-image.tsx
+    opened_on: 2026-05-13
+    last_verified: 2026-05-13
+
+  - id: apple-icon-manifest
+    title: Missing apple-icon.tsx + manifest.ts
+    ship: |
+      Add Next.js 16 programmatic apple-icon route + manifest route so
+      iOS / Android home-screen pins use the dark BFS mark.
+    severity: low
+    effort: M
+    class: hygiene
+    status: open
+    files:
+      - src/app/
+    opened_on: 2026-05-13
+    last_verified: 2026-05-13
+
+  - id: navcart-affordance
+    title: NavCart button reads visually like a link
+    ship: Add hover/focus cue distinguishing the cart button from <a> siblings
+    severity: low
+    effort: S
+    class: a11y
+    status: open
+    files:
+      - src/components/cart-island.tsx:82-96
+    opened_on: 2026-05-13
+    last_verified: 2026-05-13
+
+  - id: lighthouse-baseline
+    title: No Lighthouse baseline measured
+    ship: |
+      Run Lighthouse against the deployed homepage, capture LCP / CLS /
+      INP / a11y / SEO / best-practices, commit a baseline CSV under
+      .claude/improvement/lighthouse.csv. Subsequent runs append.
+    severity: medium
+    effort: M
+    class: perf
+    status: open
+    opened_on: 2026-05-13
+    last_verified: 2026-05-13
+
+  # ── Reference-scout typographic / motion backlog ──
+  # These are distinctive moves identified by the scout but not yet
+  # shipped. The scout reads this section each run to know what NOT to
+  # re-suggest, and to know what's already on deck for picking.
+
+  - id: optical-axis-scroll
+    title: Variable-serif optical-size axis swap on scroll
+    ship: |
+      Pair Instrument Serif with a variable companion (Fraunces opsz)
+      on the hero masthead only; bind opsz to scroll velocity so the
+      title tightens on settle and loosens on fast scroll.
+    severity: medium
+    effort: L
+    class: distinctive
+    status: open
+    opened_on: 2026-05-13
+    last_verified: 2026-05-13
+    notes: Reference — Family New York. Risk — variable font payload + CLS.
+
+  - id: live-kerning-on-hover
+    title: Live kerning / ligature swap on hovered display words
+    ship: |
+      On hovered display words (hero, chapter titles), swap to stylistic
+      alternates and tighten letter-spacing within a 200px pointer
+      radius. Once-on-enter swash reveal as the mobile equivalent.
+    severity: medium
+    effort: M
+    class: distinctive
+    status: open
+    opened_on: 2026-05-13
+    last_verified: 2026-05-13
+    notes: Reference — Bureau Borsche. Risk — sub-pixel jitter; touch fallback.
+
+  - id: errata-layer
+    title: Sitewide errata layer (struck-through corrections, baseline-break)
+    ship: |
+      A few words per chapter rendered with <del>/<ins> corrections,
+      baseline-shift errata, or margin pencil notes revealed on
+      scroll-into-view. Editorial flourish that deepens the
+      "proof being corrected" conceit.
+    severity: medium
+    effort: M
+    class: distinctive
+    status: open
+    opened_on: 2026-05-13
+    last_verified: 2026-05-13
+    notes: |
+      Reference — Pentagram editorial / Marina Willer. a11y — must use
+      <del>/<ins> so screen readers announce the correction.
+
+  - id: view-transitions-page-turn
+    title: View Transitions API page-turn between chapters
+    ship: |
+      Use the View Transitions API to make chapter-to-chapter movement
+      read as a literal page-turn (spine pivot, folio flips, marginalia
+      cross-fade). Non-VT fallback re-typesets folio only;
+      prefers-reduced-motion falls back to a hard cut.
+    severity: medium
+    effort: L
+    class: distinctive
+    status: open
+    opened_on: 2026-05-13
+    last_verified: 2026-05-13
+    notes: |
+      Reference — Locomotive. Highest single-move impact in the scout's
+      backlog but also the biggest. Save for a ship with the headroom.

@@ -1,0 +1,174 @@
+# Append-only registry of shipped moves.
+#
+# Read by the reference-scout each run so it doesn't re-suggest moves
+# that already exist on the site. Append a new entry at the END of the
+# items list whenever Phase 6 (commit) completes; never delete or
+# rewrite entries (the prose history lives in IMPROVEMENTS.md).
+#
+# Schema:
+#   id:       kebab-case slug; SHOULD match the backlog entry id if it
+#             originated there, otherwise the commit-subject slug.
+#   title:    short noun phrase
+#   commit:   git SHA (short, 7 chars is fine)
+#   date:     ISO ship date
+#   surface:  hero | catalogue | manifesto | field-notes | codex |
+#             faq | colophon | outro | 404 | chrome | nav | cart |
+#             system | seo
+#   tags:     bag of keywords for the scout's "don't re-suggest" check
+#             — typographic moves, motion moves, structural moves
+#   files:    primary files added/changed (for risk-weighting hotspots)
+#   summary:  one-line description
+
+version: 1
+items:
+  - id: redesign-awwwards-polish
+    title: First-pass Awwwards polish
+    commit: 82f4fcd
+    date: 2026-05-12
+    surface: chrome
+    tags: [hero, splittext, magnetic, marquee, parallax, cursor]
+    summary: Initial redesign sweep toward awwwards-level polish.
+
+  - id: copy-rewrite-editorial
+    title: Editorial register copy rewrite
+    commit: f56efe5
+    date: 2026-05-12
+    surface: chrome
+    tags: [copy, voice, editorial]
+    summary: Rewrote site copy to elite editorial register.
+
+  - id: vercel-analytics
+    title: Vercel Analytics integration
+    commit: 61e601f
+    date: 2026-05-12
+    surface: system
+    tags: [analytics]
+    summary: Added Vercel Analytics.
+
+  - id: seo-foundation
+    title: SEO foundation + share metadata + product structured data
+    commit: e627fe4
+    date: 2026-05-12
+    surface: seo
+    tags: [metadata, opengraph, jsonld, product-schema]
+    summary: Site-wide metadata, Open Graph, product structured data.
+
+  - id: faq-jsonld-cart-semantic
+    title: FAQ JSON-LD + per-product anchors + cart semantic upgrade
+    commit: 49a51a1
+    date: 2026-05-12
+    surface: seo
+    tags: [jsonld, faq, anchors, cart-semantics]
+    summary: FAQPage JSON-LD, per-product anchor URLs, cart accessibility upgrade.
+
+  - id: focus-ring-reduced-motion-tokens
+    title: Focus ring + reduced-motion gating + design tokens
+    commit: d521628
+    date: 2026-05-12
+    surface: system
+    tags: [a11y, focus, reduced-motion, tokens]
+    summary: Custom focus ring, reduced-motion guards, design token rollout.
+
+  - id: hero-typographic-recomposition
+    title: Hero typographic recomposition + scroll-bound parallax + spec ribbon
+    commit: 36d4d65
+    date: 2026-05-12
+    surface: hero
+    tags: [typography, asymmetric, parallax, spec-ribbon]
+    summary: Hero composition with stacked/asymmetric display type, scroll parallax, spec ribbon.
+
+  - id: catalogue-chapter-spreads-cart
+    title: Editorial chapter spreads for catalogue + working cart island
+    commit: d4caf81
+    date: 2026-05-12
+    surface: catalogue
+    tags: [chapter-spread, cart, object-portrait]
+    summary: Per-product chapter spreads; cart island state + drawer.
+
+  - id: cart-drawer-focus-trap
+    title: Cart drawer — right-edge dialog with focus trap and editorial register
+    commit: 902b44c
+    date: 2026-05-12
+    surface: cart
+    tags: [drawer, focus-trap, dialog, editorial]
+    summary: Right-edge cart dialog with focus trap and editorial copy register.
+
+  - id: chapter-rail
+    title: Sticky chapter rail with IntersectionObserver tracking
+    commit: 1f23810
+    date: 2026-05-12
+    surface: chrome
+    tags: [chapter-rail, sticky, intersection-observer]
+    summary: Right-edge sticky chapter rail tracking the active section.
+
+  - id: colophon-outro
+    title: Editorial colophon outro + reduced-motion scroll-smooth guard
+    commit: 751f8fa
+    date: 2026-05-12
+    surface: outro
+    tags: [colophon, outro, scroll-smooth, reduced-motion]
+    summary: Editorial colophon outro with reduced-motion-safe scroll-smooth.
+
+  - id: object-portrait-register
+    title: Object-portrait register on catalogue figures + snappier titles
+    commit: e389575
+    date: 2026-05-12
+    surface: catalogue
+    tags: [object-portrait, figure, titles]
+    summary: Catalogue figures read as object portraits; tightened title copy.
+
+  - id: publisher-mark-colophon
+    title: Publisher's mark — type-as-imagery colophon
+    commit: f37d00f
+    date: 2026-05-12
+    surface: colophon
+    tags: [publisher-mark, type-as-imagery, colophon]
+    summary: Replaced the stat band with a publisher's-mark colophon.
+
+  - id: survival-codex
+    title: Survival codex — hairline-ruled editorial spread, italic numerals
+    commit: ed3eff9
+    date: 2026-05-13
+    surface: codex
+    tags: [codex, hairlines, italic-numerals, editorial-spread]
+    summary: Hairline-ruled survival-codex editorial spread.
+
+  - id: field-notes-pullquotes
+    title: Field notes — display pull-quotes, hairline-ruled, italic serif
+    commit: 352319a
+    date: 2026-05-13
+    surface: field-notes
+    tags: [field-notes, pull-quotes, italic-serif, hairlines]
+    summary: Testimonials reframed as display pull-quotes.
+
+  - id: faq-italic-unfold
+    title: FAQ editorial unfold — italic § toggle, "Reply." marginalia, permalinks
+    commit: 5500406
+    date: 2026-05-13
+    surface: faq
+    tags: [faq, unfold, italic, marginalia, permalink]
+    summary: FAQ items unfold with italic § toggle and Reply. marginalia.
+
+  - id: custom-404
+    title: Custom editorial 404 — Not / Found. spread, rotated spine, errata ribbon
+    commit: 0771120
+    date: 2026-05-13
+    surface: 404
+    tags: [404, errata-ribbon, rotated-spine, editorial-spread]
+    summary: Editorial 404 spread mirroring the hero composition.
+
+  - id: running-folio
+    title: Running folio — fixed bottom-edge masthead, re-typesets per chapter
+    commit: 247fc2b
+    date: 2026-05-13
+    surface: chrome
+    tags: [running-folio, masthead, mix-blend-difference, chapter-aware]
+    summary: Fixed bottom-edge running folio that re-typesets per active chapter.
+
+  - id: specimen-plate
+    title: Specimen plate — technical-drawing dim overlay on product portraits
+    commit: bd39d38
+    date: 2026-05-13
+    surface: catalogue
+    tags: [specimen-plate, technical-drawing, hairlines, italic-numerals, dimension-lines, compass, stroke-dashoffset]
+    summary: Per-product hairline dimensioning overlay with FIG. label and compass tick.
