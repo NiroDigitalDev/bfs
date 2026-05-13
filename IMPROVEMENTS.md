@@ -5,6 +5,213 @@ One entry per run. Newest first.
 
 ---
 
+## 2026-05-13 — PDP quantity selector — italic-serif numeric, hairline-rule stepper
+
+**Area.** Product detail pages — `.pdp-actions` block on every
+`/supplies/<id>` route. Previously the only path to "I want 3 of
+these" was: click Add (qty 1 commits), open cart drawer, use the
+in-drawer `cart-line-stepper` to bump to 3. Two-step friction for a
+one-step intent. Notion task-driven (page id
+`35faf8d3-d3e2-818e-865d-f4d9e50c6234`, "PDP — add a quantity
+selector to AddToCart", Priority Medium, Surface
+catalogue + cart + system, Added 2026-05-13T18:49).
+
+**Why it's the focus.** Soft override — Notion Tasks DB returned
+three `To do` rows added in the same batch (PDP quantity selector,
+PDP editorial sections, display-type vocabulary application).
+Priority tie at Medium; Added tie at the millisecond. Picked
+quantity selector first on user-impact axis: it removes a real
+friction in the buy flow (an actual functional gap), whereas the
+other two are register-consistency polishes that can wait for
+their own ship. Phase 1/2 discovery + rubric scoring **skipped**
+per the task-driven flow.
+
+**Mode.** Task-driven.
+
+**Risk band.** `medium`. Per the body's `Risk hint:` and confirmed
+on diff: extends a shared store API (`cart.add()` gains a 3rd
+optional arg), introduces a new shared primitive
+(`<QuantitySelector />`), and ships a sibling client component
+(`<PDPAddToCart />`) used on six PDPs. Net diff: 5 files, +136 / -7 LOC.
+Direct-to-`main` (no PR) per `risk-rules.md` medium-band threshold;
+auto-merge step not applicable.
+
+**What ships.**
+
+- **`<QuantitySelector />` primitive** at `src/components/quantity-selector.tsx`
+  (~70 LOC). Props: `value`, `onChange`, `min=1`, `max=9`, `label="Quantity"`.
+  Renders `<div role="group" aria-label={label}>` wrapping a `<button>−</button>`,
+  a `<span aria-live="polite" aria-atomic="true">` italic-serif display
+  (oldstyle + tabular nums, zero-padded to two digits — `01`, `02` …
+  `09`), and a `<button>+</button>`. Disabled state at `min` / `max`
+  with `aria-disabled` semantics via native `disabled`. Keyboard:
+  Arrow-Left / Arrow-Down decrement, Arrow-Right / Arrow-Up
+  increment when focus is anywhere in the group (event listener at
+  the role="group" container, not just the buttons).
+- **`cart.add()` extended** at `src/lib/cart.ts:91`. Signature is now
+  `add(productId, productTitle?, quantity = 1)`. Quantity is floored
+  + max'd against 1 (defends against arrow-key bypass attempts and
+  negative inputs) and capped against the existing per-line 99 ceiling
+  whether the line is new or accumulating. Default-arg keeps the
+  6 homepage AddToCart call sites + the legacy AddToCart export
+  source-compatible — zero changes downstream.
+- **`<PDPAddToCart />` sibling export** at `src/components/cart-island.tsx`.
+  Owns local `quantity` state (`useState(1)`) + the `added` ephemeral
+  state. Renders `<QuantitySelector />` adjacent to the existing
+  `.chapter-cta` button (same visual treatment, just the button is now
+  wrapped in a `.pdp-addtocart` flex container with a 14 px gap).
+  Calls `cart.add(productId, productTitle, quantity)` on click. The
+  legacy `<AddToCart />` export is unchanged — homepage product cards
+  retain the single-click commit pattern, which is the right register
+  for a grid of teasers.
+- **PDP wiring.** `src/app/supplies/[id]/page.tsx` swaps its `<AddToCart>`
+  import + render for `<PDPAddToCart>` inside the existing
+  `<Reveal delay="0.18s" className="pdp-actions">` `<Magnetic>` wrapper.
+  No other PDP markup changed — the quantity-selector sits at the
+  beginning of the action row, then the magnetic-wrapped CTA, then
+  the price · 48-hour aside (unchanged).
+- **CSS register** at `src/app/globals.css:4986+` (~60 lines, sits between
+  `.pdp-actions` and `.pdp-actions-aside`). `.quantity-selector` is a
+  pill — `1px solid var(--color-line-2)`, `border-radius: 999px`,
+  44 px tall, 4 px inner padding — matching the cart-drawer
+  `.cart-line-stepper` vocabulary at 1.4× scale (32 px → 44 px) to read
+  as a primary control next to the Add CTA, not a tertiary one.
+  Display is `font-family: var(--font-serif); font-style: italic;
+  font-size: 22px; font-variant-numeric: oldstyle-nums tabular-nums`
+  — the same oldstyle-nums grammar used on the press-clipping register
+  shipped earlier today, the colophon dl, and the cart drawer item
+  count. Step buttons share that typographic register at 22 px italic,
+  with `hover:not(:disabled)` lifting background to `--color-overlay-1`
+  and color to `--color-text-strong`. Focus-visible: `1px solid
+  var(--color-line-1)` outline with 2 px offset. `prefers-reduced-motion:
+  reduce` zeroes the step-button transition.
+
+**Architecture.**
+
+- **Primitives reused.** Tokens only — `--color-line-2`, `--color-line-1`,
+  `--color-text`, `--color-text-strong`, `--color-overlay-1`, `--font-serif`,
+  `--dur-1`. No new tokens. No new dependencies. `<Magnetic>` and
+  `<Reveal>` wrappers around the PDP CTA unchanged. The aria-label on
+  the CTA is now dynamic — `"Add ${quantity} of ${productTitle} to cart"` —
+  so AT users hear the quantity change reflected on the action verb
+  itself, in addition to the live-polite numeric display update.
+- **Why a sibling `<PDPAddToCart />` not a `quantity?` prop on `<AddToCart />`.**
+  `AddToCart` is consumed by both the homepage catalogue grid (six
+  call sites, single-click register) and the PDP (one call site,
+  quantity register). Adding an optional prop would force every
+  homepage call site through a branch it never exercises, and the
+  internal `useState` would still need to fork on whether quantity
+  rendering is requested. The sibling export keeps each surface's
+  client-component shape minimal and the call sites declarative.
+  Both exports share the underlying `.chapter-cta` button markup
+  (copy-paste, not abstraction — there are exactly two call sites
+  and they want subtly different ARIA copy, so a shared sub-component
+  would be a premature shape).
+- **Cap chosen for `max`.** 9 (one-digit) rather than the line-level
+  99. Reads as a deliberate edition limit ("an edition of nine, not
+  a generic numeric field") and keeps the display visually balanced
+  at 2-digit width with the `padStart(2, "0")` formatter. Customers
+  needing 10+ can use the in-drawer stepper, which retains the 99 cap.
+- **CSS sits where it belongs.** Inserted into `globals.css` between
+  the existing `.pdp-actions` rule and `.pdp-actions-aside` rule, not
+  at the bottom of the file — keeps PDP styles co-located for future
+  readers grepping for `pdp-actions`.
+
+**Verification.**
+
+- `bun run lint` — 0 errors (7 pre-existing warnings in
+  `.claude/improvement/scripts/*.mjs`, unrelated to this diff).
+- `bunx tsc --noEmit` — 0 errors.
+- `bun run build` — clean. 24 static pages prerendered, all six
+  `/supplies/<id>` routes plus the six opengraph-image routes
+  generated successfully.
+- SSR HTML check (`curl http://localhost:3000/supplies/void-book`):
+  contains `class="pdp-addtocart"`, `class="quantity-selector"`,
+  `class="quantity-selector-step"`, `class="quantity-selector-display"`,
+  `aria-label="Quantity of The Void Book"`, `aria-label="Decrease
+  quantity"`, `aria-label="Increase quantity"`, and a CTA carrying
+  `aria-label="Add 1 of The Void Book to cart"` (default quantity 1).
+- Adjacent-surface regression: `curl http://localhost:3000/`. Homepage
+  catalogue has six `aria-label="Add <Title> to cart"` instances (legacy
+  AddToCart, unchanged) and **zero** `pdp-addtocart` / `quantity-selector`
+  class hits — no leakage.
+- anti-patterns.mjs: `patterns: 0`.
+- Lighthouse: skipped (mid-page surface on a route already covered
+  by the prior PDP ship's baseline; the perf delta is a single small
+  client component + ~60 lines CSS — well inside the +5 KB budget).
+- Visual diff: `skipped: no prior pdp-qty-desktop.png to compare`
+  (new surface tag — establishes the baseline for the next ship that
+  touches the PDP).
+
+**Rubric.** Task-driven — no rubric scoring (the user submitted the
+brief directly).
+
+**Screenshots.** `.claude/improvement/screenshots/890408e/pdp-qty-desktop.png`,
+`.claude/improvement/screenshots/890408e/pdp-qty-mobile.png` (gitignored).
+The `.pdp-body` block sits below the Reveal-intersection threshold
+in the capture's initial viewport — JS-runtime reveals fire on
+scroll and the section is fully wired in SSR (curl-verified above);
+this is a known limitation of the headless screenshot tool, not a
+visual regression.
+
+**SOTD comparison.** Skipped — `sotd-compare.mjs` exited
+`could not parse SOTD entry — gallery markup may have changed`
+(re-investigation already queued in state.yaml; not regressed by
+this ship).
+
+**Notion.** Task page completed —
+[PDP — add a quantity selector to AddToCart](https://www.notion.so/35faf8d3d3e2818e865df4d9e50c6234).
+Reports row appended (Date 2026-05-13, Mode Task-driven, Surface
+catalogue,cart,system).
+
+**Expected impact.** Removes a real friction in the buy flow on
+every PDP. A multi-unit order — "I want 3 of the cardstock" — now
+completes in one click instead of three (one click + open drawer +
+two stepper clicks). The italic-serif numeric display is the first
+oldstyle-nums interactive control on the site (cart drawer's qty is
+sans-tabular at 12 px; this is serif-italic at 22 px), continuing
+the editorial register's expansion into functional UI rather than
+just typographic chrome. Establishes the `<QuantitySelector />`
+primitive that future surfaces — checkout line items, related-edition
+mini-add, future bundle/edition pickers — can consume directly.
+
+**Files modified.**
+
+- `src/components/quantity-selector.tsx` (new, ~70 LOC)
+- `src/components/cart-island.tsx` (+52 LOC — `<PDPAddToCart />` export
+  + QuantitySelector import)
+- `src/lib/cart.ts` (+8 / -2 LOC — `add()` signature extended with
+  default-1 quantity arg + per-call clamp)
+- `src/app/supplies/[id]/page.tsx` (+1 / -1 LOC — import + render swap)
+- `src/app/globals.css` (+60 LOC — `.quantity-selector*` + `.pdp-addtocart`
+  block, inserted between `.pdp-actions` and `.pdp-actions-aside`)
+
+**Follow-ups uncovered.**
+
+- `pdp-qty-checkout-line-items` — when /checkout matures beyond its
+  current shape, evaluate whether checkout line items deserve a
+  `<QuantitySelector />` instance (currently they use the same
+  `.cart-line-stepper` as the drawer; the primitive could
+  consolidate). Backlog.
+- `pdp-qty-reset-on-add` — open question: should the quantity reset
+  to 1 after a successful add, or persist? Currently persists, which
+  matches "I want 3 of A and 3 of B" rapid-add intent but slightly
+  surprises the "I added 3, I'm done" intent. Leave as-is until
+  there's a real signal; revisit once analytics is wired.
+
+**Backlog closed-by-drift.** None.
+
+**Periodic triggers fired.** None this run (retro fired 2026-05-13,
+critic fired 2026-05-13, calibration not due — shipped_count = 27, next
+calibration at 30; creativity-reset not due — consecutive_no_focus_runs = 0).
+
+**Review.** Skipped — `review` skill not loaded in this scheduled-task
+session. Note: the diff has already been read end-to-end by the
+implementer + verifier path; logging the skip for traceability per
+the Phase 7.5 contract.
+
+---
+
 ## 2026-05-13 — Press section reframed as hairline-divided clipping-book register
 
 **Area.** Homepage **press** surface — the five-cell row sitting between

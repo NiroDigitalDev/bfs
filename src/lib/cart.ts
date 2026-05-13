@@ -88,14 +88,19 @@ export function subtotal(
   );
 }
 
-export function add(productId: ProductId, productTitle?: string): void {
+export function add(
+  productId: ProductId,
+  productTitle?: string,
+  quantity: number = 1
+): void {
   if (!isProductId(productId)) return;
+  const qty = Math.max(1, Math.floor(quantity));
   const lines = readFresh();
   const existing = lines.find((l) => l.productId === productId);
   if (existing) {
-    existing.quantity = Math.min(99, existing.quantity + 1);
+    existing.quantity = Math.min(99, existing.quantity + qty);
   } else {
-    lines.push({ productId, quantity: 1 });
+    lines.push({ productId, quantity: Math.min(99, qty) });
   }
   commit(lines);
   if (typeof window !== "undefined") {

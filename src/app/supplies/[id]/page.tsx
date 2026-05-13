@@ -6,7 +6,7 @@ import { SplitText } from "@/components/split-text";
 import { Magnetic } from "@/components/magnetic";
 import { Tilt } from "@/components/tilt";
 import { SpecimenPlate } from "@/components/specimen-plate";
-import { AddToCart, CartCount, NavCart } from "@/components/cart-island";
+import { CartCount, NavCart, PDPAddToCart } from "@/components/cart-island";
 import { RelatedProducts } from "@/components/related-products";
 import {
   NotebookVisual,
@@ -299,7 +299,7 @@ export default async function ProductPage({
 
         <Reveal delay="0.18s" className="pdp-actions">
           <Magnetic strength={0.22}>
-            <AddToCart productId={product.id} productTitle={product.title} />
+            <PDPAddToCart productId={product.id} productTitle={product.title} />
           </Magnetic>
           <span className="pdp-actions-aside">
             <em>{product.price}</em>
