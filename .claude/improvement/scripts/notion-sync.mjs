@@ -50,10 +50,137 @@
 // gets `skipped: <reason>`. The cron continues without breaking.
 
 import { readFileSync, existsSync } from 'node:fs';
+import { execFileSync } from 'node:child_process';
 
 const NOTION_API = 'https://api.notion.com/v1';
 const NOTION_VERSION = '2022-06-28';
 const STATE_PATH = '.claude/improvement/state.yaml';
+
+// File-path → surface tag mapping. Used by deriveSurface() to backfill
+// the Task row's Surface field at complete-task time, so the user
+// doesn't have to set it manually. Patterns are matched in order;
+// the FIRST match wins, then we move to the next file.
+const FILE_SURFACE_RULES = [
+  { re: /^src\/app\/checkout\//, surfaces: ['cart'] },
+  { re: /^src\/app\/supplies\//, surfaces: ['catalogue'] },
+  { re: /^src\/app\/not-found\.tsx$/, surfaces: ['404'] },
+  { re: /^src\/app\/(sitemap|robots|opengraph-image)/, surfaces: ['seo'] },
+  { re: /^src\/app\/apple-icon|^src\/app\/manifest/, surfaces: ['seo'] },
+  { re: /^src\/app\/layout\.tsx$/, surfaces: ['system'] },
+  { re: /^src\/components\/cart-/, surfaces: ['cart'] },
+  { re: /^src\/components\/index-menu/, surfaces: ['nav'] },
+  { re: /^src\/components\/(chapter-rail|running-folio|scroll-progress|cursor|loader|parallax-root|site-chrome)/, surfaces: ['chrome'] },
+  { re: /^src\/components\/(specimen-plate|product-visuals)/, surfaces: ['catalogue'] },
+  { re: /^src\/components\/faq-item/, surfaces: ['faq'] },
+  { re: /^src\/components\/newsletter/, surfaces: ['outro'] },
+  { re: /^src\/components\/related-products/, surfaces: ['catalogue'] },
+  { re: /^src\/components\/(checkout-form|checkout-summary)/, surfaces: ['cart'] },
+  { re: /^src\/components\/(magnetic|tilt|reveal|split-text|spotlight|counter|marquee)/, surfaces: ['system'] },
+  { re: /^src\/data\/products/, surfaces: ['catalogue'] },
+  { re: /^src\/data\/faqs/, surfaces: ['faq'] },
+  { re: /^src\/data\/testimonials/, surfaces: ['field-notes'] },
+  { re: /^src\/data\/chapters/, surfaces: ['chrome'] },
+  { re: /^src\/lib\//, surfaces: ['system'] },
+  { re: /^\.claude\//, surfaces: ['system'] },
+  { re: /^IMPROVEMENTS/, surfaces: ['system'] },
+  { re: /^public\//, surfaces: ['seo'] },
+];
+
+// page.tsx is the homepage spread — multiple surfaces in one file.
+// Parse the diff hunks to find section markers. Markers MUST be
+// unique to their section (e.g. class-name prefixes that only appear
+// in that section's JSX/CSS, never in nav lookup tables or hrefs).
+// String "#manifesto" is NOT unique — it appears in nav menus too.
+// String "manifesto-rule" IS unique — only in manifesto section CSS.
+const PAGE_SECTION_MARKERS = {
+  hero: ['hero-frame', 'hero-title', 'hero-meta-row', 'hero-spec-row', 'hero-edge-stem', 'hero-aside-line', 'hero-bottom', 'hero-scroll'],
+  catalogue: ['chapter-figure', 'chapter-title', 'chapter-colophon', 'chapter-eyebrow', 'chapter-tags', 'chapter-numeral', 'chapter-lede', 'chapter-actions', 'chapter-permalink', 'colophon-mark', 'specimen-plate', 'SpecimenPlate'],
+  manifesto: ['manifesto-rule', 'manifesto-stack', 'manifesto-stat', 'manifesto-quote', 'manifesto-body'],
+  'field-notes': ['pull-quote', 'cult-quote', 'cult-marginalia', 'testimonial-'],
+  codex: ['codex-row', 'codex-rule', 'codex-numeral', 'survival-codex'],
+  colophon: ['publisher-mark', 'colophon-row', 'colophon-key', 'colophon-val'],
+  faq: ['faq-item', 'faq-list', 'faq-toggle', 'faq-reply'],
+  outro: ['outro-row', 'outro-wordmark', 'outro-disclaimer', 'outro-links', 'outro-colophon', 'outro-signoff', 'Newsletter />'],
+  nav: ['nav-logo', 'nav-links', 'nav-center', 'nav-cart', 'IndexMenu', 'nav-cta'],
+  cart: ['cart-island', 'cart-drawer', 'CartDrawer', 'cart-line', 'cart-empty'],
+};
+
+function deriveSurface(commit) {
+  // Returns a deduped CSV string of surface tags inferred from the diff.
+  let nameOnly = '';
+  let diffBody = '';
+  try {
+    nameOnly = execFileSync('git', ['diff', '--name-only', `${commit}~1`, commit], { encoding: 'utf8' });
+  } catch {
+    try {
+      // Fallback: just the files in this commit
+      nameOnly = execFileSync('git', ['show', '--name-only', '--pretty=format:', commit], { encoding: 'utf8' });
+    } catch {
+      return '';
+    }
+  }
+  const files = nameOnly
+    .split('\n')
+    .map((l) => l.trim())
+    .filter(Boolean);
+  if (!files.length) return '';
+
+  const surfaces = new Set();
+  let needsPageDiff = false;
+
+  for (const f of files) {
+    if (/^src\/app\/page\.tsx$/.test(f)) {
+      needsPageDiff = true;
+      continue;
+    }
+    let matched = false;
+    for (const rule of FILE_SURFACE_RULES) {
+      if (rule.re.test(f)) {
+        rule.surfaces.forEach((s) => surfaces.add(s));
+        matched = true;
+        break;
+      }
+    }
+    if (!matched && /^src\/app\/globals\.css$/.test(f)) {
+      // globals.css alone is ambiguous; we'll resolve via the page.tsx hunks
+      // if page.tsx is also in the changeset, else tag system.
+      needsPageDiff = true;
+    }
+    // Files matching nothing fall through silently — better than a noisy 'system' default.
+  }
+
+  // Resolve page.tsx (or stand-alone globals.css) by reading the actual diff content.
+  if (needsPageDiff) {
+    try {
+      diffBody = execFileSync(
+        'git',
+        ['diff', '--unified=0', `${commit}~1`, commit, '--', 'src/app/page.tsx', 'src/app/globals.css'],
+        { encoding: 'utf8' },
+      );
+    } catch {
+      diffBody = '';
+    }
+    // Filter to actually-changed lines (+/-) only. Hunk header lines (@@ ... @@)
+    // contain function-context excerpts that leak unrelated symbols into the scan.
+    const changedLines = diffBody
+      .split('\n')
+      .filter((l) => (l.startsWith('+') || l.startsWith('-')) && !l.startsWith('+++') && !l.startsWith('---'))
+      .join('\n');
+    for (const [surface, markers] of Object.entries(PAGE_SECTION_MARKERS)) {
+      for (const m of markers) {
+        if (changedLines.includes(m)) {
+          surfaces.add(surface);
+          break;
+        }
+      }
+    }
+    // If page.tsx changed but nothing matched, tag chrome as a safer default
+    // than 'system' (page.tsx is rarely truly "system" work).
+    if (surfaces.size === 0) surfaces.add('chrome');
+  }
+
+  return [...surfaces].sort().join(',');
+}
 
 function log(...a) {
   console.error('[notion-sync]', ...a);
@@ -198,17 +325,25 @@ async function claimTask(pageId) {
 
 async function completeTask(pageId, commit) {
   const today = new Date().toISOString().slice(0, 10);
+  const properties = {
+    Status: selectValue('Done'),
+    Completed: dateValue(today),
+    Commit: { rich_text: richText(commit) },
+  };
+  // Derive Surface from the actual diff and backfill the Task row so the
+  // user doesn't have to set it manually. Only sets it if non-empty —
+  // existing user-provided values are NOT overwritten when this returns
+  // empty (Notion's PATCH semantics omit unchanged fields when you don't
+  // include them).
+  const surfaceCsv = deriveSurface(commit);
+  if (surfaceCsv) {
+    properties.Surface = multiSelect(surfaceCsv);
+  }
   await notionFetch(`/pages/${pageId}`, {
     method: 'PATCH',
-    body: JSON.stringify({
-      properties: {
-        Status: selectValue('Done'),
-        Completed: dateValue(today),
-        Commit: { rich_text: richText(commit) },
-      },
-    }),
+    body: JSON.stringify({ properties }),
   });
-  console.log(`completed: ${pageId}`);
+  console.log(`completed: ${pageId}${surfaceCsv ? ` (Surface: ${surfaceCsv})` : ''}`);
 }
 
 // ------- release-task -------
@@ -278,6 +413,16 @@ async function appendReport(state, jsonPath) {
 // ------- entry point -------
 
 async function main() {
+  const [cmd, ...args] = process.argv.slice(2);
+
+  // derive-surface is a pure local diagnostic — doesn't need NOTION_TOKEN
+  // or state.yaml. Handle it before the auth gate.
+  if (cmd === 'derive-surface') {
+    const csv = deriveSurface(args[0] || 'HEAD');
+    console.log(csv ? `surface: ${csv}` : 'surface: (none inferred)');
+    return;
+  }
+
   if (!process.env.NOTION_TOKEN) {
     console.log('skipped: no NOTION_TOKEN — main thread should use MCP Notion tools directly');
     return;
@@ -288,8 +433,6 @@ async function main() {
     console.log('skipped: could not read notion section from state.yaml');
     return;
   }
-
-  const [cmd, ...args] = process.argv.slice(2);
   try {
     switch (cmd) {
       case 'check-tasks':
@@ -311,7 +454,7 @@ async function main() {
         break;
       default:
         console.log(
-          `skipped: unknown subcommand "${cmd}" — try check-tasks | claim-task | complete-task | release-task | append-report`,
+          `skipped: unknown subcommand "${cmd}" — try check-tasks | claim-task | complete-task | release-task | append-report | derive-surface`,
         );
     }
   } catch (e) {
