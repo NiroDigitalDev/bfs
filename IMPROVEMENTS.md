@@ -5,6 +5,196 @@ One entry per run. Newest first.
 
 ---
 
+## 2026-05-13 — Specimen plate (technical-drawing dimension overlay on product portraits)
+
+**Area.** Each of the six product portraits in the catalogue now carries
+a hairline-drawn *specimen plate* overlay — a technical-drawing register
+that frames every product as a measured object in a printer's archive.
+A `FIG.` label with hairline rule, a height dimension on the right
+edge, a width dimension along the bottom, a gauge label, and a small
+compass tick in the top-right corner. All hairlines draw in via
+`stroke-dashoffset` on viewport entry; italic-numeral measurements
+fade in serif italic once the lines have settled.
+
+**Why it's the focus.** Three discovery agents returned in parallel.
+The reference scout's top-five backlog (Studio Lin spec plates, Bureau
+Borsche live kerning, Family New York optical-axis swap, Locomotive
+view-transitions page-turn, Pentagram errata layer) bracketed the
+move. Studio Lin's spec-plate / technical-drawing register was the
+single most ownable extension of what was already shipped — it
+inherits the existing object-portrait register (commit `e389575`),
+the hairline + italic-numeral vocabulary already running through the
+folio, codex, and colophon, and the IntersectionObserver primitive
+already used by `Reveal` and the running folio. It also lives entirely
+inside the `.chapter-figure-frame` so the rest of the page is
+untouched, and it lands on the *first* section after the hero, which
+makes it the highest-visibility surface on the site.
+
+Two open-backlog items from the prior run were checked and *closed
+without a ship*: the outro footer dead links (`#supplies`,
+`#manifesto`, `#cult`, `#faq`, `mailto:`) are no longer real (audited
+at `src/app/page.tsx:661–681`), and the "back button is in the
+upper-left" disclosure copy is no longer real either — current
+disclaimer at `:656–659` reads "Yes — we are aware of how the name
+reads…" without the windowing assumption. The first auditor's
+marquee `prefers-reduced-motion` claim was also wrong:
+`src/app/globals.css:3306` already disables `.marquee-track` under
+reduced motion. Backlog pruned accordingly.
+
+**What ships.**
+
+- New `.spec-plate` SVG overlay laid over each `.chapter-figure-frame`
+  (z-index 4, above specular at 2 and corner brackets at 3, below
+  caption at 10). Six unique plates, one per product, all driven from
+  the `plate` field added to each `Product`.
+- Per-plate elements:
+  - **FIG. label** top-left in italic serif smallcaps (Roman numeral
+    I–VI), with a 126px hairline rule under it.
+  - **Compass tick** top-right: a 24px ring, an "N" label above, a
+    1.1px needle rotated to the product's `azimuth`, and a 0.9px
+    centre pin. Each product carries a distinct azimuth (6°, 32°,
+    348°, 90°, 305°, 175°) so the catalogue reads as six oriented
+    specimens, not six identical figures.
+  - **Height dimension** on the right edge: tick — line — italic
+    numeral `<h> mm` rotated 90° — line — tick.
+  - **Width dimension** along the bottom: tick — line — italic
+    numeral `<w> mm` — line — tick.
+  - **Gauge label** bottom-left in italic serif smallcaps with a
+    hairline rule under it: `GAUGE · 120 g/m²` etc.
+- Motion (on `IntersectionObserver` enter, once per plate):
+  - Hairlines draw in via `stroke-dashoffset` ramp (~900ms,
+    `--ease-out-expo`).
+  - Ticks pop in shorter (~360ms, 260ms delay).
+  - Compass ring draws in (~720ms, 140ms delay); needle follows
+    (~460ms, 640ms delay) so the ring is complete before the needle
+    arrives; pin fades in after needle (~240ms, 720ms delay).
+  - FIG / GAUGE / numeral / compass-N text fades in serif italic at
+    320–520ms delays so type lands *after* the lines.
+- Reduced motion: every keyframe collapses to instant render, all
+  dash offsets resolve to 0, all opacity-driven fades resolve to 1.
+- Mobile (≤640px): plate hidden — at narrow widths the dimension
+  marks crowd the figure and stop reading as a technical drawing.
+  Editorial decision, not a CSS hack.
+- Hover: line stroke lifts from 0.32 → 0.46 alpha, type from
+  0.72/0.78 → 0.92 alpha, so the plate intensifies when the figure
+  is being interacted with.
+
+**Architecture.**
+
+- `src/data/products.ts` — added a `PlateSpec` type
+  (`{ fig, w, h, unit, gauge, azimuth }`) and a `plate` field to each
+  of the six `Product` entries. The dimensions are the actual
+  physical sizes of the products (A5 / A4 / studio-pad / 3×3″ /
+  rollerball / undated annual) in mm; the gauge is the actual paper
+  weight or pen tip size. Authored deliberately so the plate reads
+  as a *true* technical specimen rather than ornamental numerals.
+- `src/components/specimen-plate.tsx` *(new)* — client component.
+  Single `<svg viewBox="0 0 400 500" preserveAspectRatio="xMidYMid
+  meet">` matching the figure's 4:5 aspect ratio. Uses
+  `vector-effect: non-scaling-stroke` on every line so hairlines
+  remain 1px at any rendered size. IntersectionObserver inlined
+  with `rootMargin: -10% 0px -10% 0px` and `threshold: 0`; flips
+  `data-in="true"` on first entry then disconnects.
+- `src/app/page.tsx` — added one import, added `plate` to the
+  product destructure, mounted `<SpecimenPlate plate={plate} />`
+  as a sibling of `<Visual />` inside `chapter-figure-frame`.
+  Nothing else changed.
+- `src/app/globals.css` — appended a new `.spec-plate*` block at
+  the file tail (~165 lines) with all classes, draw-in transitions,
+  reduced-motion override, and a `(max-width: 640px)` hide rule.
+  Uses existing tokens (`--ease-out-expo`, `--ease-out-quart`,
+  `--font-serif`). Zero new tokens introduced.
+
+**Verification.**
+
+- `bun run lint` — clean.
+- `bunx tsc --noEmit` — clean.
+- `bun run build` — clean. Five routes prerendered: `/`,
+  `/_not-found`, `/opengraph-image`, `/robots.txt`, `/sitemap.xml`.
+- SSR markup inspection of `.next/server/app/index.html`:
+  - 21 distinct `.spec-plate*` classes present in the DOM.
+  - Both `FIG.` and `GAUGE` strings occur exactly **6 times** each —
+    one per product — confirming all six plates SSR.
+  - All six product dimensions render as text inside `<tspan>`s
+    (e.g., `148`, `210`, `297`, `190`, `260`, `76`, `140`, `11`,
+    `165`, `240`) with `mm` units.
+- No regressions observed in adjacent chrome (Tilt, specular sweep,
+  corner brackets, chapter-figure-cap, chapter rail, folio).
+- Z-index audit: plate (4) above specular (2) and corner brackets
+  (3), below figure-cap (~10) and chapter rail (90). No conflicts.
+
+**Expected impact.**
+
+- Catalogue spreads now read as a printer's archive of measured
+  objects — each portrait is *annotated*, not just framed. This is
+  a direct Studio Lin / Pentagram-grade move and is the move most
+  likely to register with SOTD jurors who scan editorial commerce.
+- Extends the codex / object-portrait register that's already shipped
+  (commits `e389575`, `f37d00f`, `ed3eff9`, `352319a`) into the
+  catalogue itself rather than living only in the survival codex and
+  publisher's mark. The whole site now speaks the same technical-
+  drawing vocabulary.
+- SEO impact: none — plates are `aria-hidden` decorative chrome;
+  actual spec data continues to live in `dl.chapter-colophon` (which
+  is the screen-reader / crawl surface).
+- Bundle: one new ~3KB client component (`specimen-plate.tsx`), one
+  new ~4KB CSS block. No new dependencies.
+- a11y: every plate is `aria-hidden`; the real spec strings (`120
+  GSM · LAY-FLAT · 192 PP` etc.) remain in `dl.chapter-colophon`
+  and the chapter-figure-cap caption. The plate adds visual register
+  to a sighted viewer; an AT viewer reads the canonical specs from
+  the colophon.
+- Reduced-motion: fully respected — instant solid render, no
+  draw-in, no fade, no pin reveal.
+
+**Files modified.**
+
+- `src/data/products.ts`
+- `src/components/specimen-plate.tsx` *(new)*
+- `src/app/page.tsx`
+- `src/app/globals.css`
+
+**Follow-ups uncovered (TODO for future runs).**
+
+- [ ] **Newsletter form reset path.** Still real
+      (`src/components/newsletter.tsx:6–37`): `disabled={submitted}`
+      locks the input forever after one submit. A 4s
+      `setTimeout(() => setSubmitted(false))` or an explicit "Send
+      another" affordance would close it.
+- [ ] **No contact surface above the colophon.** Studio email is
+      still only at `:638–648` (colophon) and `:674–680` (outro nav)
+      — buried 95% down the page. A dedicated short contact slot
+      (mid-site, after manifesto) or a nav-level "Studio" link would
+      raise it.
+- [ ] **OG image Instrument Serif embedding.** Still falls back to
+      `ui-serif` — embedding Instrument Serif as a base64 buffer in
+      `opengraph-image.tsx` would tighten brand coherence at the
+      share moment.
+- [ ] **`apple-icon.tsx` + `manifest.ts`.** Still open; iOS / Android
+      home-screen pins still fall back to a light icon on dark
+      backgrounds.
+- [ ] **`NavCart` button affordance ambiguity.** The cart-island
+      button in the nav reads visually like a link; an explicit
+      hover/focus cue distinguishing it from `<a>` siblings would
+      help.
+- [ ] **Reference-scout backlog (not yet shipped).** Optical-size
+      axis swap on scroll; live kerning / ligature swap on hovered
+      product titles; baseline-break errata in field-notes; View
+      Transitions API page-turn between chapters.
+- [ ] **Lighthouse baseline.** Still unmeasured.
+
+**Backlog items closed without a ship** *(audited as no longer real)*:
+
+- Outro footer dead links → all resolved to anchors or `mailto:` at
+  `src/app/page.tsx:661–681`.
+- "Back button is in the upper-left" disclosure copy → current
+  disclaimer at `:656–659` reads "Yes — we are aware of how the
+  name reads…" without windowing assumptions.
+- Marquee animation ignoring `prefers-reduced-motion` → already
+  guarded at `src/app/globals.css:3306`.
+
+---
+
 ## 2026-05-13 — Running folio (fixed bottom-edge running header, re-typesets per chapter)
 
 **Area.** A new piece of editorial chrome: a fixed bottom-edge running

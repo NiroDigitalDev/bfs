@@ -3901,3 +3901,205 @@ html.loading body {
     animation: none;
   }
 }
+
+/* ============ SPECIMEN PLATE ============
+   A technical-drawing overlay laid over each product portrait. Hairline
+   dimension lines, italic-numeral measurements, FIG. label, and a small
+   compass tick — drawn into the frame on viewport entry.
+   Z-order: 4, above specular (2) and corner brackets (3), below cap (10).
+*/
+.spec-plate {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 220ms var(--ease-out-quart) 60ms;
+}
+.spec-plate[data-in="true"] {
+  opacity: 1;
+}
+.spec-plate-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+}
+
+.spec-plate-line {
+  stroke: rgba(255, 255, 255, 0.32);
+  stroke-width: 1;
+  fill: none;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 280;
+  stroke-dashoffset: 280;
+  transition: stroke-dashoffset 900ms var(--ease-out-expo) 120ms;
+}
+.spec-plate[data-in="true"] .spec-plate-line {
+  stroke-dashoffset: 0;
+}
+
+/* Short ticks at line endpoints — shorter dasharray for snappier draw */
+.spec-plate-tick {
+  stroke-dasharray: 14;
+  stroke-dashoffset: 14;
+  transition: stroke-dashoffset 360ms var(--ease-out-expo) 260ms;
+}
+.spec-plate[data-in="true"] .spec-plate-tick {
+  stroke-dashoffset: 0;
+}
+
+/* FIG. label rule + gauge rule */
+.spec-plate-rule {
+  stroke-dasharray: 160;
+  stroke-dashoffset: 160;
+  stroke: rgba(255, 255, 255, 0.42);
+  transition: stroke-dashoffset 700ms var(--ease-out-expo) 200ms;
+}
+.spec-plate[data-in="true"] .spec-plate-rule {
+  stroke-dashoffset: 0;
+}
+
+/* Compass — ring draws first, needle pops in last */
+.spec-plate-compass-ring {
+  stroke-dasharray: 80;
+  stroke-dashoffset: 80;
+  stroke: rgba(255, 255, 255, 0.38);
+  transition: stroke-dashoffset 720ms var(--ease-out-expo) 140ms;
+}
+.spec-plate[data-in="true"] .spec-plate-compass-ring {
+  stroke-dashoffset: 0;
+}
+.spec-plate-compass-needle {
+  stroke-dasharray: 14;
+  stroke-dashoffset: 14;
+  stroke: rgba(255, 255, 255, 0.7);
+  stroke-width: 1.1;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 460ms var(--ease-out-expo) 640ms;
+}
+.spec-plate[data-in="true"] .spec-plate-compass-needle {
+  stroke-dashoffset: 0;
+}
+.spec-plate-compass-pin {
+  fill: rgba(255, 255, 255, 0.55);
+  opacity: 0;
+  transition: opacity 240ms var(--ease-out-quart) 720ms;
+}
+.spec-plate[data-in="true"] .spec-plate-compass-pin {
+  opacity: 1;
+}
+
+/* Type — fades in after the lines have settled */
+.spec-plate-fig-text {
+  fill: rgba(255, 255, 255, 0.78);
+  font-family: var(--font-serif), "Instrument Serif", serif;
+  font-style: italic;
+  font-size: 14px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0;
+  transition: opacity 420ms var(--ease-out-quart) 380ms;
+}
+.spec-plate[data-in="true"] .spec-plate-fig-text {
+  opacity: 1;
+}
+
+.spec-plate-gauge-text {
+  fill: rgba(255, 255, 255, 0.5);
+  font-family: var(--font-serif), "Instrument Serif", serif;
+  font-style: italic;
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  opacity: 0;
+  transition: opacity 420ms var(--ease-out-quart) 520ms;
+}
+.spec-plate[data-in="true"] .spec-plate-gauge-text {
+  opacity: 1;
+}
+
+.spec-plate-num {
+  font-family: var(--font-serif), "Instrument Serif", serif;
+  font-style: italic;
+  fill: rgba(255, 255, 255, 0.72);
+  opacity: 0;
+  transition: opacity 420ms var(--ease-out-quart) 460ms;
+}
+.spec-plate[data-in="true"] .spec-plate-num {
+  opacity: 1;
+}
+.spec-plate-num-val {
+  font-size: 14px;
+  font-variant-numeric: oldstyle-nums;
+}
+.spec-plate-num-unit {
+  font-size: 10.5px;
+  fill: rgba(255, 255, 255, 0.45);
+  letter-spacing: 0.04em;
+}
+
+.spec-plate-compass-label {
+  fill: rgba(255, 255, 255, 0.5);
+  font-family: var(--font-serif), "Instrument Serif", serif;
+  font-style: italic;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  opacity: 0;
+  transition: opacity 380ms var(--ease-out-quart) 320ms;
+}
+.spec-plate[data-in="true"] .spec-plate-compass-label {
+  opacity: 1;
+}
+
+/* Hover swell — when the figure is being interacted with, lift the plate */
+.chapter-figure:hover .spec-plate-line {
+  stroke: rgba(255, 255, 255, 0.46);
+}
+.chapter-figure:hover .spec-plate-num,
+.chapter-figure:hover .spec-plate-fig-text {
+  fill: rgba(255, 255, 255, 0.92);
+}
+
+/* Hide on narrow viewports — the dimension marks crowd the figure
+   below ~640px and the plate stops reading as a technical drawing
+   and starts reading as clutter. Editorial decision over a11y/CSS hack. */
+@media (max-width: 640px) {
+  .spec-plate {
+    display: none;
+  }
+}
+
+/* Reduced motion — instant solid render, no dash draw-in, no fade */
+@media (prefers-reduced-motion: reduce) {
+  .spec-plate,
+  .spec-plate-line,
+  .spec-plate-tick,
+  .spec-plate-rule,
+  .spec-plate-compass-ring,
+  .spec-plate-compass-needle,
+  .spec-plate-compass-pin,
+  .spec-plate-fig-text,
+  .spec-plate-gauge-text,
+  .spec-plate-num,
+  .spec-plate-compass-label {
+    transition: none;
+  }
+  .spec-plate {
+    opacity: 1;
+  }
+  .spec-plate-line,
+  .spec-plate-tick,
+  .spec-plate-rule,
+  .spec-plate-compass-ring,
+  .spec-plate-compass-needle {
+    stroke-dashoffset: 0;
+  }
+  .spec-plate-compass-pin,
+  .spec-plate-fig-text,
+  .spec-plate-gauge-text,
+  .spec-plate-num,
+  .spec-plate-compass-label {
+    opacity: 1;
+  }
+}

@@ -6,6 +6,15 @@ export type ProductId =
   | "savior-pen"
   | "executive-despair";
 
+export type PlateSpec = {
+  fig: string;
+  w: string;
+  h: string;
+  unit: "mm" | "in";
+  gauge: string;
+  azimuth: number;
+};
+
 export type Product = {
   id: ProductId;
   chapter: string;
@@ -17,6 +26,7 @@ export type Product = {
   spec: string;
   copy: string;
   tags: string[];
+  plate: PlateSpec;
 };
 
 export const products: Product[] = [
@@ -32,6 +42,7 @@ export const products: Product[] = [
     copy:
       "Hardbound A5. One hundred and ninety-two pages of matte coated black, calibrated to refuse reflectance. Unlined, unmargined, unsentimental.",
     tags: ["core series", "48h dispatch"],
+    plate: { fig: "I", w: "148", h: "210", unit: "mm", gauge: "120 g/m²", azimuth: 6 },
   },
   {
     id: "abyssal-cardstock",
@@ -45,6 +56,7 @@ export const products: Product[] = [
     copy:
       "Fifty sheets, dyed through the core. Heavy enough to register as material. Feed it by hand or feed it to the laser. Either is permitted.",
     tags: ["heavy stock"],
+    plate: { fig: "II", w: "210", h: "297", unit: "mm", gauge: "500 g/m²", azimuth: 32 },
   },
   {
     id: "event-horizon-pad",
@@ -58,6 +70,7 @@ export const products: Product[] = [
     copy:
       "Top-bound forty-leaf pad with a tooth ground for pastel, charcoal, and gouache. Twin-loop wire. Quietly demanding of the hand holding it.",
     tags: ["studio"],
+    plate: { fig: "III", w: "190", h: "260", unit: "mm", gauge: "160 g/m²", azimuth: 348 },
   },
   {
     id: "sticky-voids",
@@ -71,6 +84,7 @@ export const products: Product[] = [
     copy:
       "Three pads, one hundred leaves each, three inches square. High-tack adhesive, low-residue release. Instruction for those who already understood.",
     tags: ["low-volume"],
+    plate: { fig: "IV", w: "76", h: "76", unit: "mm", gauge: "70 g/m²", azimuth: 90 },
   },
   {
     id: "savior-pen",
@@ -84,6 +98,7 @@ export const products: Product[] = [
     copy:
       "A 0.5 mm rollerball loaded with opaque silver-pigment gel. Acid-free, archival, calibrated for our paper and tolerant of yours.",
     tags: ["pairs with 001"],
+    plate: { fig: "V", w: "140", h: "11", unit: "mm", gauge: "0.5 mm", azimuth: 305 },
   },
   {
     id: "executive-despair",
@@ -97,5 +112,6 @@ export const products: Product[] = [
     copy:
       "Undated weekly. Fifty-two spreads deboss-struck at ninety percent K on one hundred gsm black. Bordeaux foil along the spine. Plans persist on faith.",
     tags: ["limited"],
+    plate: { fig: "VI", w: "165", h: "240", unit: "mm", gauge: "100 g/m²", azimuth: 175 },
   },
 ];

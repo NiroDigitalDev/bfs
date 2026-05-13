@@ -8,6 +8,7 @@ import { Spotlight } from "@/components/spotlight";
 import { FaqItem } from "@/components/faq-item";
 import { Newsletter } from "@/components/newsletter";
 import { CartCount, AddToCart, NavCart } from "@/components/cart-island";
+import { SpecimenPlate } from "@/components/specimen-plate";
 import {
   NotebookVisual,
   CardstockVisual,
@@ -209,7 +210,7 @@ export default function Home() {
         </div>
 
         <div className="chapters">
-          {products.map(({ id, chapter, title, subtitle, price, spec, copy, Visual, tags }, i) => (
+          {products.map(({ id, chapter, title, subtitle, price, spec, copy, Visual, tags, plate }, i) => (
             <Reveal key={id} delay={`${(i % 2) * 0.08}s`}>
               <article
                 id={id}
@@ -246,6 +247,7 @@ export default function Home() {
                     <span className="chapter-figure-light" aria-hidden />
                     <Visual />
                     <span className="chapter-figure-specular" aria-hidden />
+                    <SpecimenPlate plate={plate} />
                   </Tilt>
                   <figcaption className="chapter-figure-cap">
                     <span>Plate · {chapter}</span>
