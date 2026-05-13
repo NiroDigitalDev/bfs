@@ -525,19 +525,23 @@ export default function Home() {
           </p>
         </Reveal>
         <Reveal delay="0.15s">
-          <div className="press-grid">
+          <ol className="press-register">
             {[
-              "Apollo Off-Hours",
-              "The Reinhardt Review",
-              "Vantablack Vogue",
-              "Outrenoir Quarterly",
-              "Pen World*",
-            ].map((p) => (
-              <span key={p} className="press-item">
-                {p}
-              </span>
+              { roman: "I",   name: "Apollo Off-Hours",     vol: "Vol. XI",  issue: "№ 3",  page: "p. 42" },
+              { roman: "II",  name: "The Reinhardt Review", vol: "Vol. IV",  issue: "№ 11", page: "p. 7"  },
+              { roman: "III", name: "Vantablack Vogue",     vol: "Vol. VII", issue: "№ 1",  page: "p. 28" },
+              { roman: "IV",  name: "Outrenoir Quarterly",  vol: "Vol. II",  issue: "№ 6",  page: "p. 14" },
+              { roman: "V",   name: "Pen World*",           vol: "Vol. IX",  issue: "№ 2",  page: "p. 31" },
+            ].map((c) => (
+              <li className="press-clipping" key={c.name}>
+                <span className="press-clipping-num" aria-hidden>{c.roman}.</span>
+                <span className="press-clipping-name">{c.name}</span>
+                <span className="press-clipping-meta" aria-hidden>
+                  {c.vol} · {c.issue} · {c.page}
+                </span>
+              </li>
             ))}
-          </div>
+          </ol>
         </Reveal>
         <Reveal delay="0.25s">
           <p className="press-disclaimer">

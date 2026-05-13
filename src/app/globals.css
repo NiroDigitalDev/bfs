@@ -2213,26 +2213,117 @@ html.loading body {
   font-weight: 700;
   margin-bottom: clamp(28px, 4vw, 56px);
 }
-.press-grid {
+.press-register {
   max-width: 1100px;
   margin: 0 auto;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: center;
-  gap: clamp(20px, 4vw, 60px);
+  list-style: none;
+  padding: 0;
+  border-top: 1px solid var(--color-line);
+  border-bottom: 1px solid var(--color-line);
+  display: grid;
+  grid-template-columns: 1fr;
 }
-.press-item {
-  font-size: clamp(16px, 1.8vw, 26px);
-  font-weight: 900;
-  letter-spacing: -0.04em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.25);
-  transition: color 0.3s ease, transform 0.3s ease;
+.press-clipping {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto auto auto;
+  row-gap: 6px;
+  padding: 22px 18px;
+  text-align: center;
+  border-top: 1px solid var(--color-line);
+  transition: background-color var(--dur-2) var(--ease-out-quart);
 }
-.press-item:hover {
+.press-clipping:first-child {
+  border-top: 0;
+}
+.press-clipping::after {
+  content: "";
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: -1px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.55);
+  transform-origin: left;
+  transform: scaleX(0);
+  transition: transform var(--dur-2) var(--ease-out-quart);
+  pointer-events: none;
+}
+.press-clipping:hover::after,
+.press-clipping:focus-within::after {
+  transform: scaleX(1);
+}
+.press-clipping-num {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: clamp(18px, 2vw, 28px);
+  color: rgba(255, 255, 255, 0.55);
+  font-variant-numeric: oldstyle-nums;
+  letter-spacing: 0.02em;
+  transition: color var(--dur-2) var(--ease-out-quart);
+}
+.press-clipping-name {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(16px, 1.7vw, 22px);
+  line-height: 1.25;
+  letter-spacing: -0.005em;
+  color: rgba(255, 255, 255, 0.78);
+  transition: color var(--dur-2) var(--ease-out-quart);
+}
+.press-clipping-meta {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.32);
+  letter-spacing: 0.04em;
+  font-variant-numeric: oldstyle-nums;
+  transition: color var(--dur-2) var(--ease-out-quart);
+}
+.press-clipping:hover .press-clipping-num,
+.press-clipping:focus-within .press-clipping-num {
+  color: rgba(255, 255, 255, 0.78);
+}
+.press-clipping:hover .press-clipping-name,
+.press-clipping:focus-within .press-clipping-name {
   color: #fff;
-  transform: translateY(-2px);
+}
+.press-clipping:hover .press-clipping-meta,
+.press-clipping:focus-within .press-clipping-meta {
+  color: rgba(255, 255, 255, 0.55);
+}
+@media (min-width: 720px) {
+  .press-register {
+    grid-template-columns: repeat(5, 1fr);
+  }
+  .press-clipping {
+    border-top: 0;
+    border-left: 1px solid var(--color-line);
+    padding: 28px 14px;
+    transition: background-color var(--dur-2) var(--ease-out-quart),
+      border-left-color var(--dur-2) var(--ease-out-quart);
+  }
+  .press-clipping:first-child {
+    border-left: 0;
+  }
+  .press-clipping:hover {
+    border-left-color: var(--color-line-2);
+  }
+  .press-clipping:hover + .press-clipping {
+    border-left-color: var(--color-line-2);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .press-clipping,
+  .press-clipping-num,
+  .press-clipping-name,
+  .press-clipping-meta {
+    transition: none;
+  }
+  .press-clipping::after {
+    transition: none;
+  }
 }
 .press-disclaimer {
   font-size: 10px;

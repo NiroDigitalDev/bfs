@@ -5,6 +5,215 @@ One entry per run. Newest first.
 
 ---
 
+## 2026-05-13 — Press section reframed as hairline-divided clipping-book register
+
+**Area.** Homepage **press** surface — the five-cell row sitting between
+`CH. 02 / Codex` and `CH. 04 / Field Notes`. Last meaningfully touched on
+the initial site build; never re-typeset since the BFS editorial register
+solidified. The cold-surfaces auditor flagged it as **the loudest "this
+is still a Next.js template" residue left on the homepage's cold half**
+— logo-cloud pattern with translateY hover, uppercase Inter-900, dim
+0.25 alpha. Every adjacent surface had already converted to BFS's
+italic-serif vocabulary (catalogue, codex, manifesto, field-notes, FAQ,
+colophon, outro); the press strip was the lone holdover.
+
+**Why it's the focus.** Highest non-disqualified rubric total (15 / 18)
+with the lowest effort (S) among the Phase 2 candidates. The cold-surfaces
+auditor's #5 finding identified the strip as the single highest-distinctiveness-per-LOC
+move on the cold half. Tied D=3 with `manifesto-item-as-sans-card` (16 / 18,
+M effort) — the rubric tiebreaker rule lowered effort wins, and the
+"distinctive, no-other-Next.js-site-does-this" angle is sharper on the
+press strip (which has no contemporary analogue in BFS's design vocabulary)
+than on the manifesto (which already participates in errata + chapter-rail
+chrome). `manifesto-item-as-sans-card` is now queued in `backlog.yaml`
+for a future M-effort run. Not Notion task-driven — the Tasks DB had no
+`To do` rows this run (all 7 user-submitted tasks `Done` or `Split`,
+last task-driven run finished earlier today via the auto-merge step
+shipped two runs ago).
+
+**Mode.** Shipped.
+
+**Risk band.** `low`. Single section in `page.tsx`, single CSS block in
+`globals.css`, no shared primitives touched, no token changes, no font
+/ dep / config changes, no client JS delta (the section was already a
+Server Component, stays a Server Component), no SEO surface, no
+layout-shift risk. Net diff: 2 files, +121 / -26 LOC. Auto-merge step
+not applicable (low risk → direct to `main`, no PR).
+
+**What ships.**
+
+- `<section className="press">`'s flex row of five `<span className="press-item">`
+  publication names is replaced with an `<ol className="press-register">`
+  of five `<li className="press-clipping">` items. Each clipping is a
+  three-row grid: italic-serif Roman numeral (I, II, III, IV, V) at
+  0.55 alpha → italic-serif publication name at 0.78 alpha → italic-serif
+  "Vol. XI · № 3 · p. 42" marginalia at 0.32 alpha with `oldstyle-nums`.
+- Names retained verbatim from the prior section: *Apollo Off-Hours*,
+  *The Reinhardt Review*, *Vantablack Vogue*, *Outrenoir Quarterly*,
+  *Pen World**.
+- Numerals + marginalia are `aria-hidden` so assistive tech hears an
+  ordered list of five publication names with no decorative bleed.
+- Citation array is inline at the point of use — no new component, no
+  registry file, no data module. Five entries fit a JSX literal cleanly;
+  promoting to a typed module would be premature for a section that
+  exists to be re-cited rarely.
+- Whole register is sealed top + bottom with `1px solid var(--color-line)`;
+  cells are divided by vertical hairlines (`border-left: 1px solid var(--color-line)`
+  on each cell except the first) at ≥ 720px, collapsing to a horizontal
+  hairline-divided single column on mobile (`border-top: 1px solid
+  var(--color-line)` on each cell except the first). Reads as a clipping
+  sheet, not a row of pills.
+- Old `.press-grid` + `.press-item` + `.press-item:hover` rules removed
+  in full. New `.press-register` + `.press-clipping*` block lives at
+  `globals.css:2216–2327` (~112 lines).
+
+**Architecture.**
+
+- **Primitives reused.** `<Reveal delay="0.15s">` wrapper unchanged;
+  reuses existing tokens `--color-line`, `--color-line-2`, `--color-fog`,
+  `--font-serif`, `--dur-2`, `--ease-out-quart`. No new tokens. No new
+  components. No new dependencies. Net client JS delta: **0 bytes**.
+- **Micro-interaction vocabulary.** Replaces the `translateY(-2px)` lift
+  hover with a four-part coordinated transition: (1) name `0.78 → 1.0`,
+  (2) numeral `0.55 → 0.78`, (3) meta `0.32 → 0.55`, (4) adjacent-cell
+  border-left advances from `--color-line` (#1c1c1c) to `--color-line-2`
+  (#2a2a2a) — including the *next sibling's* left border via
+  `.press-clipping:hover + .press-clipping`, so the hairline lift is
+  continuous across the seam, not abrupt at the hovered cell. A 1px
+  `::after` underline draws in from left → right via `transform: scaleX(0→1)`
+  over `--dur-2 var(--ease-out-quart)`, inset by 18px to sit inside the
+  cell's padding rather than spanning the seam.
+- **`:focus-within` mirror.** Every `:hover` selector also lists
+  `:focus-within` so the register is forward-compatible when names later
+  become real citation links (a `<a>` child would route focus and the
+  underline would draw without further CSS work). Dormant today — there
+  are no focusable descendants — and explicitly logged as such in
+  `backlog.yaml` (`press-strip-real-press-citations`).
+- **Decorative-content semantics.** Numeral and marginalia spans are
+  `aria-hidden`; the `<ol>` provides implicit enumeration to AT. Name's
+  0.78 alpha over `#050505` ≈ 15.8:1 (comfortable AA); decorative
+  marginalia at 0.32 (≈ 2.5:1) rides the WCAG decorative-content
+  exemption — same rule the existing `.chapter-rail` opacity ramps
+  ride.
+- **Reduced-motion.** `@media (prefers-reduced-motion: reduce)` strips
+  every `transition` from `.press-clipping`, the three child spans, and
+  the `::after` underline-draw — covers all four hover-coordinated
+  paths plus the seam-line lift. Snaps to instant color swap.
+
+**Verification.** All five Phase 5 gates green.
+
+- **Lint:** clean (7 warnings, all pre-existing in `.claude/improvement/scripts/*.mjs`
+  — unrelated to changed files).
+- **Typecheck:** clean.
+- **Build:** `bun run build` clean; 24 static pages prerendered.
+- **SSR regression:** `/` HTML contains `<ol class="press-register">`
+  with exactly 5 `<li class="press-clipping">` children, each carrying
+  the three `press-clipping-{num,name,meta}` spans; all 5 publication
+  names render. No `.press-grid` or `.press-item` in SSR HTML. Adjacent
+  surfaces on `/` intact: `.hero-title`, `.chapter-rail`, `.folio`,
+  `.section-tag CH. 04`, `.cult-entries`, `.cult-entry`, `.manifesto`,
+  `.outro`. `/supplies/*` (6 PDPs) have zero `press-*` markers — the
+  section is correctly homepage-only.
+- **perf-a11y:** PASS — CSS-only ship, no client JS delta, no above-the-fold
+  layout change, no new focusable elements added, reduced-motion coverage
+  complete, contrast comfortably AA where required. Lighthouse trigger
+  skipped per the cost/signal heuristic (CSS-only + mid-page surface
+  is poor signal-to-cost).
+- **diff-reviewer:** PASS-WITH-NITS — two cosmetic findings logged as
+  intentional (underline inset 18px ≠ spec's full-width; adjacent-cell
+  border lift not in spec). Both kept; documented above.
+- **anti-patterns:** 0 findings (no hardcoded colors outside existing
+  alpha-on-white convention, no `any`, no `@ts-ignore`, no `console.*`
+  introduced).
+- **Visual diff:** skipped — no prior `press-desktop.png` to compare
+  (first capture of this surface).
+
+**Rubric.** T 3 · M 1 · L 3 · I 2 · A 3 · D 3 = **15 / 18** —
+Awwwards-grade band. T3 for the new italic-serif typographic vocabulary
+on a previously template-typed surface; L3 for the hairline-clipping-sheet
+layout replacing flex-wrap centering; D3 for retiring the loudest
+template-residue pattern still on the page.
+
+**Screenshots.** Captured at `.claude/improvement/screenshots/106498a/press-{desktop,mobile}.png`
+(gitignored).
+
+**SOTD comparison.** Skipped — `sotd-compare.mjs` parser still broken
+(state.yaml `sotd_parser_available: false` since pre-this-run; gallery
+markup drift on awwwards.com). Re-investigation queued for the next
+retro.
+
+**Notion.** Reports row append attempted via MCP fallback below (no
+NOTION_TOKEN in env this run). No Task row to flip — this was a
+backlog-driven, not task-driven, run.
+
+**Review.** Skipped — the `review` skill in this session targets pull
+requests; this is a `risk: low` direct-to-`main` ship with no PR to
+review. Phase 5's verifier + perf-a11y + regression-spotter +
+diff-reviewer + anti-patterns gates already serve as this run's
+review pass.
+
+**Expected impact.** Retires the homepage's last "agency template"
+surface and folds it into the BFS editorial register, making the cold
+half (codex → press → field-notes → faq → colophon → outro) read as a
+single coherent press-shop narrative arc rather than a portfolio with
+a stray B2B logo cloud sitting in the middle. Sets up two adjacent
+ships already filed in backlog: (1) `press-disclaimer-aa-bump` (the
+disclaimer beneath the strip now sits under a richer editorial
+register, making the contrast lift the next obvious move), and (2)
+`press-strip-real-press-citations` (the register structure is built
+to accept real Vol/№/p numbers and link out without further CSS work).
+
+**Files modified.**
+
+- `src/app/page.tsx` (lines 521-549 area — `<section className="press">`
+  child swapped from `<div className="press-grid">` of `<span>`s to
+  `<ol className="press-register">` of `<li className="press-clipping">`).
+- `src/app/globals.css` (lines 2216-2327 — `.press-grid` + `.press-item`
+  + `.press-item:hover` removed; `.press-register`, `.press-clipping`,
+  `.press-clipping::after`, `.press-clipping-num`, `.press-clipping-name`,
+  `.press-clipping-meta`, the three `:hover/:focus-within` overrides,
+  the `@media (min-width: 720px)` grid switch + adjacent-cell border
+  lift, and the `@media (prefers-reduced-motion: reduce)` guard added).
+- `.claude/improvement/specs/press-clipping-register.md` (new — spec
+  artifact for forensic value, kept under specs/).
+
+**Follow-ups uncovered.**
+
+- `press-strip-real-press-citations` (low / S / hygiene) — when BFS has
+  real press to cite, swap inline citation array + promote
+  `.press-clipping-name` to `<a>` so the dormant `:focus-within`
+  underline-draw becomes load-bearing. Filed.
+- `manifesto-item-as-sans-card` (high / M / distinctive) — picked-second
+  this run; queued for the next time a Phase 2 picker has M-effort
+  bandwidth. Filed with full spec hooks.
+- `codex-row-active-microstate` (medium / S / distinctive) — codex rows
+  reward hover only; the chapter-rail IO already runs on this surface,
+  so wiring `data-active` ratios into row styling is cheap. Filed.
+- `add-to-cart-no-live-announcement` (high / S / a11y) — interactions
+  auditor finding from this run's Phase 1. Filed.
+- `checkout-form-floating-label-dead-selector` (medium / S / distinctive)
+  — the silently-dead floating-label trick in `.checkout-input:focus ~
+  .checkout-label` (the JSX renders the label *before* the input, so
+  `~` can never match). Cheapest craft-recovery on site. Filed.
+- `cart-line-qty-live-region-noise` (medium / S / a11y) — per-line
+  `aria-live` in cart-drawer stacks redundant announcements. Filed.
+- `checkout-input-focus-ring-token-drift` (medium / S / a11y) — outline
+  uses `--color-line-2` at 1px instead of the site's `--color-ring` /
+  2px. Filed.
+- `newsletter-id-collision` (high / S / a11y) — hardcoded `id="email"`
+  on newsletter form collides with checkout form's `useId()` email.
+  Filed.
+
+**Backlog closed-by-drift.** None this run (historian verified all 22
+open items as still-real).
+
+**Periodic triggers fired.** None — `consecutive_no_focus_runs: 0`,
+`last_retro_at: 2026-05-13` (today, gap = 0d < 7d), `last_critic_at:
+2026-05-13` (today, gap = 0d < 28d), `shipped_count: 26` (not divisible
+by 10).
+
+---
+
 ## 2026-05-13 — Editorial errata layer — sitewide `<del>/<ins>` proof corrections
 
 **Area.** System / register. Three placements on the homepage

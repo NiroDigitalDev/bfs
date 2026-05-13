@@ -528,3 +528,175 @@ items:
     notes: |
       Source — diff-reviewer on ship of chapter-rail-scrollbound-fill.
       Not blocking; pure tidy-up.
+
+  - id: manifesto-item-as-sans-card
+    title: Re-typeset CH. 03 / Manifesto items off the Inter-800 caps card pattern
+    ship: |
+      Manifesto's four items still render as uppercase Inter-800 cards
+      with a tracked numeral. The sticky left rail (`.manifesto-sticky`,
+      globals.css:2148+) sets a stage for re-typesetting on scroll but
+      nothing happens. Recast `.manifesto-item h3` in `--font-serif`
+      italic display, scroll-bind hue / translate / weight axis on the
+      sticky title so it re-typesets between items as they pass through
+      the read band. Closest peer ships: codex italic numerals + colophon
+      mark + field-notes pull-quotes.
+    severity: high
+    effort: M
+    class: distinctive
+    status: open
+    files:
+      - src/app/page.tsx:464-484
+      - src/app/globals.css:2148-2200
+    opened_on: 2026-05-13
+    last_verified: 2026-05-13
+    notes: |
+      Source — cold-surfaces auditor on press-clipping-register run.
+      The manifesto is the last "agency three-card pattern" left on the
+      cold half (CH. 03 — load-bearing narrative arc). Rubric T3 M2 L3
+      I2 A3 D3 = 16/18, picked-second in this run on tied-D-lower-effort.
+
+  - id: codex-row-active-microstate
+    title: Codex rows reward only :hover — no scroll-band active state
+    ship: |
+      `.codex-row:hover .codex-rule { width: 100%; }` (globals.css:2075)
+      is the only microstate the codex offers. The chapter-rail
+      IntersectionObserver already runs on this surface; add a
+      `data-active` flag mirroring `useActiveChapter`'s ratios so the
+      row the running folio is naming also lifts its italic numeral
+      weight / letter-spacing / opacity. Reduced-motion downgrade to
+      opacity only.
+    severity: medium
+    effort: S
+    class: distinctive
+    status: open
+    files:
+      - src/app/globals.css:2075
+      - src/components/codex.tsx
+      - src/lib/use-active-chapter.ts
+    opened_on: 2026-05-13
+    last_verified: 2026-05-13
+    notes: |
+      Source — cold-surfaces auditor on press-clipping-register run.
+      Pairs with use-active-chapter-shared-observer (open).
+
+  - id: press-strip-real-press-citations
+    title: Press clipping register currently cites fictional publications
+    ship: |
+      The five clippings in `.press-register` are placeholders ("Apollo
+      Off-Hours", "The Reinhardt Review", "Vantablack Vogue", etc.).
+      When BFS has real press to cite, swap the inline citation array
+      in `src/app/page.tsx` for the real titles + Vol/№/p numbers and
+      promote each `.press-clipping-name` to an `<a>` so the dormant
+      `:focus-within` underline-draw becomes load-bearing.
+    severity: low
+    effort: S
+    class: hygiene
+    status: open
+    files:
+      - src/app/page.tsx:527-548
+    opened_on: 2026-05-13
+    last_verified: 2026-05-13
+    notes: |
+      Source — diff-reviewer on press-clipping-register ship. The
+      register is structured to accept real citations without further
+      CSS changes; just swap names + add hrefs.
+
+  - id: add-to-cart-no-live-announcement
+    title: AddToCart fires no polite live-region announcement on add
+    ship: |
+      `cart-island.tsx` flips `data-added` and bumps the off-screen
+      `CartCount` digits but never announces "{productTitle} added —
+      open cart" to AT users. Add an sr-only `role="status"` region
+      adjacent to AddToCart that interpolates productTitle on each add.
+    severity: high
+    effort: S
+    class: a11y
+    status: open
+    files:
+      - src/components/cart-island.tsx:51-56
+    opened_on: 2026-05-13
+    last_verified: 2026-05-13
+    notes: |
+      Source — interactions auditor on press-clipping-register run.
+
+  - id: checkout-form-floating-label-dead-selector
+    title: Checkout floating-label sibling combinator silently never matches
+    ship: |
+      The `.checkout-input:focus ~ .checkout-label` rule
+      (globals.css:5346-5350) targets a next-sibling label, but the
+      JSX (`checkout-form.tsx:188-205`) renders the label BEFORE the
+      input — `~` from input to label cannot match. Seven dead
+      micro-interactions today. Either flip DOM order (label after
+      input + flex `order: -1`) or switch the selector to
+      `:focus-within > .checkout-label`.
+    severity: medium
+    effort: S
+    class: distinctive
+    status: open
+    files:
+      - src/app/globals.css:5346-5350
+      - src/components/checkout-form.tsx:188-205
+    opened_on: 2026-05-13
+    last_verified: 2026-05-13
+    notes: |
+      Source — interactions auditor on press-clipping-register run.
+      Cheapest craft-recovery: ~6 LOC repairs an obviously-intended
+      micro-interaction across the entire checkout.
+
+  - id: cart-line-qty-live-region-noise
+    title: Cart-drawer per-line aria-live stacks redundant announcements
+    ship: |
+      `cart-drawer.tsx:242-248` renders one `aria-live="polite"` per
+      line item with a redundant `aria-label`. With multiple items the
+      cumulative "01 in cart, 02 in cart" stacks on every +/- click.
+      Hoist a single polite live region per drawer (subtotal row or
+      sr-only status) and drop the per-row `aria-live`.
+    severity: medium
+    effort: S
+    class: a11y
+    status: open
+    files:
+      - src/components/cart-drawer.tsx:242-248
+    opened_on: 2026-05-13
+    last_verified: 2026-05-13
+    notes: |
+      Source — interactions auditor on press-clipping-register run.
+
+  - id: checkout-input-focus-ring-token-drift
+    title: Checkout input :focus-visible uses --color-line-2 instead of --color-ring
+    ship: |
+      `.checkout-input:focus-visible` at globals.css:5326-5329 sets
+      `outline: 1px solid var(--color-line-2); outline-offset: 4px;` —
+      barely visible. The site's `.focus-ring` token and the
+      `.checkout-radio-input:focus-visible` rule both use `--color-ring`
+      at 2px. Same token drift the open `index-menu-focus-ring` flagged
+      for the index. Align to `--color-ring` / 2px for parity.
+    severity: medium
+    effort: S
+    class: a11y
+    status: open
+    files:
+      - src/app/globals.css:5326-5329
+    opened_on: 2026-05-13
+    last_verified: 2026-05-13
+    notes: |
+      Source — interactions auditor on press-clipping-register run.
+
+  - id: newsletter-id-collision
+    title: Newsletter hardcodes id="email" — collides with checkout's useId() email
+    ship: |
+      `src/components/newsletter.tsx:20` uses `<input id="email">` which
+      collides with the `<input id={emailId}>` (`useId()`) rendered by
+      `CheckoutForm` (`src/components/checkout-form.tsx:196`). The
+      newsletter sits in the footer on every route. Switch to `useId()`
+      to match the rest of the codebase.
+    severity: high
+    effort: S
+    class: a11y
+    status: open
+    files:
+      - src/components/newsletter.tsx:20
+    opened_on: 2026-05-13
+    last_verified: 2026-05-13
+    notes: |
+      Source — interactions auditor on press-clipping-register run.
