@@ -9,8 +9,8 @@
 version: 1
 
 # Last-run telemetry — written at the end of every run.
-last_run_at: 2026-05-13T12:52:00Z
-last_run_commit: 2080591
+last_run_at: 2026-05-13T13:20:00Z
+last_run_commit: 2231628
 last_run_mode: pr-opened   # shipped | no-focus | pr-opened
 
 # Anti-stagnation — incremented on every no-focus run, reset to 0 on ship.
@@ -20,7 +20,7 @@ consecutive_no_focus_runs: 0
 
 # Shipped-count — incremented on every shipped (not no-focus) run.
 # When this becomes a multiple of 10, Phase 0 fires the rubric-calibrator.
-shipped_count: 22   # unchanged — PR-opened run (shipped_count only ticks on merge to main)
+shipped_count: 22   # unchanged — PR-opened run (shipped_count only ticks on merge to main); PR #5 (/journal scaffolding) awaits merge
 
 # Periodic cron triggers — Phase 0 compares against today's date and
 # fires the corresponding agent when the gap exceeds the cadence.
