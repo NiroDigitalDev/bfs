@@ -246,7 +246,7 @@ items:
 
   - id: pdp-quantity-selector
     title: PDP quantity selector — italic-serif numeric, hairline-rule stepper on every /supplies/<id>
-    commit: pending
+    commit: 204bc81
     date: 2026-05-13
     surface: catalogue
     tags: [pdp, quantity-selector, cart, italic-serif, oldstyle-nums, tabular-nums, hairline-rule, aria-live, role-group, keyboard-arrow-keys, focus-visible, prefers-reduced-motion, primitive, shared-component, store-api-extension, default-arg-back-compat, sibling-export, no-new-tokens, no-new-deps]

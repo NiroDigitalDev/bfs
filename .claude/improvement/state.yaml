@@ -9,8 +9,8 @@
 version: 1
 
 # Last-run telemetry — written at the end of every run.
-last_run_at: 2026-05-13T18:30:00Z
-last_run_commit: c345501
+last_run_at: 2026-05-13T19:00:00Z
+last_run_commit: 204bc81
 last_run_mode: shipped   # shipped | no-focus | pr-opened
 
 # Anti-stagnation — incremented on every no-focus run, reset to 0 on ship.
@@ -20,7 +20,7 @@ consecutive_no_focus_runs: 0
 
 # Shipped-count — incremented on every shipped (not no-focus) run.
 # When this becomes a multiple of 10, Phase 0 fires the rubric-calibrator.
-shipped_count: 27   # +1: press-clipping-register direct-to-main (backlog-driven, low risk — homepage press strip retyped from logo-cloud to hairline-divided italic-serif citation register, retiring the last template residue on the cold half)
+shipped_count: 28   # +1: pdp-quantity-selector direct-to-main (task-driven, medium risk — Notion task PDP quantity selector; new <QuantitySelector /> primitive + cart.add(qty) extension + <PDPAddToCart /> sibling export wired into every /supplies/<id>, italic-serif oldstyle-nums display, hairline-rule pill, keyboard arrows, reduced-motion guard)
 
 # Periodic cron triggers — Phase 0 compares against today's date and
 # fires the corresponding agent when the gap exceeds the cadence.
