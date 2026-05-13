@@ -5,6 +5,175 @@ One entry per run. Newest first.
 
 ---
 
+## 2026-05-13 — Field Notes rebuilt as display pull-quotes + Review JSON-LD + cheap wins
+
+**Area.** Chapter 04, "From the chromatically committed." — the
+testimonials section. Replaces a 2-column grid of rounded gradient
+cards (`border-radius: 18px`, `linear-gradient(180deg, #0c0c0c,
+#060606)`, `translateY(-4px)` hover, decorative corner `"`) with a
+single-column editorial register: hairline-ruled, italic-serif
+display pull-quotes at `clamp(26px, 3.4vw, 44px)`, alternating
+left/right `Fig. I`–`Fig. IV` marginalia, centered attribution rules
+set in tracked small-caps with the role rendered in italic Instrument
+Serif. Reference lodestar: The Gentlewoman / Fantastic Man pull-quote
+register (per the reference-scout brief). The publication has a
+strong satirical voice but no display-scale quotation moment until
+now; the new treatment lets the four testimonials carry their weight
+instead of sitting in chips.
+
+**Why now.** Convergent audit signal:
+- The end-of-page auditor flagged `.quote` as a **P0** SaaS card
+  pattern with no editorial register.
+- The reference scout independently picked **Testimonials / pull-quote
+  treatment** as the single most undercooked area on the page given
+  the strength of the surrounding editorial moves.
+- The same auditor flagged a missing `Review` JSON-LD payload despite
+  Organization, ItemList(Product), and FAQPage already being wired —
+  surfacing the quotes as rich-result Reviews is high-leverage and
+  costs essentially nothing once the testimonials are extracted to a
+  shared data module.
+
+**What shipped.**
+
+- `src/data/testimonials.ts` *(new)* — extracted the four testimonials
+  out of `page.tsx` so both the page and the JSON-LD consume one
+  source. Schema: `{ roman, fig, quote, name, role, place }`. `place`
+  is set to `"—"` for Sarah T. (no city in the previous copy) so the
+  `pullquote-role` renderer can drop the dot-separator.
+- `src/app/page.tsx` — `.cult` rebuilt:
+  - New head pattern (`cult-head` / `cult-title` / `cult-lede`):
+    centered Instrument Serif italic title at `clamp(36px, 5.4vw,
+    72px)` instead of `SplitText section-title`. The title is now the
+    register marker, not just a heading.
+  - The 2-col grid of `<figure className="quote">` is gone; replaced
+    by `<ol className="cult-entries">` with one `<li>` per
+    testimonial. Alternating `data-side="left|right"` puts the `Fig.
+    N` marginalia on the appropriate margin at ≥920px, stacks above
+    the quote on mobile.
+  - Each quote is now `<figure className="pullquote">` with: a
+    centered hairline rule (`pullquote-rule`, 1px × clamp 28–48px
+    gradient drop), a `blockquote` opened by a low-contrast `&ldquo;`
+    glyph rendered inline (not as a 120px corner ornament), and a
+    centered `figcaption` with em-dash, tracked small-caps name, and
+    italic-serif role with city.
+- `src/app/layout.tsx` — added a `Review[]` JSON-LD payload, one
+  `<script type="application/ld+json">` per testimonial. Each Review
+  carries `reviewBody`, `author` (`Person` with `jobTitle` and
+  optional `homeLocation`), and `itemReviewed` (`Organization`
+  pointing at the brand + siteUrl). No `reviewRating` is emitted —
+  fabricated stars on a satirical brand would read as schema-spam and
+  would risk a manual penalty. The brand-level rich result is the
+  goal, not Product reviews with ratings.
+- `src/app/globals.css` — `.cult` / `.quotes` / `.quote*` block
+  (lines 1940–2008) replaced wholesale with `.cult` / `.cult-head` /
+  `.cult-title` / `.cult-lede` / `.cult-entries` / `.cult-entry` /
+  `.cult-fig*` / `.pullquote*` block (~150 lines). No animations, no
+  hovers — the register is print. Adds a 1px gradient drop at
+  `.cult::before` so the entrance from the press grid is a
+  punctuation mark, not an abrupt panel change. Includes a mobile
+  fallback (<920px) that collapses the marginalia above each quote.
+
+**Cheap wins folded in.**
+
+- `src/components/faq-item.tsx` — fixed an a11y misuse: the FAQ panel
+  carried `aria-hidden={!open}` on a still-tabbable region. Removed
+  the `aria-hidden` (the panel is collapsed via
+  `grid-template-rows`); added a stable `triggerId` and
+  `aria-labelledby={triggerId}` on the panel for screen-reader
+  context. The FAQ trigger now also has an `id` attribute.
+- `src/components/split-text.tsx` — added optional `id` prop so the
+  Field Notes section can use `aria-labelledby="cult-heading"`
+  without wrapping SplitText in a redundant outer span.
+- `src/app/page.tsx` — outro primary CTA copy changed from "Enter the
+  catalogue" / `data-cursor-label="Enter"` / `↗` to "Return to the
+  catalogue" / `data-cursor-label="Return"` / `↑`. The destination is
+  `#supplies` which is *above* the outro — "Enter" was reading as a
+  dead loop. "Return" is the honest verb and the up-arrow signals
+  direction.
+- `src/app/page.tsx` — promoted the signoff paragraph (`MMXXVI · Made
+  in the absence of light. · All wrongs reserved.`) above the
+  outline `BFS` wordmark, so the funniest line on the page now lands
+  *before* the closing mark instead of below it where most readers
+  have already left.
+
+**Verification.**
+
+- `bun run lint` — clean.
+- `bunx tsc --noEmit` — clean.
+- `bun run build` — clean. 7 static pages prerendered (`/`,
+  `/_not-found`, `/opengraph-image`, `/robots.txt`, `/sitemap.xml`).
+  Compiled successfully in 845.6ms via Turbopack.
+- `bun run start` + `curl http://localhost:3000/` — confirmed the
+  new markup is in the rendered HTML: `cult-heading` id present,
+  `pullquote-body` class present, "Field Notes" eyebrow rendered,
+  `Review` JSON-LD payloads in the document.
+
+**Expected impact.**
+
+- **Design:** the strongest editorial moment of the middle of the
+  page (the publisher's-mark colophon) is no longer immediately
+  followed by SaaS-card testimonials. The page now reads as a
+  consistent magazine spread from CH. 02 onward — survival codex,
+  colophon mark, Field Notes pull-quotes, FAQ, masthead colophon
+  outro. The "rounded card with translateY hover" pattern is now
+  fully absent from the build.
+- **SEO:** four `Review` schemas wired to the brand. Google may now
+  surface the satirical pull-quotes as review-style rich results
+  attached to the Organization, increasing the share-context of
+  search-result snippets. No rating ratings emitted — keeping the
+  schema honest.
+- **A11y:** FAQ panel no longer applies `aria-hidden` to tabbable
+  content; the panel gains a proper labelled-by relationship to its
+  trigger. The `<section id="cult">` gains a `aria-labelledby` to
+  the SplitText heading.
+- **Copy:** outro CTA verb now matches the destination it scrolls to.
+
+**Files modified.**
+
+- `src/data/testimonials.ts` *(new)*
+- `src/app/page.tsx`
+- `src/app/layout.tsx`
+- `src/app/globals.css`
+- `src/components/faq-item.tsx`
+- `src/components/split-text.tsx`
+
+**Follow-ups uncovered (TODO for future runs).**
+
+- [ ] **Custom cursor has only one real state ("link") — flagged
+      P0 by the hero auditor.** Marquees, hero figures, FAQ rows,
+      and the scroll arrow are all invisible to the cursor system.
+      `data-cursor="text"` CSS at `globals.css:180-186` is already
+      wired but unused. Direction: introduce `read`, `view`, `drag`,
+      `disabled` modes; set `data-cursor="drag"` on marquee rows.
+- [ ] **All six product visuals read as the same lit black slab —
+      flagged P0 by the catalogue auditor.** Differentiate by
+      camera/composition: 3/4 oblique notebook with page-edge;
+      hero-on-its-side cardstock; top-down spiral pad; clustered low-
+      angle stickies; macro on pen tip.
+- [ ] **Marquees have zero interaction — flagged P0.** No `:hover`
+      pause, no `data-cursor="drag"`, no drag-to-scrub. For a strip
+      taking ~20% of viewport this is the laziest motion in the
+      build.
+- [ ] **Chapter card pattern is still uniform — flagged P0.** Every
+      chapter shares the same two-area grid and pill CTA. Per-chapter
+      layout variants (`full-bleed | caption | type-dominant |
+      cluster`) would break the symmetry without changing data.
+- [ ] **Outro wordmark is a 1px hairline outline at 50vw — flagged
+      P0.** Not bold enough to be the closing image, not quiet enough
+      to be background texture. Either fill + crop at baseline, or
+      split into stacked rows (`BFS` / `MMXXVI`).
+- [ ] **Hero period never gets its own beat — flagged P1.** The
+      title is literally "Dark Matter." and the period lands without
+      a heartbeat / pulse / parallax differential.
+- [ ] **Magnetic only wraps 3 elements.** Hero scroll arrow, logo
+      mark, FAQ chevrons would all benefit at low strength.
+- [ ] **Press grid is uppercase weight-900 sans, not press
+      clippings.** Per-outlet typographic mix would lift it.
+- [ ] **`opengraph-image.tsx` still falls back to `ui-serif`.** Load
+      the Instrument Serif font buffer for brand-coherent OG share.
+
+---
+
 ## 2026-05-13 — Survival Guide rebuilt as hairline-ruled editorial codex (+ bundled a11y fixes)
 
 **Area:** Chapter 02, "On the use of dark paper." — the three-note

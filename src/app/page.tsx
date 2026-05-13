@@ -18,6 +18,7 @@ import {
 } from "@/components/product-visuals";
 import { products as productData, type ProductId } from "@/data/products";
 import { faqs } from "@/data/faqs";
+import { testimonials } from "@/data/testimonials";
 
 const productVisuals: Record<ProductId, React.ComponentType> = {
   "void-book": NotebookVisual,
@@ -497,54 +498,61 @@ export default function Home() {
         </Reveal>
       </section>
 
-      {/* Testimonials */}
-      <section id="cult" className="cult">
-        <div className="section-head center">
+      {/* Field Notes — display pull-quotes, hairline-ruled, magazine register */}
+      <section id="cult" className="cult" aria-labelledby="cult-heading">
+        <div className="cult-head">
           <span className="section-tag">CH. 04 / Field Notes</span>
           <SplitText
             as="h2"
+            id="cult-heading"
             text="From the chromatically committed."
-            className="section-title center"
+            className="cult-title"
             stagger={0.025}
           />
+          <p className="cult-lede">
+            Four entries, lightly redacted, lifted from correspondence.
+          </p>
         </div>
-        <div className="quotes">
-          {[
-            {
-              q: "Wrote a thesis on The Void Book with a white gel pen. My supervisor called it hostile to read. She also gave it her highest mark of the year.",
-              a: "Edgar A.",
-              r: "Doctoral candidate · Stockholm",
-            },
-            {
-              q: "Typed the URL prepared for a federal warning. Received instead some very expensive notebooks. I am, on balance, relieved.",
-              a: "Sarah T.",
-              r: "First-time visitor",
-            },
-            {
-              q: "Tried the Abyssal cards on the office laser printer. The fire brigade were patient. The remaining cards look magnificent.",
-              a: "Marcus D.",
-              r: "Designer · Berlin",
-            },
-            {
-              q: "My therapist suggested keeping a journal. She did not specify legibility. This is, technically, a journal.",
-              a: "Naomi K.",
-              r: "Architect · Kyoto",
-            },
-          ].map(({ q, a, r }, i) => (
-            <Reveal key={a} delay={`${i * 0.06}s`}>
-              <figure className="quote">
-                <span className="quote-mark" aria-hidden>
-                  “
+
+        <ol className="cult-entries">
+          {testimonials.map((t, i) => (
+            <Reveal key={t.name} delay={`${i * 0.08}s`}>
+              <li
+                className="cult-entry"
+                data-side={i % 2 === 0 ? "left" : "right"}
+              >
+                <span className="cult-fig" aria-hidden>
+                  <span className="cult-fig-rule" />
+                  <span className="cult-fig-label">{t.fig}</span>
                 </span>
-                <blockquote>{q}</blockquote>
-                <figcaption>
-                  <span className="quote-name">{a}</span>
-                  <span className="quote-role">{r}</span>
-                </figcaption>
-              </figure>
+                <figure className="pullquote">
+                  <span className="pullquote-rule" aria-hidden />
+                  <blockquote className="pullquote-body">
+                    <span className="pullquote-glyph" aria-hidden>
+                      &ldquo;
+                    </span>
+                    {t.quote}
+                  </blockquote>
+                  <figcaption className="pullquote-attribution">
+                    <span className="pullquote-dash" aria-hidden>
+                      —
+                    </span>
+                    <span className="pullquote-name">{t.name}</span>
+                    <span className="pullquote-role">
+                      <em>{t.role}</em>
+                      {t.place && t.place !== "—" ? (
+                        <>
+                          <span aria-hidden> · </span>
+                          {t.place}
+                        </>
+                      ) : null}
+                    </span>
+                  </figcaption>
+                </figure>
+              </li>
             </Reveal>
           ))}
-        </div>
+        </ol>
       </section>
 
       {/* FAQ */}
@@ -583,10 +591,10 @@ export default function Home() {
         />
         <Reveal delay="0.4s" className="outro-ctas">
           <Magnetic strength={0.25}>
-            <a href="#supplies" className="btn-primary big" data-cursor="link" data-cursor-label="Enter">
-              <span>Enter the catalogue</span>
+            <a href="#supplies" className="btn-primary big" data-cursor="link" data-cursor-label="Return">
+              <span>Return to the catalogue</span>
               <span className="btn-arrow" aria-hidden>
-                ↗
+                ↑
               </span>
             </a>
           </Magnetic>
@@ -673,15 +681,15 @@ export default function Home() {
           </nav>
         </div>
 
-        <div className="outro-wordmark" aria-hidden>
-          BFS
-        </div>
-
         <p className="outro-signoff">
           <em>MMXXVI</em>
           <span aria-hidden> · </span>Made in the absence of light.
           <span aria-hidden> · </span>All wrongs reserved.
         </p>
+
+        <div className="outro-wordmark" aria-hidden>
+          BFS
+        </div>
       </footer>
     </main>
   );

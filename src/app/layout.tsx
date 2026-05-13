@@ -10,6 +10,7 @@ import { CartDrawer } from "@/components/cart-drawer";
 import { site, siteUrl } from "@/lib/site";
 import { products } from "@/data/products";
 import { faqs } from "@/data/faqs";
+import { testimonials } from "@/data/testimonials";
 import "./globals.css";
 
 const inter = Inter({
@@ -129,6 +130,23 @@ const productCatalogLd = {
   })),
 };
 
+const reviewsLd = testimonials.map((t) => ({
+  "@context": "https://schema.org",
+  "@type": "Review",
+  reviewBody: t.quote,
+  author: {
+    "@type": "Person",
+    name: t.name,
+    jobTitle: t.role,
+    ...(t.place && t.place !== "—" ? { homeLocation: t.place } : {}),
+  },
+  itemReviewed: {
+    "@type": "Organization",
+    name: site.name,
+    url: siteUrl,
+  },
+}));
+
 const faqPageLd = {
   "@context": "https://schema.org",
   "@type": "FAQPage",
@@ -174,6 +192,13 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(faqPageLd) }}
         />
+        {reviewsLd.map((r, i) => (
+          <script
+            key={`review-${i}`}
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(r) }}
+          />
+        ))}
       </body>
     </html>
   );

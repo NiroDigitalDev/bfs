@@ -8,6 +8,7 @@ type Props = {
   as?: "h1" | "h2" | "h3" | "span" | "p";
   stagger?: number;
   start?: number;
+  id?: string;
 };
 
 export function SplitText({
@@ -16,6 +17,7 @@ export function SplitText({
   as: As = "span",
   stagger = 0.04,
   start = 0,
+  id,
 }: Props) {
   const ref = useRef<HTMLElement>(null);
 
@@ -43,6 +45,7 @@ export function SplitText({
   return (
     <As
       ref={ref as never}
+      id={id}
       className={`split ${className}`}
       aria-label={text}
     >
