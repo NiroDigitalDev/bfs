@@ -1,0 +1,40 @@
+# Meta-state for the improvement-cycle routine.
+#
+# Updated at the end of every run (Phase 6) — never by hand. The hourly
+# routine reads this at Phase 0 to decide which periodic sub-routines
+# (retro, critic, calibration, creativity-reset) are due to fire.
+#
+# Dates are ISO-8601 (date or datetime). Counters are integers.
+
+version: 1
+
+# Last-run telemetry — written at the end of every run.
+last_run_at: 2026-05-13T01:00:00Z
+last_run_commit: pending   # backfilled after commit
+last_run_mode: shipped   # shipped | no-focus | pr-opened
+
+# Anti-stagnation — incremented on every no-focus run, reset to 0 on ship.
+# When this hits >= 2, Phase 0 fires the creativity-reset agent before
+# the historian dispatches.
+consecutive_no_focus_runs: 0
+
+# Shipped-count — incremented on every shipped (not no-focus) run.
+# When this becomes a multiple of 10, Phase 0 fires the rubric-calibrator.
+shipped_count: 20   # post-index-menu-mobile-toc ship
+
+# Periodic cron triggers — Phase 0 compares against today's date and
+# fires the corresponding agent when the gap exceeds the cadence.
+last_retro_at: ""           # weekly cadence (≥ 7 days since last run → fire retro)
+last_critic_at: ""          # monthly cadence (≥ 28 days → fire critic)
+last_calibration_at: ""     # event-driven (every 10th ship) — also captured here for telemetry
+
+# Optional integrations status — Phase 0 self-checks these on startup
+# and degrades gracefully when they're absent or broken.
+gh_available: unknown        # set to true/false after `gh auth status` check each run
+playwright_available: unknown
+lighthouse_available: unknown
+
+# Daily improvements.md archival check — Phase 0 reads size and rotates
+# if exceeded. Recorded here so a freshly-archived run doesn't try again.
+last_archival_at: ""
+improvements_md_bytes: 0

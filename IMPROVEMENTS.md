@@ -5,6 +5,131 @@ One entry per run. Newest first.
 
 ---
 
+## 2026-05-13 — Editorial Index overlay (italic-serif trigger → dot-leader Table of Contents for mobile)
+
+**Risk band.** `medium` · new client component (focus-trap dialog), 3 files
+touched, ~280 net lines added, sits above the fold in the nav. Screenshot
+captured at both desktop and mobile.
+
+**Area.** Below 900px the BFS nav was previously logo + cart only —
+`.nav-links` was set to `display: none` with no replacement, so mobile
+visitors had no way to reach any chapter. This ship adds an italic-serif
+**Index** trigger that opens a full-viewport editorial Table of Contents:
+four dot-leader entries (`01 — Catalogue ····· p.014` …) typeset against
+black with italic-serif numerals, hairline dividers, a dialog-scoped
+focus trap, scroll lock, esc-to-close, and a magnetic close affordance.
+On ≥ 900px the existing centered chapter links continue to render
+unchanged; the trigger hides via media query.
+
+**Why it's the focus.** Three discovery agents and the reference scout
+returned in parallel. The chrome auditor flagged "no mobile navigation
+surface at all" as its highest-severity finding — half of Awwwards
+traffic is mobile, and a juror who landed on a phone could not move
+between chapters. Of seven viable candidates this run, this one scored
+the highest rubric total (15) and falls on the *nav* surface, which had
+never independently shipped per the historian's freshness ledger
+(running-folio touched chrome two ships ago; the nav itself was never
+its own ship). Runners-up — recto/verso product hover (14), outro
+back-cover wordmark clip (14), plate-number drop-cap (13) — were lower
+total AND would have re-touched the catalogue surface, the *hottest*
+surface in the ledger.
+
+**What ships.**
+- **Trigger** — `<button class="index-trigger">` in the nav, visible
+  only < 900px. An italic-serif "Index" word with a small chapter-glyph
+  (▤) and an underline that draws on hover/focus.
+- **Overlay** — full-viewport `role="dialog" aria-modal="true"` panel
+  that slides up from `translateY(6%) → 0` over 480ms.
+- **List** — four entries set in a `grid-template-columns: 56px 1fr`
+  row, italic-serif numerals at clamp(22-32px), display-serif chapter
+  titles at clamp(28-56px), dot-leader pseudo-element filling to a
+  right-aligned italic folio page number (`p.014`, `p.064`, `p.108`,
+  `p.142`). Items stagger in 220–460ms after the panel begins.
+- **Footer** — small-caps "Vol. III · MMXXVI" colophon on the left, a
+  magnetic "Close ✕" button on the right whose glyph counter-rotates
+  90° on hover.
+- **Plumbing** — body scroll lock, esc-key trap, Tab focus loop, return
+  focus to trigger on close (mirrors `cart-drawer.tsx`).
+- **Reduced-motion** — slide, scrim fade, item stagger, dot-leader, and
+  close-glyph rotation all collapse to instant under
+  `prefers-reduced-motion: reduce`.
+
+**Architecture.**
+- `src/components/index-menu.tsx` — new client component: trigger
+  + dialog overlay, focus trap, scroll lock, esc handling.
+- `src/app/page.tsx` — imports `<IndexMenu />`, wraps the existing
+  `.nav-links` in a new `.nav-center` flex div (so the nav's
+  `1fr auto 1fr` grid keeps the cart pinned right), mounts the new
+  component as a sibling of `.nav-links` in the same center slot.
+- `src/app/globals.css` — appends `.nav-center` rule, `.index-trigger*`
+  rules, ~250 lines of `.index-menu-*` rules, plus reduced-motion
+  entries inside the existing cart-drawer reduced-motion block.
+
+**Verification.**
+- `bun run lint` — pass (5 warnings, all in `.claude/improvement/scripts/*.mjs`
+  tooling, none in app source).
+- `bunx tsc --noEmit` — clean.
+- `bun run build` — clean. 7 static routes prerendered.
+- SSR regression — every adjacent surface signature class still present:
+  `.nav-logo`, `.nav-cta`, `.hero-frame`, `.chapter-figure` (×60),
+  `.spec-plate` (×246), `folio-edge` (×4), `.manifesto`, `.cult-head`,
+  `.faq`, `.outro-wordmark`, `.colophon`, `.chapter-rail`. New markup
+  is in the SSR HTML: `.nav-center`, `.index-trigger`,
+  `.index-menu-root`, `.index-menu-panel` (closed by default).
+- Contrast (panel `#050505`) — link copy 13.3:1, num/folio 8.7:1, all
+  pass AA.
+- Focus order — trigger → scrim → 4 links → close → scrim (cycle); esc
+  returns focus to trigger.
+- Reduced-motion — all introduced transitions (panel transform, scrim
+  opacity, item stagger + translate, close-glyph rotation, trigger
+  underline) overridden.
+- z-index — new menu at 220 sits above cart drawer (80); no clash.
+- CLS — `.nav-center` is auto-width inside the existing `1fr auto 1fr`
+  grid, identical footprint to the prior bare `.nav-links` in that
+  slot.
+
+**Rubric.** T2 M2 L3 I3 A3 D2 = **15 / 18** · band: distinctive
+
+**Screenshots.**
+- `.claude/improvement/screenshots/d5e2a0a/nav-desktop.png` (1440×900,
+  captured before commit so the SHA reflects the pre-ship tree —
+  desktop renders the existing `.nav-links` unchanged).
+- `.claude/improvement/screenshots/d5e2a0a/nav-mobile.png` (390×844,
+  shows the new italic-serif "Index" trigger replacing the empty mobile
+  center slot).
+
+**Expected impact.**
+- Mobile visitors gain a way to reach the four chapters — the largest
+  single fix for first-time mobile journeys.
+- A11y posture lifts: a focus-trapped dialog with proper aria semantics
+  replaces a structural dead-end.
+- The trigger itself reads as editorial (italic serif "Index" word, not
+  a hamburger glyph) — extends the magazine register that the running
+  folio, codex, and FAQ unfold have established.
+- Quiet desktop change: the existing centered chapter list is untouched.
+
+**Files modified.**
+- `src/components/index-menu.tsx` (new, 175 lines)
+- `src/app/page.tsx` (+17 / −13 lines around the nav slot)
+- `src/app/globals.css` (+265 lines, two locations — nav block + the
+  reduced-motion block)
+- `.claude/improvement/backlog.yaml` (item flipped + 3 follow-ups added)
+- `.claude/improvement/shipped.yaml` (entry appended)
+
+**Follow-ups uncovered.**
+- `index-menu-scroll-lock-leak` — effect cleanup doesn't clear
+  `body.overflow` if the component unmounts while `open === true`.
+- `dialog-scroll-lock-shared` — IndexMenu and CartDrawer both directly
+  set/clear `body.overflow`; if both ever opened together, the second
+  to close would strip a still-needed lock. Centralise into a counted
+  helper.
+- `index-menu-focus-ring` — index-menu links rely on color-only
+  `:focus-visible`. The site's `.focus-ring` token (used by
+  `.nav-cta:focus-visible`) should be applied for keyboard visibility
+  parity.
+
+---
+
 ## 2026-05-13 — Specimen plate (technical-drawing dimension overlay on product portraits)
 
 **Area.** Each of the six product portraits in the catalogue now carries

@@ -172,3 +172,11 @@ items:
     surface: catalogue
     tags: [specimen-plate, technical-drawing, hairlines, italic-numerals, dimension-lines, compass, stroke-dashoffset]
     summary: Per-product hairline dimensioning overlay with FIG. label and compass tick.
+
+  - id: index-menu-mobile-toc
+    title: Editorial Index overlay — italic-serif trigger opens dot-leader TOC for mobile nav
+    commit: pending
+    date: 2026-05-13
+    surface: nav
+    tags: [nav, mobile, toc, dialog, focus-trap, dot-leader, folio, italic-serif, scroll-lock]
+    summary: Replaces the missing mobile nav with a full-bleed editorial Table of Contents overlay (dot-leader entries, folio page numbers, focus-trapped dialog, reduced-motion compliant).

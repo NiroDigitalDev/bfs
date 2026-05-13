@@ -8,6 +8,7 @@ import { Spotlight } from "@/components/spotlight";
 import { FaqItem } from "@/components/faq-item";
 import { Newsletter } from "@/components/newsletter";
 import { CartCount, AddToCart, NavCart } from "@/components/cart-island";
+import { IndexMenu } from "@/components/index-menu";
 import { SpecimenPlate } from "@/components/specimen-plate";
 import {
   NotebookVisual,
@@ -44,19 +45,22 @@ export default function Home() {
           <span>Blacks For Sale</span>
           <span className="nav-logo-sub">Vol. III · MMXXVI</span>
         </a>
-        <div className="nav-links">
-          <a href="#supplies" data-cursor="link">
-            <span className="nav-num">01</span> Catalogue
-          </a>
-          <a href="#manifesto" data-cursor="link">
-            <span className="nav-num">02</span> Position
-          </a>
-          <a href="#cult" data-cursor="link">
-            <span className="nav-num">03</span> Field Notes
-          </a>
-          <a href="#faq" data-cursor="link">
-            <span className="nav-num">04</span> On Record
-          </a>
+        <div className="nav-center">
+          <div className="nav-links">
+            <a href="#supplies" data-cursor="link">
+              <span className="nav-num">01</span> Catalogue
+            </a>
+            <a href="#manifesto" data-cursor="link">
+              <span className="nav-num">02</span> Position
+            </a>
+            <a href="#cult" data-cursor="link">
+              <span className="nav-num">03</span> Field Notes
+            </a>
+            <a href="#faq" data-cursor="link">
+              <span className="nav-num">04</span> On Record
+            </a>
+          </div>
+          <IndexMenu />
         </div>
         <Magnetic strength={0.25}>
           <NavCart>

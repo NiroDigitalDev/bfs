@@ -34,6 +34,75 @@
 
 version: 1
 items:
+  - id: index-menu-mobile-toc
+    title: Editorial Index overlay replaces missing mobile navigation
+    ship: |
+      Italic-serif "Index" trigger in the nav (< 900px) opens a full-bleed
+      Table of Contents overlay with dot-leader entries and folio page
+      numbers matching the chapter-rail vocabulary. Focus-trapped dialog,
+      scroll lock, scrim, esc, reduced-motion compliance — mirrors
+      cart-drawer plumbing.
+    severity: high
+    effort: M
+    class: distinctive
+    status: shipped
+    files:
+      - src/components/index-menu.tsx
+      - src/app/page.tsx:47-60
+      - src/app/globals.css:367-374
+    opened_on: 2026-05-13
+    last_verified: 2026-05-13
+
+  - id: index-menu-scroll-lock-leak
+    title: IndexMenu can leak body.overflow on unmount-while-open
+    ship: |
+      Add an unmount cleanup to src/components/index-menu.tsx that always
+      clears document.body.style.overflow regardless of `open` state, so a
+      remount or hot-reload while the menu is open doesn't strand the lock.
+    severity: low
+    effort: S
+    class: hygiene
+    status: open
+    files:
+      - src/components/index-menu.tsx:29-72
+    opened_on: 2026-05-13
+    last_verified: 2026-05-13
+    notes: Found by perf-a11y on ship of index-menu-mobile-toc.
+
+  - id: dialog-scroll-lock-shared
+    title: Centralise body.overflow lock between IndexMenu and CartDrawer
+    ship: |
+      Both dialogs set/clear `document.body.style.overflow` directly. If
+      both are open at once, the second one closing strips the lock the
+      other still needs. Replace with a counted helper (lib/scroll-lock.ts
+      with lock/unlock pair) so only the last-to-close clears the body
+      style.
+    severity: low
+    effort: S
+    class: hygiene
+    status: open
+    files:
+      - src/components/index-menu.tsx:30-33
+      - src/components/cart-drawer.tsx:89-98
+    opened_on: 2026-05-13
+    last_verified: 2026-05-13
+
+  - id: index-menu-focus-ring
+    title: IndexMenu links missing site .focus-ring token on :focus-visible
+    ship: |
+      Index-menu link, num, folio, close, and trigger all rely on color-only
+      :focus-visible. The site's .focus-ring token (used by .nav-cta etc.)
+      should also be applied to .index-menu-link:focus-visible for keyboard
+      visibility parity with the rest of the chrome.
+    severity: low
+    effort: S
+    class: a11y
+    status: open
+    files:
+      - src/app/globals.css:417-712
+    opened_on: 2026-05-13
+    last_verified: 2026-05-13
+
   - id: newsletter-reset-path
     title: Newsletter form locks forever after submit
     ship: Auto-reset submitted state after ~4s or add explicit "Send another" affordance
