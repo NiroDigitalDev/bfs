@@ -682,6 +682,73 @@ items:
     notes: |
       Source — interactions auditor on press-clipping-register run.
 
+  - id: nav-cart-magnetic-class
+    title: Replace `.nav > .magnetic` descendant selector with an explicit class
+    ship: |
+      The nav-cart-overlap-fix ship targets the cart's Magnetic wrapper
+      via the bare descendant selector `.nav > .magnetic`. Today this
+      is safe because the homepage nav contains exactly one Magnetic.
+      But a future ship adding a second Magnetic into the nav (e.g. a
+      magnetic on the nav-logo or on the index-trigger) would inherit
+      `justify-self: end` + `display: inline-flex` accidentally. Pass an
+      explicit `className="nav-magnetic-cart"` to the cart Magnetic in
+      `src/app/page.tsx:66` and update the CSS rule accordingly.
+    severity: low
+    effort: S
+    class: hygiene
+    status: open
+    files:
+      - src/app/page.tsx:66
+      - src/app/globals.css:347-352
+    opened_on: 2026-05-13
+    last_verified: 2026-05-13
+    notes: |
+      Source — diff self-review on nav-cart-overlap-fix run.
+
+  - id: visual-diff-clip-to-band
+    title: Visual-diff bails when page heights drift — clip to vertical band
+    ship: |
+      `scripts/visual-diff.mjs` rejects with `dimensions differ` whenever
+      the prior and current full-page screenshots have unequal heights —
+      meaning every ship that affects page height further down the page
+      blocks nav / hero / chrome ships from getting a real delta number.
+      Add a `--clip-top=<px>` or `--surface-band=<top:height>` argument
+      and a corresponding crop step in `capture-ship.mjs` so nav-only
+      ships compare a 200-px band rather than the full document.
+    severity: low
+    effort: M
+    class: hygiene
+    status: open
+    files:
+      - .claude/improvement/scripts/visual-diff.mjs
+      - .claude/improvement/scripts/capture-ship.mjs
+    opened_on: 2026-05-13
+    last_verified: 2026-05-13
+    notes: |
+      Source — verification step on nav-cart-overlap-fix run. The diff
+      reported `2952x38346 vs 2952x38388` desktop and `1173x46989 vs
+      1173x48408` mobile — height drift from the PDP-quantity-selector
+      ship affecting `/supplies/*` pages downstream.
+
+  - id: sotd-parser-fix
+    title: SOTD-compare script can't parse the gallery — re-selector pass
+    ship: |
+      `scripts/sotd-compare.mjs` has been emitting `could not parse SOTD
+      entry — gallery markup may have changed` for several consecutive
+      runs (`state.yaml` records `sotd_parser_available: false`). The
+      gallery markup has likely shifted; re-investigate the awwwards
+      SOTD HTML and update the selector chain.
+    severity: low
+    effort: M
+    class: hygiene
+    status: open
+    files:
+      - .claude/improvement/scripts/sotd-compare.mjs
+    opened_on: 2026-05-13
+    last_verified: 2026-05-13
+    notes: |
+      Source — verification step on nav-cart-overlap-fix run.
+
   - id: newsletter-id-collision
     title: Newsletter hardcodes id="email" — collides with checkout's useId() email
     ship: |

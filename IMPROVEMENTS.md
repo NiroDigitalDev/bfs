@@ -5,6 +5,126 @@ One entry per run. Newest first.
 
 ---
 
+## 2026-05-13 — Nav cart pill — fix right-edge overlap from `<Magnetic>` wrapping
+
+**Area.** Site chrome — homepage nav (`src/app/page.tsx:41–73`) + `.nav` /
+`.nav-cta` rules in `src/app/globals.css`.
+
+**Why it's the focus.** Notion task
+[Cart button overflows the nav](https://www.notion.so/35faf8d3d3e281179ec0ffb57a33491c) —
+flagged as a visible bug at desktop widths (1280–1920) with `Priority: High`,
+`Status: To do`, surface `[nav, cart, chrome]`. The hourly cron entered
+task-driven mode on this row; it had the highest priority of all open
+`To do` tasks in the BFS Tasks DB and is a blocker for the imminent
+`/journal` nav link addition (5th item would worsen the overlap).
+
+**Mode.** Task-driven.
+
+**Risk band.** Low — single CSS file, no markup or JS, ≤ 10 LOC net.
+
+**What ships.** A two-part scoped CSS fix to the homepage nav layout:
+
+1. **Magnetic wrapper becomes the grid child.** The cart pill markup is
+   `<Magnetic strength={0.25}><NavCart>Cart</NavCart></Magnetic>`. That
+   means the `.magnetic` div — not the inner `.nav-cta` button — is the
+   actual direct child of the `.nav` CSS grid. The stale
+   `.nav-cta { justify-self: end }` rule was therefore a no-op, and the
+   magnetic wrapper stretched to fill column 3 with its inner button
+   left-aligned (directly adjacent to nav-center's right edge — the
+   visible overlap the bug reported). Fix: move `justify-self: end` to a
+   new `.nav > .magnetic` selector and give the wrapper
+   `display: inline-flex` so it sizes to the pill (keeps the magnetic
+   translate tight to the cart shape rather than stretching across
+   half the row).
+
+2. **Explicit `column-gap: 32px` on `.nav`.** Guarantees breathing room
+   between nav-center and the cart even at narrow viewports and
+   anticipates the 5th nav link (`/journal`) that will land next:
+   without this, a 5-item nav-center would push the auto column closer
+   to the cart's column 3 again.
+
+The stale `justify-self: end` is removed from `.nav-cta` to keep the
+rule honest (it's no longer a grid child). A short comment above the
+new `.nav > .magnetic` rule explains the wrapping pitfall so the next
+person to add a Magnetic-wrapped element in a grid layout doesn't
+re-hit this.
+
+**Architecture.** Pure CSS layout fix scoped to existing `.nav` selectors.
+No new components, tokens, dependencies, or markup. The Magnetic
+component itself is unchanged — the fix lives at the consumer site
+because the consumer chose to put Magnetic inside a grid, and the
+established convention is that grid children own their alignment.
+
+**Verification.**
+- `bun run lint` — clean (only pre-existing `.claude/improvement/scripts/*` warnings).
+- `bunx tsc --noEmit` — clean.
+- `bun run build` — clean.
+- SSR check at `http://localhost:3000` — nav markup intact: 4 nav links
+  present, single `.nav-cta` + `.nav-cta-count`, magnetic wrapper sits
+  immediately around the cart button.
+- Compiled CSS contains both new rules:
+  `.nav{...column-gap:32px;...}` and
+  `.nav>.magnetic{justify-self:end;display:inline-flex}`.
+- `anti-patterns.mjs` — `patterns: 0`.
+
+**Rubric.** T1 M1 L2 I1 A2 D1 = 8 / Foundational (bug fix — modest on
+the distinctiveness axis by design; the visible win is that the
+chrome stops embarrassing itself, not that it announces a new
+register).
+
+**Screenshots.** `.claude/improvement/screenshots/9538882/nav-desktop.png`,
+`nav-mobile.png` (paths will be re-keyed to the new commit SHA on the
+backfill commit; informational only — folder is gitignored).
+
+**Visual diff.** `skipped: dimensions differ (2952x38346 vs 2952x38388)
+— likely a resize` on desktop; `skipped: dimensions differ (1173x46989
+vs 1173x48408)` on mobile. The dimensions differ because the previous
+ship (`pdp-quantity-selector`) added a stepper that affected page
+height tallies further down the page; the nav region itself is the
+intended target.
+
+**SOTD comparison.** `skipped: could not parse SOTD entry — gallery
+markup may have changed` (re-investigation queued via the persistent
+`sotd_parser_available: false` flag).
+
+**Notion.** Task page
+[Cart button overflows the nav](https://www.notion.so/35faf8d3d3e281179ec0ffb57a33491c)
+flips `Status: To do → In progress → Done` this run; Reports row
+appended with the run summary.
+
+**Expected impact.** Eliminates the visible cart-pill / `04 ON RECORD`
+overlap at 1280–1920 px viewports. Removes one piece of friction
+blocking the future `/journal` nav-link addition. Keyboard tab order
+unchanged.
+
+**Files modified.**
+- `src/app/globals.css` — `.nav` rule grows `column-gap: 32px`; new
+  `.nav > .magnetic` rule applies `justify-self: end` +
+  `display: inline-flex`; stale `justify-self: end` removed from
+  `.nav-cta`.
+
+**Follow-ups uncovered.**
+- `nav-cart-magnetic-class` — consider giving the cart Magnetic an
+  explicit className (`nav-magnetic-cart`) rather than relying on the
+  bare `.nav > .magnetic` descendant selector. Today it's safe because
+  the nav only contains one Magnetic, but a future ship adding another
+  Magnetic into the nav would inherit `justify-self: end` accidentally.
+- `nav-visual-diff-baseline` — the visual-diff script bails when page
+  heights differ between ships; consider clipping the diff to a
+  vertical band (e.g. top 200 px for nav ships) so future nav-only
+  changes get a real delta number instead of `skipped: dimensions
+  differ`.
+- `sotd-parser-fix` — persistent `sotd_parser_available: false` blocks
+  every run's SOTD comparison; the gallery markup likely changed and
+  the script needs a re-selector pass.
+
+**Backlog closed-by-drift.** None this run.
+
+**Periodic triggers fired.** None this run (retro, critic, calibration
+all within their cadence windows).
+
+---
+
 ## 2026-05-13 — PDP quantity selector — italic-serif numeric, hairline-rule stepper
 
 **Area.** Product detail pages — `.pdp-actions` block on every
