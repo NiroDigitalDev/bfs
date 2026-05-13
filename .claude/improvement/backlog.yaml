@@ -232,7 +232,7 @@ items:
     opened_on: 2026-05-13
     last_verified: 2026-05-13
     notes: |
-      Shipped 2026-05-13 (commit pending). Three placements added on
+      Shipped 2026-05-13 (commit af0c8bb). Three placements added on
       the homepage: catalogue section-lede ("Stocked when stocked." →
       "Bound when bound."), codex section-lede ("None new." → "None
       borrowed."), manifesto credo ("brand" → "press"). Semantic

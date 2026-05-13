@@ -106,6 +106,23 @@ note).
   corrected" register, italic-serif inserted phrasing, BFS
   press-house self-identification in the manifesto correction).
 
+**Review.** Step 7.5 — adapted (the `review` skill expects a PR
+number; this is a direct-to-main ship). Manual checklist against
+the just-committed diff (`HEAD~1..HEAD`, commit `af0c8bb`):
+correctness (inline JSX substitutions read cleanly; period
+after `</span>` correctly outside the errata wrapper on the
+manifesto credo so the strikethrough doesn't extend onto the
+period), security (no `dangerouslySetInnerHTML`, no eval),
+a11y (`<del>/<ins>` semantic + `.errata-mark` `aria-hidden` +
+reduced-motion guards), reusability (no primitives modified;
+inline pattern at 3 placements is appropriate at this count),
+BFS register (italic-serif inserted text, hairline-color
+decoration, marginalia mark in existing FAQ/404 vocabulary,
+`--dur-1`/`--ease-out-quart` tokens used). **Clean — no
+findings.** Phase 5's diff-reviewer + perf-a11y + regression-
+spotter + verifier + anti-patterns(0) already established this
+formally; Step 7.5 is the soft cross-check.
+
 **Screenshots.**
 - Desktop: `.claude/improvement/screenshots/134e661/errata-layer-desktop.png`
 - Mobile: `.claude/improvement/screenshots/134e661/errata-layer-mobile.png`

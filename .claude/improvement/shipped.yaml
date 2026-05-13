@@ -230,7 +230,7 @@ items:
 
   - id: errata-layer
     title: Editorial errata layer — sitewide <del>/<ins> proof corrections
-    commit: pending
+    commit: af0c8bb
     date: 2026-05-13
     surface: system
     tags: [catalogue, codex, manifesto, errata, del, ins, semantic-html, proof-correction, marginalia, editorial, micro-interaction, hover, prefers-reduced-motion, no-js]

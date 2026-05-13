@@ -9,8 +9,8 @@
 version: 1
 
 # Last-run telemetry — written at the end of every run.
-last_run_at: 2026-05-13T16:15:00Z
-last_run_commit: 3b63219
+last_run_at: 2026-05-13T18:25:00Z
+last_run_commit: af0c8bb
 last_run_mode: shipped   # shipped | no-focus | pr-opened
 
 # Anti-stagnation — incremented on every no-focus run, reset to 0 on ship.
@@ -20,7 +20,7 @@ consecutive_no_focus_runs: 0
 
 # Shipped-count — incremented on every shipped (not no-focus) run.
 # When this becomes a multiple of 10, Phase 0 fires the rubric-calibrator.
-shipped_count: 25   # +1: journal-seo-og-images-rss-sitemap direct-to-main (task-driven, low risk — [2/2] of Notion "Blog posts" task, dependency just unblocked)
+shipped_count: 26   # +1: errata-layer direct-to-main (backlog-driven, low risk — sitewide <del>/<ins> proof corrections across catalogue + codex + manifesto)
 
 # Periodic cron triggers — Phase 0 compares against today's date and
 # fires the corresponding agent when the gap exceeds the cadence.
