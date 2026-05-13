@@ -39,3 +39,12 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# improvement-cycle screenshots — per-ship visual artifacts.
+# Captures live in .claude/improvement/screenshots/<commit-sha>/. They're
+# kept local-only because git is a poor store for hundreds of PNGs over
+# time. The README + .gitkeep stay tracked so the directory exists for
+# fresh clones, and the routine can write into it without an mkdir.
+/.claude/improvement/screenshots/*
+!/.claude/improvement/screenshots/.gitkeep
+!/.claude/improvement/screenshots/README.md

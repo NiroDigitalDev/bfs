@@ -27,7 +27,42 @@ wc -l src/app/globals.css
 # Search for accessibility regressions in the diff
 git diff HEAD --stat
 git diff HEAD -- src/app/page.tsx | grep -E 'aria-|role=|tabIndex|focus-visible' | head -30
+
+# Inspect recent lighthouse history
+tail -5 .claude/improvement/lighthouse.csv 2>/dev/null
 ```
+
+## Lighthouse trigger heuristic
+
+Run `.claude/improvement/scripts/lighthouse.mjs` when ANY of:
+
+- The current ship touched a perf-sensitive file:
+  `src/app/globals.css`, `src/app/layout.tsx`, `next.config.ts`,
+  any `src/components/*.tsx` newly added, or any image in
+  `public/`.
+- The last row of `lighthouse.csv` is older than 24 hours (compare
+  the `timestamp` column against `new Date().toISOString()`).
+- The picker assigned `risk: high` or `risk: medium`.
+
+If none of those, skip Lighthouse — most runs don't need it, and
+the script takes 30–90s per invocation.
+
+When you do run it, invoke:
+
+```bash
+node .claude/improvement/scripts/lighthouse.mjs \
+  --url=http://localhost:3000 --viewport=desktop
+```
+
+The script auto-spawns `bun run start`, runs Lighthouse via
+`bunx --yes lighthouse@latest`, appends one row to
+`.claude/improvement/lighthouse.csv`, and tears down the server.
+It exits 0 even on failure (graceful degrade) — so check the new
+CSV row's `timestamp` to confirm a row was actually written.
+
+If the new row's perf score dropped >5 points or LCP rose >300ms
+versus the previous row, flag it in your verdict as a soft
+regression worth a follow-up.
 
 If a dev server is running (curl localhost:3000), capture the SSR
 markup and verify:
@@ -77,7 +112,14 @@ markup and verify:
 - New deps: <list or "none">
 - Largest chunk delta: <±KB>
 
-## LCP / CLS / INP heuristic
+## Lighthouse
+- ran: <yes / skipped — reason>
+- this run: perf <N>, a11y <N>, best-practices <N>, seo <N>,
+  LCP <N>ms, CLS <N>, INP <N>ms
+- vs previous: <∆perf / ∆LCP / ∆CLS>
+- regression flag: <none / soft regression — what shifted>
+
+## LCP / CLS / INP heuristic (no-lighthouse path)
 - LCP risk: <none/low/medium/high — why>
 - CLS risk: <none/low/medium/high — why>
 - INP risk: <none/low/medium/high — why>
