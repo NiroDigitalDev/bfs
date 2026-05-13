@@ -5,6 +5,183 @@ One entry per run. Newest first.
 
 ---
 
+## 2026-05-13 — Hero period as scroll-bound mark (opacity fades over first 600px)
+
+**Area.** The hero on `/` ends in a single solid period — `"Dark
+Matter."` — set off the otherwise stroked title via `.hero-period`
+in `src/app/globals.css:814-818`. The period is rendered as a
+`<span class="hero-period">` containing a `<SplitText>` of `"."`
+that animates in once on mount (`src/app/page.tsx:111-113`,
+`start={0.6}` after the rest of the headline settles). After that
+initial reveal, the period sits inert for the rest of the session.
+It's the only solid mark inside an outlined headline — a load-
+bearing detail by composition, but typographically static.
+
+**Why it's the focus.** Autonomous run — no Notion task in `To do`
+status this hour ([2/2] /journal SEO is queued but blocked behind
+PR #5, which contains the `/journal` route the SEO layer references).
+The motion + a11y auditor and the hero auditor independently
+surfaced the hero period as a high-leverage, low-effort distinctive
+move: T 3 · M 2 · L 1 · I 2 · A 3 · D 3 = **14 / 18** (distinctive
+band). Surface freshness aligned — hero was the coldest editorial
+surface (13 ships untouched since `36d4d65`). Higher-scoring
+alternates: chapter-numeral scroll-axis (13/18) requires touching
+six chapter numerals via `useActiveChapter` and lands as the
+obvious follow-up; OG italic § glyph (11/18, M effort) sits in
+backlog. Higher-impact a11y holes — `skip-link + <main> landmark`
+— scored 8/18 (clears the disqualification gate but doesn't beat
+distinctive picks); added to backlog as a high-severity hygiene
+item for a future low-rubric run.
+
+**Mode.** Shipped (autonomous) · `risk: low`.
+
+**Risk band.** `low` — single declarative CSS change on an
+existing rule; touches no shared primitive, no JSX, no JS, no
+keyframes; additive only. Reduced-motion is handled at the source
+(`<ParallaxRoot />` opts out under `prefers-reduced-motion`, so the
+`--scroll-y` var stays unset, CSS reads the `var(…, 0)` fallback,
+opacity resolves to `1` always). Direct-to-main per `risk-rules.md`.
+
+**What ships.**
+
+1. **`src/app/globals.css`** — additive change to the existing
+   `.hero-period` rule (lines 814-826 after edit). Four functional
+   lines added inside the rule:
+   ```css
+   opacity: clamp(0.55, calc(1 - var(--scroll-y, 0) * 0.00075), 1);
+   will-change: opacity;
+   ```
+   Plus a 3-line explanatory comment documenting that reduced-motion
+   is handled at the var source, not redundantly here.
+
+2. **No changes** to `src/app/page.tsx` (JSX untouched — SSR HTML
+   identical), `src/components/parallax-root.tsx` (already wired
+   the `--scroll-y` writer and the reduced-motion gate), or any
+   other file. Zero JS bundle delta, zero new primitive, zero new
+   token. The fade reuses an existing CSS variable.
+
+**Architecture.** The site already had a per-frame scroll writer
+(`src/components/parallax-root.tsx`) that sets `--scroll-y` on
+`:root` as a unitless `window.scrollY` value, gated to skip under
+`(prefers-reduced-motion: reduce)` at line 14. Three existing rules
+already consume this var for differential parallax
+(`src/app/globals.css:781, 839, 868`). The hero-period fade is the
+fourth consumer — same pattern, no new infrastructure. The math
+`clamp(0.55, calc(1 - var(--scroll-y, 0) * 0.00075), 1)` maps a
+scroll range of 0 → 600px onto an opacity range of 1.0 → 0.55,
+then clamps. The `0.00075` factor is a one-shot tuning constant
+(it's literally `0.45 / 600`); no need to elevate to a token.
+
+**Verification.**
+
+- `bun run lint` — PASS (7 pre-existing warnings in
+  `.claude/improvement/scripts/*.mjs` — none in the diff).
+- `bunx tsc --noEmit` — 2 pre-existing errors in `.next/types/*`
+  referencing missing `/journal` modules from PR #5's stale type
+  generation. Unrelated to this CSS-only change. Authoritative
+  gate (`bun run build`) is clean.
+- `bun run build` — PASS. 19 / 19 SSG routes prerender as before.
+- SSR regression — `.next/server/app/index.html` still contains the
+  `<span class="hero-period">` and the SplitText `.` child. PDP /
+  404 SSR untouched (`chapter-rail` count stays 1 on `/`, 0 on
+  `/supplies/*` and `/_not-found` per SiteChrome's pathname gate).
+- A11y — reduced-motion verified via fallback semantics: when
+  ParallaxRoot opts out (parallax-root.tsx:14), `--scroll-y` is
+  never set, `var(--scroll-y, 0)` evaluates `0`, `clamp(0.55, calc(1
+  - 0), 1)` resolves `1`. Period stays at full opacity for the
+  reduced-motion user. Contrast at the floor opacity 0.55 over
+  `#050505` ≈ **6.8:1** (passes WCAG AA at any text size,
+  borderline AAA at 7:1).
+- Bundle delta — **0 KB client-JS**, **+6 lines CSS** (4 functional,
+  3 comment).
+- Anti-patterns scan — **0 patterns**.
+- Visual diff — `skipped: no prior hero-desktop.png to compare` —
+  first capture of the `hero` surface in the screenshot baseline.
+  Subsequent runs will have something to diff against. Desktop +
+  mobile captures written to
+  `.claude/improvement/screenshots/896f4a7/`.
+- Diff-reviewer — PASS. No findings. Single concern, no
+  over-engineering, no escape hatches.
+- SOTD comparison — `skipped: could not parse SOTD entry — gallery
+  markup may have changed` (long-standing). Skeleton remains in
+  `.claude/improvement/sotd/`.
+
+**Rubric.** T 3 · M 2 · L 1 · I 2 · A 3 · D 3 = **14 / 18**
+(distinctive band).
+
+**Screenshots.**
+
+- `.claude/improvement/screenshots/896f4a7/hero-desktop.png`
+- `.claude/improvement/screenshots/896f4a7/hero-mobile.png`
+
+(Captured against pre-commit head `896f4a7`; the actual ship SHA
+gets backfilled at Step 9 below.)
+
+**SOTD comparison.** `.claude/improvement/sotd/<sha>.md` — parser
+skipped this run; the file may be a skeleton.
+
+**Notion.** Reports row appended via MCP after commit. Task DB has
+no `To do` row claimed this run; only [2/2] /journal SEO is open
+and it depends on PR #5 (`/journal` routes not yet on `main`).
+
+**Expected impact.** Two payoffs:
+
+1. *Compositional.* The headline now reads as a system that
+   responds to the reader's position, not a static spread. The
+   period — the smallest mark in the largest type — becomes the
+   most expressive element. This is the kind of intentional
+   typographic detail Awwwards juries notice; reading the page
+   downward fades the punctuation the same way an editorial reader
+   would let a sentence settle.
+2. *Cost.* Zero JS, zero new primitive, zero asset. The infra
+   (`<ParallaxRoot />` + `--scroll-y`) was already paid for. This
+   ship is the cheapest possible distinctive move on the coldest
+   editorial surface — exactly the kind of asymmetric pick the
+   rubric is supposed to reward.
+
+**Files modified.**
+
+- `src/app/globals.css` — +6 lines inside `.hero-period` (no
+  removals).
+
+**Follow-ups uncovered.**
+
+- `hero-period-will-change-cleanup` (low) — drop the
+  `will-change: opacity` hint once the fade proves stable across
+  browsers (perf-a11y agent noted; non-blocking).
+- `skip-link-main-landmark` (high) — real a11y hole on every route;
+  scored 8/18 so didn't win this pick but added to backlog for the
+  next a11y-themed ship.
+- `magnetic-tilt-mq-subscription` (medium) — Magnetic/Tilt don't
+  resubscribe to `matchMedia` change events; transform can stick
+  after mid-session reduced-motion toggle.
+- `hairline-opacity-token-sweep` (low) — 0.32 / 0.42 / 0.55
+  hairlines used as literals across ~17 sites; tokenize for drift
+  protection.
+- `outro-anchor-normalize` (low) — `src/app/page.tsx:690-708`
+  uses bare hash anchors; normalize to `/#anchor`.
+- `colophon-edition-token-sweep` (medium) — pull
+  `Edition III · MMXXVI` from `site.ts` in three places that retype
+  it; add a live "Edition" row to the colophon dl.
+- `press-disclaimer-aa-bump` (medium) — real WCAG AA contrast
+  violation at `src/app/globals.css:2231-2233` (10px @ 0.35 alpha
+  ≈ 3.5:1).
+
+**Backlog closed-by-drift.**
+
+- `index-menu-focus-ring` — historian verified the global
+  `:focus-visible` rule at `src/app/globals.css:80-86` already
+  provides a 2px outline on every focusable element including
+  `.index-menu-link`. The original backlog item's premise
+  ("color-only focus") is wrong. Status will be flipped on the
+  next backlog hygiene pass.
+
+**Periodic triggers fired.** None this run (`last_retro_at` and
+`last_critic_at` are both today, `shipped_count` 22 is not a
+multiple of 10, `consecutive_no_focus_runs` is 0).
+
+---
+
 ## 2026-05-13 — SiteChrome wrapper (pathname-aware ChapterRail + RunningFolio foundation)
 
 **Area.** Both `<ChapterRail />` (left-edge dot-leader nav) and

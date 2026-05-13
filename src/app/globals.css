@@ -815,6 +815,12 @@ html.loading body {
   display: inline-block;
   color: #fff;
   margin-left: 0.02em;
+  /* Scroll-bound fade: 1.0 -> 0.55 over the first 600px of scroll.
+     --scroll-y is written by <ParallaxRoot /> and reduced-motion gated
+     at the source, so under reduced-motion the var stays unset and
+     CSS reads the fallback 0 — opacity stays at 1 always. */
+  opacity: clamp(0.55, calc(1 - var(--scroll-y, 0) * 0.00075), 1);
+  will-change: opacity;
 }
 .hero-period .split-char {
   -webkit-text-stroke: 0;
