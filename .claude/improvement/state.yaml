@@ -9,8 +9,8 @@
 version: 1
 
 # Last-run telemetry — written at the end of every run.
-last_run_at: 2026-05-13T14:30:00Z
-last_run_commit: b183b27
+last_run_at: 2026-05-13T15:24:00Z
+last_run_commit: 9d4a551
 last_run_mode: shipped   # shipped | no-focus | pr-opened
 
 # Anti-stagnation — incremented on every no-focus run, reset to 0 on ship.
@@ -20,7 +20,7 @@ consecutive_no_focus_runs: 0
 
 # Shipped-count — incremented on every shipped (not no-focus) run.
 # When this becomes a multiple of 10, Phase 0 fires the rubric-calibrator.
-shipped_count: 23   # +1: hero-period-scroll-fade direct-to-main (low risk, autonomous, no Notion task — PR #4 + PR #5 still awaiting merge)
+shipped_count: 24   # +1: chapter-rail-scrollbound-fill direct-to-main (low risk, autonomous, no Notion task — top To-do row dependency-blocked by open PR #5)
 
 # Periodic cron triggers — Phase 0 compares against today's date and
 # fires the corresponding agent when the gap exceeds the cadence.

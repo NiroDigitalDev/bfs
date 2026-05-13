@@ -207,7 +207,7 @@ items:
 
   - id: chapter-rail-scrollbound-fill
     title: Chapter-rail hairlines draw themselves in as their chapter enters the read band
-    commit: pending
+    commit: 9d4a551
     date: 2026-05-13
     surface: chrome
     tags: [chrome, chapter-rail, intersection-observer, scroll-bound, css-var, rail-fill, reduced-motion, motion-vocabulary, hook-refactor]
