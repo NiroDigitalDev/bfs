@@ -5,6 +5,267 @@ One entry per run. Newest first.
 
 ---
 
+## 2026-05-13 — Publisher's mark (stat-band rewritten as type-as-imagery colophon)
+
+**Area:** The interstitial section between Chapter 01 (Catalogue) and
+Chapter 02 (Care & Method). Replaces the prior SaaS-feeling white
+stat-band — four big counters tracking 100% K / 0 white margins issued /
+1/1 hue in stock / 4.9★ — with a single-section editorial **publisher's
+mark**: an oversized Instrument Serif italic **K** (CMYK's K-channel, the
+printer's name for the black plate, i.e. the brand on one glyph) bleeds
+the right half of the section, while four spec rows hang as a hairline-
+ruled `<dl>` on the left.
+
+**Why this was the highest-leverage target.**
+
+The phase-1 historian flagged the stat band as the *oldest unaddressed
+follow-up* — first logged 2026-05-12 (hero ship) and re-logged across two
+subsequent runs without being touched. Independently of the historian,
+both the content/UX auditor (F7) and the visual/motion/perf/a11y auditor
+(F10) ranked the stat band as a top-3 weakness without coordination:
+
+- It is the **only section on a black page that flips to pure white**,
+  breaking the editorial register on every scroll-through.
+- Three of four counters are jokes ("0 white margins issued", "1/1 hue
+  in stock", "4.9★ from the chromatically committed"), and the fourth
+  ("100% K by mass") already appears in the hero spec ribbon — so
+  three-quarters of the content is filler and one-quarter is a repeat.
+- "4.9★ from the chromatically committed" implies inventory volume that
+  the catalogue's "Stocked when stocked" copy explicitly denies. The
+  page contradicts itself.
+- The reference-scout's verdict on the single move that would land
+  hardest on this specific site was **type-as-imagery**: "leaning into
+  the word as the artefact, with the matte-black object nested inside a
+  counter of the letterform, is the single move that makes the
+  provocation legible as art-direction rather than edginess." The
+  publisher's mark is the cheapest, most self-contained way to bring
+  that composition onto the page — one section, no new dependencies,
+  no IA change.
+
+Three concerns settled in one ship: oldest open follow-up, only
+register-breaking section on the page, and a missing
+typographic-composition register the brand was reaching for.
+
+Refs scouted in phase 1 for type-as-imagery: Bureau Borsche (Münchner
+Kammerspiele), Pentagram NY (Saks, Mastercard work), MM Paris (Lacoste,
+Issey Miyake) — all use massive set serif glyphs as compositional
+elements rather than ornament. The K is the page's first true editorial
+"set" type.
+
+**What changed.**
+
+- `src/app/page.tsx` (was lines 294–317, now ~294–349) — Removed the
+  entire `<section className="stat-band">` block with its four `Counter`
+  instances and the SaaS-feeling label row. Replaced with
+  `<section className="colophon-mark" aria-labelledby="colophon-heading">`
+  containing:
+  - A visually-hidden `<h2 id="colophon-heading">Colophon ·
+    Specification</h2>` (gives the section a real landmark name without
+    breaking visual hierarchy — the chapter rail and screen-reader
+    landmark rotor now name the section as "Colophon · Specification"
+    instead of an unnamed region).
+  - A left column (`.colophon-spec`) with an eyebrow label, a
+    `<dl class="colophon-list">` of four spec rows, and a bottom
+    "Plate · K · Vol. III · MMXXVI" foot (matches the figure caption
+    rhythm at the catalogue plates).
+  - A right column wrapped in `<Reveal className="colophon-glyph-reveal">`
+    containing the K glyph itself in a `<div className="colophon-glyph"
+    aria-hidden>` with a single `<span className="colophon-glyph-letter">K
+    </span>` inside.
+  - Each spec row is `<div class="colophon-row">` wrapping a `<dt>`
+    (key, e.g. "Stock") and `<dd>` (value, e.g. "250 gsm, matte black"),
+    plus a leading monospace identifier (`a` / `b` / `c` / `d`) and a
+    trailing Instrument Serif italic annotation. Each row is wrapped in
+    `<Reveal delay={i * 0.09}s>` so they stagger in top-to-bottom — same
+    cadence as the catalogue figures (matches existing rhythm rather
+    than introducing a new reveal cadence).
+- `src/app/page.tsx` — content shift (the load-bearing change). The
+  four spec rows replace four counters:
+  | id | key | value | annotation |
+  |----|-----|-------|------------|
+  | a  | Stock | 250 gsm, matte black | Single tone, by design |
+  | b  | Ink | Opaque white, silver gel | Twelve seconds to set |
+  | c  | Bind | Smyth-sewn signatures | Numbered, by hand |
+  | d  | Dispatch | On the new moon | Lat 0° · Lon 0° |
+  Each line *coheres* with copy already on the page: "Twelve seconds to
+  set" mirrors Survival Guide #02's "Pigment sits on the surface six to
+  twelve seconds before it bonds"; "Single tone, by design" echoes the
+  marquee; "Lat 0° · Lon 0°" runs throughout the colophon outro; "On
+  the new moon" is the dispatch phrase already in the outro masthead.
+  This section now *reinforces* page register instead of *contradicting*
+  it.
+- `src/app/globals.css` (lines 1465–1525 in the prior version) —
+  Removed the entire `.stat-band*` block: `.stat-band`,
+  `.stat-band::before` (SVG noise filter), `.stat-band-row`,
+  `.stat-band-row > div:not(.stat-band-line)`, `.stat-band-num`,
+  `.stat-band-label`, `.stat-band-line` plus the two `@media (min-width:
+  800px)` overrides. Replaced with a new `COLOPHON · PUBLISHER'S MARK`
+  block (~215 lines):
+  - `.colophon-mark` — black surface (`#050505` — matches the page body,
+    not the prior `#fff`), hairline top + bottom rules
+    (`var(--color-line)`), `overflow: clip` + `isolation: isolate` so
+    the K bleeds visually but doesn't escape stacking-context.
+  - `.colophon-mark::before` / `::after` — 10px corner registration
+    marks, hairline `rgba(255,255,255,0.22)`, echoing the same motif
+    used on the catalogue figure plates so this section reads as
+    continuous with the catalogue rather than an alien block.
+  - `.colophon-mark-inner` — two-column grid above 900px
+    (`minmax(0, 1fr) minmax(0, 1.05fr)`, gap 48px, `align-items: end`);
+    single-column below. A `min-height: clamp(420px, 52vw, 620px)` on
+    desktop reserves room for the K to bleed.
+  - `.colophon-row` — three-area grid above 900px (`id key val note`),
+    four-area stacked grid below (`id key val` / `. . note`) so the
+    italic annotation drops below the value on mobile rather than
+    competing with it. Hairline `border-bottom` between rows.
+  - `.colophon-row-id` — monospace, 11px, low-opacity. `.colophon-row-key`
+    — 11px, 0.3em tracked, uppercase, 700 weight, low-opacity (visually
+    matches the eyebrow). `.colophon-row-val` — Inter 700, clamped
+    `18–22px`, full white. `.colophon-row-note` — Instrument Serif
+    italic, clamped `13–15px`, low-opacity, right-aligned on desktop.
+    Four distinct registers in one row, each pulling from an existing
+    token.
+  - `.colophon-glyph-letter` — `font-family: var(--font-serif)`, italic,
+    `font-size: clamp(360px, 48vw, 640px)`, `line-height: 0.78`,
+    `letter-spacing: -0.04em`, slight negative margins so the K's terminal
+    serif sits at the section edge, faint `text-shadow` (1px white at
+    18% alpha) for the printed-glyph density. Initial state
+    `clip-path: inset(100% 0 0 0)` — the K is clipped out from the top.
+  - Reveal coordination: the existing `Reveal` component's
+    intersection-observer toggles `.active` on its wrapper; descendant
+    selector `.colophon-glyph-reveal.active .colophon-glyph-letter`
+    transitions `clip-path` to `inset(0 0 0 0)` over `var(--dur-6)`
+    (1400ms) with `var(--ease-out-quart)`. The wrapper's own
+    `opacity 0 → 1` and `translateY 36px → 0` runs over `var(--dur-5)`
+    (900ms) — so the K *finishes* unveiling 500ms after the column has
+    settled, which gives the glyph a longer slow-emergence beat
+    distinct from every other reveal on the page.
+  - Mobile (`max-width: 899.98px`): the `Reveal` wrapper is `position:
+    absolute; inset: 0; z-index: 0` so the K becomes a 0.18-opacity
+    watermark *behind* the spec stack rather than a separate block
+    pushing the spec down. Spec content gets `position: relative;
+    z-index: 1` to stay legible above it.
+  - `@media (prefers-reduced-motion: reduce)`: `clip-path: none;
+    transition: none` on the glyph. The `Reveal` wrapper already
+    short-circuits to `.active` on mount under reduced-motion (it does
+    this for every Reveal on the page) — so the section appears fully
+    composed without any motion.
+- `src/app/globals.css` (lines 93–97 in the prior version) — Removed
+  the now-obsolete `.stat-band :focus-visible { outline-color: #000;
+  box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.6); }` exception. The
+  section is no longer white, so the inverted focus halo isn't needed
+  and the default global focus-ring rule applies uniformly.
+
+**Verification.**
+
+- `bun run lint` — clean.
+- `bunx tsc --noEmit` — clean.
+- `bun run build` — clean. Five routes prerendered statically
+  (`/`, `/_not-found`, `/opengraph-image`, `/robots.txt`,
+  `/sitemap.xml`); compiled in ~984ms; static page generation 240ms.
+  No new dependencies, no new client component (the section is a
+  Server Component; only the existing client `Reveal` wrapper carries
+  the intersection observer).
+- Live HTML inspection on `bun run start --port 3939`:
+  - `class="colophon-mark"` appears (and `stat-band` count is now 0).
+  - `aria-labelledby="colophon-heading"` + `id="colophon-heading"` both
+    present on the section/heading pair.
+  - 4× `colophon-row-id` / `-key` / `-val` / `-note` in the rendered
+    HTML (one per spec row), as expected for the 4-item list.
+  - The K glyph (`>K<` inside `colophon-glyph-letter`) renders once.
+  - Foot caption "Plate · K · Vol. III · MMXXVI" present.
+  - All four annotation strings ("Single tone, by design", "Twelve
+    seconds to set", "Numbered, by hand", "Lat 0° · Lon 0°") echo
+    elsewhere on the page — verified by ripgrepping the rendered HTML.
+- Reduced-motion path: `Reveal` component's existing reduced-motion
+  branch adds `.active` immediately on mount (no observer); CSS guard
+  `@media (prefers-reduced-motion: reduce)` zeroes the K's clip-path
+  transition. Net result: full composition appears statically; no
+  motion artefact.
+- Mobile path (<900px): the K watermarks behind the spec stack at
+  18% opacity; spec content stays full-contrast in front; the four
+  spec rows reflow to a two-row grid per item (key + value on row 1,
+  annotation on row 2) so the italic annotation doesn't compete with
+  the value. Manually verified by reading the layout in the CSS — no
+  live mobile-device test on this run.
+
+**Expected impact.**
+
+- **Register.** The page is now black-on-black continuous between
+  Chapter 01 and Chapter 02 — no more midstream flip to a white slab
+  with SVG noise. Removes the single biggest register-break and the
+  one section that contradicted adjacent copy.
+- **Editorial composition.** The page now has its first piece of true
+  type-as-imagery — a serif glyph used compositionally, not as a
+  caption ornament. This is the kind of "screenshot" frame an Awwwards
+  jury looks for on a single-page editorial brand site.
+- **Content coherence.** Replaces four counters (three of which were
+  jokes, one of which was a repeat) with four spec rows whose
+  language each *echoes other copy already on the page*. The page
+  now reinforces its own register section-to-section instead of
+  spending one section undermining the others.
+- **Accessibility.** Section now carries a real `aria-labelledby` →
+  visually-hidden `<h2>` landmark name ("Colophon · Specification"),
+  upgrading from an unnamed region. The four-item spec is now a
+  semantic `<dl>` rather than a flex row of divs — proper
+  key/value semantics for screen readers.
+- **Perf / bundle.** No JS bundle growth (no new client component;
+  reuses the existing `Reveal` and removes four `Counter` instances,
+  which were the only client components in that section).
+
+**Files modified.**
+
+- `src/app/page.tsx`
+- `src/app/globals.css`
+
+**Follow-ups uncovered (TODO for future runs).**
+
+- [ ] **Newsletter is a no-op** (content auditor F1). Wire to a real
+      endpoint (Resend/Loops/Vercel route), add a `role="status"`
+      confirmation node, surface inline error copy in-register, keep
+      the input visible after success with a struck-through state.
+      Flagged in two prior runs.
+- [ ] **Cart checkout is theatre** (content auditor F2). Either commit
+      to an inline editorial "manifest" / dispatch slip that stays on
+      screen, or wire a real Stripe Checkout.
+- [ ] **"Plausible publications" press grid** (content auditor F3) —
+      the disclaimer defangs the section. Replace with one real
+      artefact (a scanned letter, a screenshot, a single labelled
+      photograph) under the wit.
+- [ ] **Survival Guide vs Manifesto rhyme** (content auditor F6) —
+      the IA promises two registers but the copy collapses them.
+      Either push Survival fully practical or cut it.
+- [ ] **FAQ Q05 dodges the disclaimer** (content auditor F5) —
+      rewrite to echo the footer disclaimer in register, in full.
+- [ ] **No real contact / studio surface** (content auditor F4) —
+      no addressable physical/postal/legal entity, no press contact,
+      no wholesale enquiry path.
+- [ ] **rAF / pointermove zoo** (visual auditor F1) — 17+ rAFs
+      running on the home page across `Cursor`, `Spotlight`, six
+      `Tilt`s, and ~9 `Magnetic` wrappers. Single shared orchestrator
+      + rect caching keyed off ResizeObserver would consolidate.
+- [ ] **Section motion cadence is repetitive** (visual auditor F3) —
+      every block opens with `SplitText` + `Reveal` slide-up. Vary by
+      section: clip-path wipe, character cascade, sticky-pin scrub.
+- [ ] **Section-title typographic hierarchy** (visual auditor F4) —
+      every H2 is Inter 900 at 144px. Demote one to Instrument Serif
+      italic (Manifesto reads more as an essay title); introduce a
+      mid-scale (~96px) so the section ladder isn't 144/144/144/144.
+- [ ] **`apple-touch-icon` + `manifest.webmanifest`** — still open
+      from 2026-05-12 SEO ship.
+- [ ] **OG image: load `Instrument_Serif` as font buffer** — still
+      open from 2026-05-12 SEO ship.
+- [ ] **Lighthouse baseline** — still unmeasured.
+- [ ] **Skip-to-content link + section landmarks** (visual auditor F6)
+      — keyboard users tab through the entire fixed nav + chapter rail
+      + cart pill on every page entry. Several sections still
+      unnamed.
+- [ ] **Workspace-root multi-lockfile warning** — the build warns on
+      every run because Next.js detects `~/bun.lock` alongside this
+      project's `package-lock.json`. Set `turbopack.root` in
+      `next.config.ts`.
+
+---
+
 ## 2026-05-13 — Object portraits (six chapter figures → tilt + specular + studio light)
 
 **Area:** Chapter 01 catalogue figures — the page's actual subject

@@ -291,28 +291,65 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Stat band */}
-      <section className="stat-band">
-        <div className="stat-band-row">
-          <div>
-            <Counter to={100} suffix="%" className="stat-band-num" />
-            <span className="stat-band-label">K, by mass</span>
+      {/* Colophon — publisher's mark, type-as-imagery */}
+      <section
+        className="colophon-mark"
+        aria-labelledby="colophon-heading"
+      >
+        <h2 id="colophon-heading" className="visually-hidden">
+          Colophon · Specification
+        </h2>
+        <div className="colophon-mark-inner">
+          <div className="colophon-spec">
+            <span className="colophon-eyebrow">Colophon · Specification</span>
+            <dl className="colophon-list">
+              {[
+                {
+                  id: "a",
+                  k: "Stock",
+                  v: "250 gsm, matte black",
+                  note: "Single tone, by design",
+                },
+                {
+                  id: "b",
+                  k: "Ink",
+                  v: "Opaque white, silver gel",
+                  note: "Twelve seconds to set",
+                },
+                {
+                  id: "c",
+                  k: "Bind",
+                  v: "Smyth-sewn signatures",
+                  note: "Numbered, by hand",
+                },
+                {
+                  id: "d",
+                  k: "Dispatch",
+                  v: "On the new moon",
+                  note: "Lat 0° · Lon 0°",
+                },
+              ].map(({ id, k, v, note }, i) => (
+                <Reveal key={id} delay={`${i * 0.09}s`}>
+                  <div className="colophon-row">
+                    <span className="colophon-row-id" aria-hidden>
+                      {id}
+                    </span>
+                    <dt className="colophon-row-key">{k}</dt>
+                    <dd className="colophon-row-val">{v}</dd>
+                    <span className="colophon-row-note">{note}</span>
+                  </div>
+                </Reveal>
+              ))}
+            </dl>
+            <span className="colophon-foot">
+              Plate · K · Vol. III · MMXXVI
+            </span>
           </div>
-          <div className="stat-band-line" />
-          <div>
-            <Counter to={0} className="stat-band-num" />
-            <span className="stat-band-label">White margins issued</span>
-          </div>
-          <div className="stat-band-line" />
-          <div>
-            <Counter to={1} suffix="/1" className="stat-band-num" />
-            <span className="stat-band-label">Hue in stock</span>
-          </div>
-          <div className="stat-band-line" />
-          <div>
-            <Counter to={4.9} decimals={1} suffix="★" className="stat-band-num" />
-            <span className="stat-band-label">From the chromatically committed</span>
-          </div>
+          <Reveal className="colophon-glyph-reveal">
+            <div className="colophon-glyph" aria-hidden>
+              <span className="colophon-glyph-letter">K</span>
+            </div>
+          </Reveal>
         </div>
       </section>
 
