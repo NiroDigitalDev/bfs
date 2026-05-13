@@ -222,7 +222,7 @@ items:
 
   - id: journal-seo-og-images-rss-sitemap
     title: /journal SEO — per-post OG images + RSS feed + sitemap entries + RSS link alternate
-    commit: pending
+    commit: 3b63219
     date: 2026-05-13
     surface: seo
     tags: [journal, seo, og-image, ImageResponse, rss, rss-2.0, route-handler, sitemap, alternates, application-rss-xml, syndication, content-only]
