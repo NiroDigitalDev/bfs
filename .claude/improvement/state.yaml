@@ -9,8 +9,8 @@
 version: 1
 
 # Last-run telemetry — written at the end of every run.
-last_run_at: 2026-05-13T18:25:00Z
-last_run_commit: af0c8bb
+last_run_at: 2026-05-13T18:30:00Z
+last_run_commit: c345501
 last_run_mode: shipped   # shipped | no-focus | pr-opened
 
 # Anti-stagnation — incremented on every no-focus run, reset to 0 on ship.
@@ -20,7 +20,7 @@ consecutive_no_focus_runs: 0
 
 # Shipped-count — incremented on every shipped (not no-focus) run.
 # When this becomes a multiple of 10, Phase 0 fires the rubric-calibrator.
-shipped_count: 26   # +1: errata-layer direct-to-main (backlog-driven, low risk — sitewide <del>/<ins> proof corrections across catalogue + codex + manifesto)
+shipped_count: 27   # +1: press-clipping-register direct-to-main (backlog-driven, low risk — homepage press strip retyped from logo-cloud to hairline-divided italic-serif citation register, retiring the last template residue on the cold half)
 
 # Periodic cron triggers — Phase 0 compares against today's date and
 # fires the corresponding agent when the gap exceeds the cadence.
@@ -31,9 +31,9 @@ last_calibration_at: ""        # event-driven (every 10th ship) — also capture
 # Optional integrations status — Phase 0 self-checks these on startup
 # and degrades gracefully when they're absent or broken.
 gh_available: true           # `gh auth status` ok this run
-playwright_available: true   # capture-ship.mjs wrote hero-desktop + hero-mobile under 896f4a7/
-lighthouse_available: unknown  # perf-a11y skipped lighthouse (CSS-only opacity tween — poor signal-to-cost)
-sotd_parser_available: false   # sotd-compare.mjs: "could not parse SOTD entry — gallery markup may have changed"
+playwright_available: true   # capture-ship.mjs wrote press-desktop + press-mobile under 106498a/
+lighthouse_available: unknown  # perf-a11y skipped lighthouse (CSS-only ship, mid-page surface — poor signal-to-cost)
+sotd_parser_available: false   # sotd-compare.mjs: "could not parse SOTD entry — gallery markup may have changed" (still broken — re-investigation queued)
 
 # Daily improvements.md archival check — Phase 0 reads size and rotates
 # if exceeded. Recorded here so a freshly-archived run doesn't try again.

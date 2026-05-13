@@ -238,7 +238,7 @@ items:
 
   - id: press-clipping-register
     title: Press section reframed as hairline-divided clipping-book register — italic-serif numerals + oldstyle Vol/№/p marginalia
-    commit: pending
+    commit: c345501
     date: 2026-05-13
     surface: press
     tags: [press, clipping-book, citation, ordered-list, italic-serif, roman-numeral, oldstyle-nums, hairline-divider, focus-within, stroke-dashoffset, underline-draw, micro-interaction, prefers-reduced-motion, template-residue-removed, decorative-aria-hidden, no-js, ssr-only]
