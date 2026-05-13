@@ -153,6 +153,8 @@ const faqPageLd = {
   "@id": `${siteUrl}/#faq`,
   mainEntity: faqs.map((f) => ({
     "@type": "Question",
+    "@id": `${siteUrl}/#faq-${f.index}`,
+    url: `${siteUrl}/#faq-${f.index}`,
     name: f.question,
     acceptedAnswer: {
       "@type": "Answer",

@@ -5,6 +5,131 @@ One entry per run. Newest first.
 
 ---
 
+## 2026-05-13 — FAQ editorial unfold: italic § toggle, "Reply." marginalia, permalinks + @id
+
+**Area.** Chapter 05, "On Record" — the six-question FAQ at the foot of the
+single-page editorial spread.
+
+**Why this was the highest-leverage target.**
+Across ten prior runs the rest of the page evolved into a deliberately
+choreographed editorial publication: SplitText reveals, magnetic CTAs,
+parallax dust on the hero, object-portrait tilt on the catalogue, hairline-
+ruled survival codex, italic-numeral colophon. The FAQ was the only
+*interactive* moment on the page that still read as a stock accordion:
+the height transition (the modern `grid-template-rows: 0fr → 1fr`
+technique) was actually fine, but the *register* was generic. A plain
+plus/minus toggle. Body copy that snapped in without choreography. No
+marginalia. No § permalink, despite editorial § marks being used
+elsewhere on the page (chapter spreads, colophon). No per-question
+fragment anchors, so the FAQPage JSON-LD `mainEntity[]` had no `@id`
+and the Q&As weren't independently addressable from search results.
+
+The opportunity was to bring the FAQ up to the same level of editorial
+finish as the rest of the page in a single scoped pass: one component
+file, one CSS block, four lines of schema.
+
+**Changes.**
+- `src/components/faq-item.tsx` — stable `id={faq-${index}}` on each
+  item wrapper, replaced the two-`<span>` plus/minus toggle with a
+  single italic-serif `§` glyph, restructured the panel inner into
+  a two-column grid (64px marginalia gutter + body) hosting a
+  `Reply.` italic-serif marginalia label, a `<p className="faq-answer">`
+  body, and a `<a className="faq-permalink" href="#faq-NN">§ NN</a>`
+  fragment anchor.
+- `src/app/globals.css` — extended the `.faq-*` block:
+  - `.faq-item.open` now brightens the top hairline (`rgba(244, 244, 244, 0.55)`)
+    and softens the next sibling's hairline so the open entry visually
+    registers as the "current page".
+  - `.faq-item.open .faq-index` scales 1.0 → 1.06 and shifts from
+    `--color-fog` → `#fff` on `var(--dur-3) var(--ease-out-expo)`.
+  - `.faq-item.open .faq-q` tightens letter-spacing from -0.02em →
+    -0.025em on the same easing — a tiny typographic tell.
+  - `.faq-toggle-glyph` is a single italic-serif `§` rotated 0 → 90°
+    on open with `var(--ease-out-back)`; colour shifts fog → white.
+  - Inner content (`.faq-marginalia`, `.faq-answer`, `.faq-permalink`)
+    fades in from `translateY(6px)` to `0` with staggered delays
+    (140ms / 180ms / 260ms) on `var(--dur-4) var(--ease-out-quart)` —
+    the answer reads as the page unfurling, not snapping.
+  - Hover state on `.faq-permalink` underlines via 1px hairline border.
+  - `@media (max-width: 640px)` collapses the marginalia gutter to a
+    single column so the body wraps to viewport on phones.
+  - `@media (prefers-reduced-motion: reduce)` zeroes the translateY
+    decoration, drops index numeral scale, and removes transition
+    delays; the functional height transition + toggle crossfade
+    remain so the FAQ keeps working.
+- `src/app/layout.tsx` — `faqPageLd.mainEntity[].@id` and `.url` now
+  resolve to `${siteUrl}/#faq-${f.index}` so each `Question` is an
+  addressable schema entity (closes the "Single-page hash links +
+  JSON-LD @id" open follow-up for the FAQ surface; the same pattern
+  remains open for products).
+
+**Verification.**
+- `bun run lint` — clean.
+- `bunx tsc --noEmit` — clean.
+- `bun run build` — clean. All five routes prerendered statically:
+  `/`, `/_not-found`, `/opengraph-image`, `/robots.txt`, `/sitemap.xml`.
+- Static HTML inspection on the prerendered `index.html`:
+  - Six `id="faq-NN"` wrappers present (`faq-01`…`faq-06`).
+  - Six `faq-marginalia`, six `faq-permalink`, six `faq-toggle-glyph`
+    occurrences — one per item.
+  - Six `href="#faq-NN"` fragment links present.
+  - FAQPage JSON-LD now contains six `mainEntity[].@id` entries
+    resolving to `…/#faq-NN`.
+
+**Expected impact.**
+- *Visual.* The FAQ now reads as an editorial unfold rather than a
+  generic accordion. Open-state index numeral, italic-serif `§` toggle,
+  italic `Reply.` marginalia, and the staggered body fade-in put the
+  section in the same register as the rest of the page (publisher's
+  mark, chapter colophons, field notes pull-quotes).
+- *SEO.* Each FAQ entry now has a stable fragment anchor and an `@id`
+  in the FAQPage schema, making individual Q&As independently
+  citeable. Where Google surfaces an FAQ rich result, the deep link
+  from a specific question can scroll-to-anchor on the page.
+- *A11y.* `aria-expanded`, `aria-controls`, `role="region"`,
+  `aria-labelledby` preserved. The italic `§` toggle is `aria-hidden`
+  (the trigger button is the labelled control). The permalink has an
+  explicit `aria-label="Link to question NN"` for screen readers
+  since "§ 01" alone wouldn't convey purpose. Reduced-motion respects
+  the established surgical pattern: functional transitions keep
+  working, decorative translates disable.
+- *Performance.* No JS added. One additional anchor element per FAQ
+  item. CSS additions are token-based (no new `--dur-*` or `--ease-*`).
+  Static prerender footprint unchanged in route count; trivial bytes.
+
+**Files modified.**
+- `src/components/faq-item.tsx`
+- `src/app/globals.css`
+- `src/app/layout.tsx`
+
+**Follow-ups uncovered (TODO for future runs).**
+
+- [ ] **Per-product `@id` symmetry.** Products in `productCatalogLd`
+      already use `${siteUrl}/#${p.id}` for `@id` and the `<article
+      id={p.id}>` anchors exist in markup. Verify and, where missing,
+      align with the FAQ pattern just established (stable fragment +
+      schema @id resolves to a real on-page anchor).
+- [ ] **Marquee row hierarchy.** Still flagged: one row should be
+      mono / tight, one display / loose, to differentiate the two
+      otherwise-identical scrolling banners.
+- [ ] **Newsletter success state.** Today the form transitions button
+      copy only. A serif "Filed." or "Logged." confirm state with the
+      same italic-serif register as the FAQ marginalia would close the
+      gap on the second transactional moment.
+- [ ] **Cart drawer confirm copy.** "Sealed ✓" works but a one-line
+      italic-serif lede in the drawer (e.g. "On its way.") would
+      mirror the editorial register the FAQ now establishes for the
+      page's interactive surfaces.
+- [ ] **Hero exit choreography.** Bind background opacity / scale to
+      `scrollY > 100vh` so the hero doesn't simply slide off — still
+      open from the parallax pass.
+- [ ] **PWA + apple-touch-icon + manifest.webmanifest.** Long-standing.
+- [ ] **Lighthouse baseline.** Still unmeasured.
+- [ ] **OG image typography fidelity.** Instrument_Serif still falls
+      back to `ui-serif` in `opengraph-image.tsx`.
+
+---
+
 ## 2026-05-13 — Field Notes rebuilt as display pull-quotes + Review JSON-LD + cheap wins
 
 **Area.** Chapter 04, "From the chromatically committed." — the
