@@ -1,0 +1,63 @@
+# Aspirations — 5 sites BFS aspires to surpass on its own terms.
+#
+# Read by:
+#   - reference-scout — biases toward moves that would close gaps
+#     against these specifically.
+#   - critic (monthly) — uses these as the comparison floor when
+#     writing the ruthless review.
+#   - creativity-reset — looks here when the auditors run dry.
+#   - retro (weekly) — "are we closer or further?" check.
+#
+# NOT a copy target. The point is to surpass on *editorial register +
+# craft*, not to replicate their visual identity.
+
+version: 1
+aspirations:
+  - id: bureau-borsche
+    name: Bureau Borsche
+    url: https://bureauborsche.com
+    why: Editorial typography that *behaves* — ligature swaps, kerning under
+      pointer, alternates as a reading cue. Type as live craft, not asset.
+
+  - id: locomotive
+    name: Locomotive
+    url: https://locomotive.ca
+    why: Motion as navigation, not decoration. Page-turn transitions, held
+      mastheads, content sliding under chrome rather than scrolling past it.
+
+  - id: pentagram
+    name: Pentagram
+    url: https://pentagram.com
+    why: Composed editorial spreads with deliberate errata, baseline
+      breaks, marginalia. The bar for "this is a printed object, not a
+      webpage."
+
+  - id: family-new-york
+    name: Family New York
+    url: https://familynewyork.com
+    why: Display typography that re-settles after scroll — optical-size and
+      grade axes treated as instruments. Restraint with consequence.
+
+  - id: studio-lin
+    name: Studio Lin
+    url: https://studiolin.org
+    why: Technical-drawing register on figures (hairline dimension callouts,
+      compass ticks, italic numerals). BFS now has this on product portraits;
+      Studio Lin still does it better in composition and stakes.
+
+# Optional: competitor sites (vs. aspirational sites). These are
+# commercial peers in the editorial-commerce / stationery space the
+# routine should be aware of. Used by the future competitor-scan agent.
+competitors:
+  - id: baron-fig
+    name: Baron Fig
+    url: https://baronfig.com
+    why: Editorial commerce, stationery, brand-led product copy.
+  - id: notem
+    name: NOTEM Studio
+    url: https://notem.studio
+    why: Minimal stationery brand with deliberate art direction.
+  - id: hightide
+    name: Hightide Store
+    url: https://hightide-online.com
+    why: Japanese stationery; clarity, restraint, dense product spreads.
