@@ -9,6 +9,7 @@ import {
   useSyncExternalStore,
 } from "react";
 import type { ComponentType } from "react";
+import Link from "next/link";
 import * as cart from "@/lib/cart";
 import {
   products as productData,
@@ -64,7 +65,6 @@ export function CartDrawer() {
     cart.getCart,
     cart.getServerSnapshot
   );
-  const [confirming, setConfirming] = useState(false);
   const panelRef = useRef<HTMLDivElement | null>(null);
   const closeBtnRef = useRef<HTMLButtonElement | null>(null);
   const returnFocusRef = useRef<HTMLElement | null>(null);
@@ -83,7 +83,6 @@ export function CartDrawer() {
 
   const handleClose = useCallback(() => {
     setOpen(false);
-    setConfirming(false);
   }, []);
 
   useEffect(() => {
@@ -135,16 +134,6 @@ export function CartDrawer() {
     () => cart.subtotal(lines, priceLookup),
     [lines]
   );
-
-  const onCheckout = () => {
-    if (lines.length === 0) return;
-    setConfirming(true);
-    window.setTimeout(() => {
-      cart.clear();
-      setConfirming(false);
-      handleClose();
-    }, 1600);
-  };
 
   return (
     <div
@@ -295,30 +284,25 @@ export function CartDrawer() {
                 <dd>at the threshold</dd>
               </div>
             </dl>
-            <button
-              type="button"
-              onClick={onCheckout}
+            <Link
+              href="/checkout"
+              onClick={handleClose}
               className="cart-drawer-cta"
               data-cursor="link"
-              data-cursor-label={confirming ? "Sent" : "Cross"}
-              data-confirming={confirming ? "true" : "false"}
-              disabled={confirming}
+              data-cursor-label="Proceed"
             >
               <span className="cart-drawer-cta-label">
                 <span className="cart-drawer-cta-default">
-                  Cross the threshold
-                </span>
-                <span className="cart-drawer-cta-confirm" aria-hidden>
-                  Sealed
+                  Proceed to checkout
                 </span>
               </span>
               <span className="cart-drawer-cta-glyph" aria-hidden>
                 <span className="cart-drawer-cta-glyph-arrow">↗</span>
-                <span className="cart-drawer-cta-glyph-check">✓</span>
               </span>
-            </button>
+            </Link>
             <p className="cart-drawer-fineprint">
-              A formality. No payment routed in this volume.
+              Bind &amp; dispatch on the next page. No payment routed in this
+              volume.
             </p>
           </footer>
         ) : null}
