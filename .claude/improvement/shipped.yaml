@@ -175,7 +175,7 @@ items:
 
   - id: index-menu-mobile-toc
     title: Editorial Index overlay — italic-serif trigger opens dot-leader TOC for mobile nav
-    commit: pending
+    commit: be5f4c2
     date: 2026-05-13
     surface: nav
     tags: [nav, mobile, toc, dialog, focus-trap, dot-leader, folio, italic-serif, scroll-lock]

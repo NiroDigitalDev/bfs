@@ -10,7 +10,7 @@ version: 1
 
 # Last-run telemetry — written at the end of every run.
 last_run_at: 2026-05-13T01:00:00Z
-last_run_commit: pending   # backfilled after commit
+last_run_commit: be5f4c2
 last_run_mode: shipped   # shipped | no-focus | pr-opened
 
 # Anti-stagnation — incremented on every no-focus run, reset to 0 on ship.
