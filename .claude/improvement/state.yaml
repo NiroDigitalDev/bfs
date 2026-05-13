@@ -38,3 +38,17 @@ lighthouse_available: unknown
 # if exceeded. Recorded here so a freshly-archived run doesn't try again.
 last_archival_at: ""
 improvements_md_bytes: 0
+
+# Notion integration — fixed IDs for the BFS workspace surfaces. The
+# routine reads Tasks at Phase 0 (task-driven mode override) and writes
+# Reports at Phase 6 (one row per run, regardless of mode).
+notion:
+  bfs_page_id: "35faf8d3-d3e2-813e-a3f9-c18490bb175d"
+  bfs_page_url: "https://www.notion.so/35faf8d3d3e2813ea3f9c18490bb175d"
+  reports_data_source_id: "d5e22a6f-6794-411b-b959-12c6b1bdce5a"
+  reports_database_id: "60cc3221-8e8a-42da-b926-20cd32d6c8bb"
+  tasks_data_source_id: "2c089178-0df6-4757-97f9-6b8ce6a0f23b"
+  tasks_database_id: "f0d21637-51a7-4748-89f7-e8fedff3cb87"
+  projects_data_source_id: "256af8d3-d3e2-805a-affe-000ba3c6f3f9"
+  mcp_server_prefix: "mcp__625e67a9-bbc3-4f5e-b0ed-f5619218dd84__"
+  available: unknown  # set to true/false after Phase 0 probe
