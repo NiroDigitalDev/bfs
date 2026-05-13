@@ -214,8 +214,16 @@ items:
     summary: The five .chapter-rail-rule hairlines now bind their width (14px → 32px) and opacity (0.45 → 1.0) to each chapter's live IntersectionRatio via a new `--rail-fill` CSS custom property set inline per link. useActiveChapter() refactored from `string` to `{ activeId, ratios }` so the same IntersectionObserver that drives the active-chapter highlight also exposes the per-chapter progress map (zero second observer added). Reduced-motion snaps the rule to a 14px-baseline / 32px-active binary so the rail doesn't twitch on every scroll-tick. Hover / focus-visible / aria-current still force the full draw — keyboard users always see the active rail at its maximum. CSS-only motion vocabulary lift; net +29 LOC.
   - id: journal-scaffolding-route-and-seed-post
     title: /journal index + [slug] route + seed post + .journal-prose
-    commit: pending
+    commit: f581b19
     date: 2026-05-13
     surface: system
     tags: [journal, route, ssg, editorial, article-jsonld, blog-jsonld, breadcrumb-jsonld, journal-prose, split-text, reveal, magnetic, tilt, foundation]
-    summary: Editorial Journal surface — /journal index, /journal/[slug] post page (asymmetric two-word display title, outline-stroke word 2, italic-serif aside, byline), reusable .journal-prose CSS block (h2/h3/p/blockquote/code/pre/anchors all in BFS register), seed piece "The typography of black." with full JSX body, RelatedJournalPosts component, Article + Breadcrumb + Blog JSON-LD, prefers-reduced-motion guard. Subtask 1/2 of parent "Blog posts" Notion task; [2/2] (OG images + RSS + sitemap entries) queued.
+    summary: Editorial Journal surface — /journal index, /journal/[slug] post page (asymmetric two-word display title, outline-stroke word 2, italic-serif aside, byline), reusable .journal-prose CSS block (h2/h3/p/blockquote/code/pre/anchors all in BFS register), seed piece "The typography of black." with full JSX body, RelatedJournalPosts component, Article + Breadcrumb + Blog JSON-LD, prefers-reduced-motion guard. Subtask 1/2 of parent "Blog posts" Notion task; [2/2] (OG images + RSS + sitemap entries) queued. Merged via PR #5 — commit backfilled from `pending` by the [2/2] /journal SEO run.
+
+  - id: journal-seo-og-images-rss-sitemap
+    title: /journal SEO — per-post OG images + RSS feed + sitemap entries + RSS link alternate
+    commit: pending
+    date: 2026-05-13
+    surface: seo
+    tags: [journal, seo, og-image, ImageResponse, rss, rss-2.0, route-handler, sitemap, alternates, application-rss-xml, syndication, content-only]
+    summary: SEO layer on top of the /journal scaffolding shipped earlier today. Per-post OpenGraph image at /journal/[slug]/opengraph-image (1200×630, matte-black ground, italic-serif title in dim white, hairline rule, italic subtitle aside, BFS · By <author> + edition signoff, prerendered via SSG for every slug). RSS 2.0 feed at /journal/rss.xml as a force-static route handler — channel + atom:link rel=self + RFC 822 pubDates + XML-escaped titles/excerpts/authors. sitemap.ts extended with /journal (priority 0.7) and one entry per post (priority 0.6), lastModified bound to post.publishedAt. /journal head emits `<link rel="alternate" type="application/rss+xml" href="/journal/rss.xml" title="Blacks For Sale · Journal" />` via Next's metadata.alternates.types — autodiscovered by feed readers without imperative head injection. Subtask 2/2 of parent "Blog posts" Notion task (now Done).

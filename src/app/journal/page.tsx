@@ -9,7 +9,14 @@ export const metadata: Metadata = {
   title: "Journal",
   description:
     "Editorial dispatches from the press at Blacks For Sale — notes on monochrome, paper, and the italic.",
-  alternates: { canonical: "/journal" },
+  alternates: {
+    canonical: "/journal",
+    types: {
+      "application/rss+xml": [
+        { url: "/journal/rss.xml", title: `${site.name} · Journal` },
+      ],
+    },
+  },
   openGraph: {
     type: "website",
     url: "/journal",

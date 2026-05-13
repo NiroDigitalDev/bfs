@@ -5,6 +5,160 @@ One entry per run. Newest first.
 
 ---
 
+## 2026-05-13 — /journal SEO layer — per-post OG images + RSS feed + sitemap entries + RSS link alternate
+
+**Area.** SEO surface. Sits on top of the `/journal` scaffolding
+shipped earlier today (`f581b19`, PR #5). No visual changes to the
+rendered pages — this run is the syndication / discovery layer the
+scaffolding deferred.
+
+**Why it's the focus.** Notion task-driven: this is the only `To do`
+row on the BFS Tasks DB
+([35faf8d3…8119](https://www.notion.so/35faf8d3d3e281198429e2d246c164d1)),
+the explicit `[2/2]` follow-up of the parent "Blog posts" task. Its
+dependency (subtask `[1/2]`, journal scaffolding) merged earlier
+today via auto-merge Step 8.5, unblocking this run.
+
+**Mode.** Task-driven (Phase 1 + Phase 2 skipped — risk band and
+brief read directly from the Notion page body; `Ship description`
+property was empty, body was authoritative).
+
+**Risk band.** `low` (per body brief): 2 new files + 2 modified, no
+primitive changes, no layout changes, no client JS delta, content-
+only routes. Direct-to-main.
+
+**What ships.**
+
+- **`src/app/journal/[slug]/opengraph-image.tsx`** (new) — per-post
+  1200×630 OG image via `next/og` `ImageResponse`. Layout mirrors
+  the homepage and `/supplies/[id]` OG templates: matte-black ground,
+  Instrument Serif italic title rendered in dim white at 124px, a
+  240px hairline rule under the title, italic subtitle aside,
+  eyebrow `Journal · Piece <Roman numeral>` with date, footer
+  `<BFS name> · By <author>` + `<edition>` signoff. `generateStaticParams`
+  enumerates every slug so the image is prerendered as static
+  content (no runtime work on every share).
+- **`src/app/journal/rss.xml/route.ts`** (new) — RSS 2.0 route
+  handler at `/journal/rss.xml`. `export const dynamic = "force-static"`
+  so Turbopack prerenders the feed at build time. Channel: title,
+  link, `<atom:link rel="self" />`, description, language `en-us`,
+  `<lastBuildDate>` = newest post's `publishedAt`. Per-item: title,
+  absolute link, `<guid isPermaLink="true">`, `<pubDate>` in
+  RFC 822, author, XML-escaped description (excerpt). `Content-Type:
+  application/rss+xml; charset=utf-8`. `Cache-Control: s-maxage=3600,
+  must-revalidate`.
+- **`src/app/sitemap.ts`** (modified) — adds `/journal`
+  (`priority: 0.7`, `lastModified` bound to the newest post) and
+  one entry per post at `/journal/<slug>` (`priority: 0.6`,
+  `lastModified` per post). Existing `/` and 6 `/supplies/<id>`
+  entries unchanged.
+- **`src/app/journal/page.tsx`** (modified) — adds
+  `alternates.types["application/rss+xml"]` to the static metadata.
+  Next renders the corresponding `<link rel="alternate"
+  type="application/rss+xml" href="/journal/rss.xml" title="Blacks
+  For Sale · Journal" />` autodiscovery tag into the prerendered
+  head — verified in `.next/server/app/journal.html` SSR.
+
+**Architecture.** Pure server-side / build-time. Zero new client JS,
+zero new components, zero new design tokens. Reuses `next/og`
+`ImageResponse` (already used by `/opengraph-image` and
+`/supplies/[id]/opengraph-image`). The RSS XML is hand-rolled
+(20-line generator + `xmlEscape` + RFC 822 formatter) rather than
+pulling in a feed package — keeps dependency surface at zero. The
+OG image renders italic Instrument-style serif via
+`fontStyle: "italic"` against `fontFamily: "ui-serif, Georgia, serif"`
+(Vercel's `next/og` ships system serif fallbacks; no font file
+shipped, no extra Edge runtime weight). Pulling `getAllPosts()` /
+`getPostBySlug()` into all three new surfaces means a single
+`src/data/journal/index.ts` registry remains the source of truth for
+the entire journal — adding a post implicitly extends sitemap, RSS,
+and OG-image enumeration.
+
+**Verification.**
+- `bun run lint` → 0 errors (7 pre-existing warnings in
+  `.claude/improvement/scripts/*` only).
+- `bunx tsc --noEmit` → clean.
+- `bun run build` → 24 routes prerendered (was 22). New entries:
+  `/journal/rss.xml` (Static), `/journal/[slug]/opengraph-image` →
+  `/journal/vol-iii-no-1-the-typography-of-black/opengraph-image`
+  (SSG).
+- SSR grep (`.next/server/app/journal.html`):
+  `<link rel="alternate" type="application/rss+xml"
+  title="Blacks For Sale · Journal"
+  href="http://localhost:3000/journal/rss.xml"/>` present.
+- SSR grep (`.next/server/app/sitemap.xml.body`):
+  `<loc>http://localhost:3000/journal</loc>` (priority 0.7) and
+  `<loc>http://localhost:3000/journal/vol-iii-no-1-the-typography-of-black</loc>`
+  (priority 0.6) both present alongside the 6 PDP entries.
+- SSR grep (`.next/server/app/journal/rss.xml.body`): valid RSS 2.0
+  — `<rss version="2.0">` root, `<channel>` with title / link /
+  atom:link rel=self / description / language / lastBuildDate; one
+  `<item>` for the seed post with title, absolute `<link>`,
+  `<guid isPermaLink="true">`, RFC 822 `<pubDate>` (`Wed, 13 May
+  2026 00:00:00 GMT`), author, XML-escaped description.
+- `anti-patterns.mjs` → `patterns: 0`.
+- Lighthouse — skipped (content-only routes, no perceivable LCP/CLS
+  surface change to measure; per `perf-a11y.md` heuristic, poor
+  signal-to-cost).
+- Visual diff — skipped (no visible rendered-page diff; the change
+  surfaces in HTTP headers, prerendered XML, prerendered head
+  metadata, and a build-time image route — none captured by
+  `visual-diff.mjs`).
+- SOTD comparison — skipped this run (SEO/syndication layer is not
+  a SOTD-comparable surface; the design-quality vocabulary lives in
+  the page body, not in the feed).
+
+**Rubric.** (Self-rated, from the Notion brief.)
+T 2 · M 3 · L 3 · I 1 · A 2 · D 1 = 12 / 18. Low distinctiveness as
+specced — SEO/feeds are infrastructure, not a typographic move.
+What raises this above noise is **completeness of the journal
+surface** as a published thing: a reader can subscribe via RSS, a
+sharer gets a brand-coherent OG image rather than the homepage
+fallback, and a search engine sees `/journal` + post URLs in the
+sitemap with the correct `lastModified` semantics.
+
+**Notion.**
+- Task page (Done after this run completes):
+  https://www.notion.so/35faf8d3d3e281198429e2d246c164d1
+- Reports row appended this run (BFS Reports DB).
+
+**Expected impact.**
+- Feed readers can autodiscover and subscribe to BFS journal posts
+  (`<link rel="alternate" type="application/rss+xml">` in the
+  `/journal` head; the feed itself returns valid RSS 2.0 with one
+  item that will grow as posts ship).
+- Per-post OG images give Twitter/Bluesky/Mastodon/iMessage shares
+  of journal posts a brand-coherent preview card instead of the
+  generic site OG, matching the visual register already used by
+  `/supplies/[id]` shares.
+- Sitemap entries surface `/journal` and journal posts to
+  search-engine crawlers with `lastModified` semantics bound to
+  publication date (not build time), which is the signal Googlebot
+  actually reads.
+
+**Files modified.**
+
+- `src/app/journal/[slug]/opengraph-image.tsx` (new, ~130 LOC)
+- `src/app/journal/rss.xml/route.ts` (new, ~65 LOC)
+- `src/app/sitemap.ts` (modified, +17 −1 LOC)
+- `src/app/journal/page.tsx` (modified, +9 −1 LOC)
+- `.claude/improvement/shipped.yaml` (append new entry; also
+  backfilled `commit: pending → f581b19` on the prior
+  `journal-scaffolding-route-and-seed-post` entry, since
+  `pr-status.mjs` had not picked up that PR-#5 merge SHA on a
+  previous cron run)
+
+**Follow-ups uncovered.**
+
+- (none) — the brief and acceptance criteria are fully closed by
+  this ship.
+
+**Periodic triggers fired.** None this run. `last_retro_at`,
+`last_critic_at` both today; `shipped_count` was 24 (next
+calibration at 30); `consecutive_no_focus_runs` was 0.
+
+---
+
 ## 2026-05-13 — Cron now auto-merges its own high-risk PRs (Step 8.5)
 
 **Area.** The improvement-cycle routine (`~/.claude/scheduled-tasks/improvement-cycle/SKILL.md`)
