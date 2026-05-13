@@ -5,6 +5,162 @@ One entry per run. Newest first.
 
 ---
 
+## 2026-05-13 — Custom editorial 404 — "Not / Found." composition, rotated 404 spine, errata ribbon
+
+**Area.** A new top-level route: the 404 page. Previously the site shipped
+the framework default — a bare, monochrome system message at
+`/_not-found`. Every prior run's editorial register stopped at the edges
+of `/`; the 404 was the one surface that still read as a stock Next.js
+build artifact.
+
+**Why this was the highest-leverage target.**
+Awwwards, SOTD, and FWA jurors test 404s. They are a craft signal — a
+site that has worked its register down to its error states is a site
+that has been finished. For a single-page conceptual brand whose entire
+proposition is "deliberate, edited, editorial," shipping the generic
+framework 404 was the loudest remaining template-feel surface on the
+site. The fix is also genuinely scoped: a new file, a new CSS block,
+zero risk to the working tree of the homepage, and a clean diff that
+exercises every primitive already invested in (Reveal, SplitText,
+Magnetic, the hero typographic composition, the outro wordmark).
+
+Three open follow-ups from prior runs (apple-icon, OG image font
+embedding, footer dead-link audit) were considered but skipped this
+round: they are tighter brand-coherence wins, but none of them are
+*visible at gallery scale* the way a 404 page is when a visitor hits
+one.
+
+**Design pass.**
+Composition mirrors the hero spread so the 404 reads as a sibling
+chapter, not an exception:
+
+- A **top register strip** carries `Status · 404 · Reference not
+  found` on the left (with the same pulsing meta-dot the hero uses)
+  and `Lat 0° 0′ N · Lon 0° 0′ W` on the right — the same coordinates
+  ledger that runs through the chapter colophons and outro.
+- A **rotated edge spine** down the left edge (desktop only)
+  carries `404 / · / Permanent vacancy` in the same `letter-spacing:
+  0.42em` editorial smallcaps as the hero's `001 / Volume · Catalogue`
+  spine.
+- The **display title** is `Not / Found.` set in the hero composition:
+  word 1 solid, word 2 outlined with `-webkit-text-stroke`, the period
+  filled, fluid type at `clamp(72px, 16vw, 288px)`, word 2 negative-
+  margined over word 1 and shifted right (the Werkplaats / Pentagram
+  asymmetric move). SplitText carries the staggered enter.
+- A **serif-italic eyebrow** `Filed under absences.` sits under the
+  title with the same hairline rule + serif italic as the hero aside.
+- The **lede** is a single brand-voice paragraph: "The catalogue does
+  not list this entry. Either the binding came loose, or it was never
+  pressed — the void keeps no inventory of what it has erased."
+- **Two CTAs**, both wrapped in `Magnetic`: primary "Return to the
+  volume" → `/`, ghost "Browse the catalogue" → `/#supplies`. Both
+  use `next/link` for client-side navigation back into the SPA.
+- A **spec ribbon** below the lede in the hero-spec register:
+  `Status / 404 · Not found`, `Filed under / Errata, Vol. III` (serif
+  italic), `Index entry / None` (serif italic).
+- A **marginalia § note** in italic serif: "A page that has been
+  bound and shelved here is, by definition, in print. The reverse
+  also holds." — a brand-voice rhetorical flourish that doubles as a
+  permission slip for any reader who arrived by accident.
+- A **foot register grid** matching the outro: `BFS · Errata`,
+  `Lat 0° · Lon 0°`, `Edition III · MMXXVI`, `Folio · 404`.
+- A **closing wordmark** `404` at `clamp(38vw, 46vw, 56vw)` rendered
+  as a 1px outline-stroke — identical typographic treatment to the
+  outro `BFS` wordmark, so the page signs off in the same register
+  it opened in.
+
+**Implementation.**
+- `src/app/not-found.tsx` *(new)* — server component (no `"use client"`)
+  composed from existing client primitives (`Reveal`, `SplitText`,
+  `Magnetic`). `metadata` export sets a custom `title`
+  (`Reference not found`, which threads through the layout template
+  to `Reference not found · Blacks For Sale`), a description string,
+  and `robots: { index: false, follow: true }` so the 404 is not
+  indexed but its outbound links still pass crawl signal back to the
+  homepage. Internal navigation uses `next/link` `Link` (caught and
+  fixed in the lint pass from a first revision that used bare `<a>`).
+- `src/app/globals.css` — appended a single `============ 404 / NOT
+  FOUND ============` block (~290 lines) under the chapter rail
+  rules. New class namespace: `.nf*` (not-found). Mirrors the hero
+  patterns by *reading them*, not by extending them: the 404 has
+  no shared selectors with hero or outro, so a future change to
+  either won't accidentally drift the 404, and a future change to
+  the 404 won't touch the working homepage. One `prefers-reduced-
+  motion` guard on the pulsing register dot.
+
+**Verification.**
+- `bun run lint` — clean after `<a>` → `next/link` `Link` fix.
+- `bunx tsc --noEmit` — clean.
+- `bun run build` — clean. 5 routes prerendered statically:
+  `/`, `/_not-found` (now the custom page), `/opengraph-image`,
+  `/robots.txt`, `/sitemap.xml`.
+- Static HTML inspection of `.next/server/app/_not-found.html`:
+  - `<title>Reference not found · Blacks For Sale</title>` rendered
+    correctly via the layout's title template.
+  - `<meta name="robots" content="noindex, follow">` emitted.
+  - 23 distinct `.nf*` classes present in the DOM (`.nf`, `.nf-frame`,
+    `.nf-title`, `.nf-outline`, `.nf-period`, `.nf-edge*`,
+    `.nf-spec*`, `.nf-marginalia*`, `.nf-foot`, `.nf-wordmark`).
+  - All editorial copy strings present: "Reference not found",
+    "Filed under absences", "Permanent vacancy", "Return to the
+    volume", "404 · Not found", "Errata, Vol. III".
+  - Both CTAs render as `<a>` with the correct hrefs (`/` and
+    `/#supplies`) and carry the `data-cursor` attributes for the
+    custom cursor.
+  - `aria-label="Not found."` on the `<h1>` so the SplitText'd
+    `aria-hidden` spans announce a single readable string to AT
+    instead of letter-by-letter.
+
+**Expected impact.**
+- Awwwards / SOTD / FWA judging surface: the framework default 404
+  is now a purposeful, brand-coherent editorial page. This is a
+  small craft signal but it's the kind of detail jurors check.
+- Brand coherence on real-world mistakes: typos in URLs, stale links
+  from search, deep-links to deleted anchors — all now land on a
+  page that reads in the same voice as the rest of the site rather
+  than dumping the visitor onto a bare framework error state.
+- SEO: `robots: noindex, follow` means the page itself stays out of
+  the index (correct — 404s should not be indexed), but its links
+  to `/` and `/#supplies` are still crawled, which routes any crawl
+  budget hitting bad URLs back into the live surface.
+- No CLS, no new client JS dependencies, no new fonts, no new
+  external requests. Static prerendered as part of the existing
+  `_not-found` route.
+
+**Files modified.**
+- `src/app/not-found.tsx` *(new)*
+- `src/app/globals.css` *(appended `.nf*` block, ~290 lines)*
+
+**Follow-ups uncovered (TODO for future runs).**
+
+- [ ] **Audit decision still pending: footer dead links.** Terms /
+      Privacy / Studio / Instagram in the outro all still resolve
+      to `#`. The Studio one in the disclaimer-base nav is now
+      `mailto:` (since the colophon ship), but the four in the
+      outro-links remain placeholders. Decide per link in a future
+      run: implement, remove, or annotate as deliberate placeholders
+      for a conceptual brand.
+- [ ] **`apple-icon.tsx` + `manifest.ts` still open.** Next.js 16
+      supports both as programmatic routes. Would close the iOS/
+      Android home-screen icon gap and let the brand square mark
+      pin as `#000` on installs.
+- [ ] **OG image still falls back to `ui-serif`.** Embedding
+      Instrument Serif as a base64 buffer in `opengraph-image.tsx`
+      would tighten brand coherence at the share moment.
+- [ ] **Newsletter form is inert.** `Newsletter` accepts an email
+      and shows "Received. Dispatch is rare…" but POSTs nowhere. A
+      future run should either wire it (Buttondown, Resend, etc.)
+      or rephrase the success state so it's truthful.
+- [ ] **Marquee + tilt reduced-motion guards.** The audit flagged
+      that `.marquee-track` infinite animation and `.tilt` transform
+      loop don't currently pause under `prefers-reduced-motion`.
+      Small, safe a11y polish.
+- [ ] **Lighthouse baseline.** Still unmeasured. A first pass would
+      let future runs target the worst real metric instead of
+      audit-derived hunches.
+
+---
+
 ## 2026-05-13 — FAQ editorial unfold: italic § toggle, "Reply." marginalia, permalinks + @id
 
 **Area.** Chapter 05, "On Record" — the six-question FAQ at the foot of the

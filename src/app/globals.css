@@ -3440,3 +3440,332 @@ html.loading body {
   }
 }
 
+
+/* ============ 404 / NOT FOUND ============
+   Editorial errata page: type-as-imagery title ("Not / Found.")
+   composed in the hero register, a rotated 404 spine, a coordinates
+   ledger top and bottom, a marginalia § note, and a vast 404 wordmark
+   as a closing outline. Mirrors hero + outro classes so the page reads
+   as a sibling spread, not a framework default. No new motion outside
+   the existing Reveal/SplitText/Magnetic primitives; honours
+   prefers-reduced-motion through their guards. */
+.nf {
+  position: relative;
+  min-height: 100svh;
+  padding: 96px 20px 32px;
+  overflow: hidden;
+  isolation: isolate;
+  background:
+    radial-gradient(120% 80% at 50% 0%, #101010 0%, #050505 60%, #000 100%);
+  display: flex;
+  flex-direction: column;
+}
+@media (min-width: 900px) {
+  .nf {
+    padding: 120px clamp(56px, 5vw, 88px) 40px;
+  }
+}
+
+.nf-register {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+  font-weight: 700;
+  margin-bottom: clamp(40px, 6vw, 72px);
+}
+.nf-register-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.nf-register-row.right {
+  text-align: right;
+}
+.nf-register-dot {
+  width: 8px;
+  height: 8px;
+  background: #fff;
+  border-radius: 999px;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+/* Edge stem — same rotated spine as the hero, carries the 404 numeral.
+   Desktop only; on mobile the register strip already announces 404. */
+.nf-edge {
+  display: none;
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: clamp(28px, 3vw, 48px);
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  user-select: none;
+  z-index: 3;
+}
+@media (min-width: 900px) {
+  .nf-edge {
+    display: flex;
+  }
+}
+.nf-edge-stem {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  white-space: nowrap;
+  transform: rotate(-90deg);
+  font-size: 10px;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.48);
+}
+.nf-edge-num {
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+}
+.nf-edge-rule {
+  display: inline-block;
+  width: clamp(40px, 6vw, 72px);
+  height: 1px;
+  background: rgba(255, 255, 255, 0.35);
+}
+
+/* Frame holds the title composition + lede + spec ribbon. */
+.nf-frame {
+  max-width: 1480px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 2;
+  width: 100%;
+}
+.nf-title-stack {
+  position: relative;
+  margin-top: clamp(8px, 2vw, 24px);
+}
+.nf-title {
+  font-size: clamp(72px, 16vw, 288px);
+  line-height: 0.82;
+  letter-spacing: -0.06em;
+  font-weight: 900;
+  text-transform: uppercase;
+  margin: 0;
+  display: block;
+}
+.nf-word {
+  display: block;
+  position: relative;
+}
+.nf-word-1 {
+  letter-spacing: -0.07em;
+}
+/* Word 2 overlaps word 1, shifts right — same composition as hero */
+.nf-word-2 {
+  margin-top: clamp(-0.22em, -2.8vw, -0.08em);
+  padding-left: clamp(8vw, 14vw, 18vw);
+  letter-spacing: -0.05em;
+}
+.nf-outline {
+  color: transparent;
+  -webkit-text-stroke: clamp(1px, 0.2vw, 3.5px) #f4f4f4;
+}
+.nf-period {
+  display: inline-block;
+  color: #fff;
+  margin-left: 0.02em;
+}
+.nf-period .split-char {
+  -webkit-text-stroke: 0;
+}
+.nf-aside {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: clamp(14px, 2vw, 26px);
+  padding-left: clamp(8vw, 14vw, 18vw);
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(18px, 2.4vw, 30px);
+  letter-spacing: 0;
+  text-transform: none;
+  color: rgba(255, 255, 255, 0.62);
+}
+.nf-aside-line {
+  display: inline-block;
+  width: clamp(40px, 6vw, 100px);
+  height: 1px;
+  background: rgba(255, 255, 255, 0.32);
+  flex-shrink: 0;
+}
+
+.nf-bottom {
+  margin-top: clamp(36px, 6vw, 72px);
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: clamp(24px, 3vw, 48px);
+}
+@media (min-width: 900px) {
+  .nf-bottom {
+    grid-template-columns: 1.2fr 1fr;
+    align-items: end;
+  }
+}
+.nf-lede p {
+  font-size: clamp(18px, 1.9vw, 24px);
+  line-height: 1.4;
+  color: rgba(244, 244, 244, 0.82);
+  max-width: 52ch;
+  font-weight: 500;
+}
+.nf-ctas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: center;
+}
+@media (min-width: 900px) {
+  .nf-ctas {
+    justify-content: flex-end;
+  }
+}
+
+/* Spec ribbon — three key/val cells, hairline-ruled like the hero spec. */
+.nf-spec {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 18px;
+  margin-top: clamp(32px, 5vw, 64px);
+  padding-top: clamp(20px, 3vw, 28px);
+  border-top: 1px solid var(--color-line);
+}
+@media (min-width: 720px) {
+  .nf-spec {
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: clamp(20px, 3vw, 48px);
+    align-items: end;
+  }
+}
+.nf-spec-row {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: relative;
+}
+.nf-spec-row + .nf-spec-row {
+  padding-top: 18px;
+  border-top: 1px solid var(--color-line);
+}
+@media (min-width: 720px) {
+  .nf-spec-row + .nf-spec-row {
+    padding-top: 0;
+    border-top: 0;
+  }
+}
+.nf-spec-key {
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--color-fog);
+  font-weight: 700;
+}
+.nf-spec-val {
+  font-size: clamp(20px, 2.2vw, 28px);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+}
+.nf-spec-val--prose {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+/* Marginalia — italic § note set off in the margin, brand voice. */
+.nf-marginalia {
+  max-width: 1480px;
+  margin: clamp(48px, 6vw, 88px) auto 0;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: baseline;
+  gap: 14px;
+  padding-top: clamp(20px, 3vw, 28px);
+  border-top: 1px solid var(--color-line);
+  color: rgba(255, 255, 255, 0.7);
+}
+.nf-marginalia-mark {
+  font-family: var(--font-serif), ui-serif, Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(28px, 3.4vw, 44px);
+  color: rgba(255, 255, 255, 0.55);
+  line-height: 1;
+  transform: translateY(2px);
+}
+.nf-marginalia em {
+  font-family: var(--font-serif), ui-serif, Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(18px, 2vw, 26px);
+  line-height: 1.4;
+  max-width: 56ch;
+  display: block;
+}
+
+/* Foot register — mirrors the outro coordinates ledger. */
+.nf-foot {
+  max-width: 1480px;
+  margin: clamp(56px, 8vw, 96px) auto 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px 14px;
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--color-fog);
+  font-weight: 700;
+  padding-top: clamp(20px, 3vw, 28px);
+  border-top: 1px solid var(--color-line);
+}
+@media (min-width: 720px) {
+  .nf-foot {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+.nf-foot .right {
+  text-align: right;
+}
+
+/* Closing wordmark — same outline-stroke treatment as outro-wordmark, 
+   the page literally signs off as "404" at gallery scale. */
+.nf-wordmark {
+  pointer-events: none;
+  user-select: none;
+  position: relative;
+  margin: clamp(40px, 8vw, 80px) auto 0;
+  font-size: clamp(38vw, 46vw, 56vw);
+  line-height: 0.8;
+  letter-spacing: -0.06em;
+  font-weight: 900;
+  text-align: center;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+  white-space: nowrap;
+  max-height: 34vw;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nf-register-dot {
+    animation: none;
+  }
+}
