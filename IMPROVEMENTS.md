@@ -5,6 +5,267 @@ One entry per run. Newest first.
 
 ---
 
+## 2026-05-13 — Survival Guide rebuilt as hairline-ruled editorial codex (+ bundled a11y fixes)
+
+**Area:** Chapter 02, "On the use of dark paper." — the three-note
+section that sits immediately after the publisher's-mark colophon.
+Replaces the prior `display: grid; repeat(3, 1fr)` SaaS-feeling card row
+(rounded `border-radius: 18px`, `linear-gradient` fill, hover
+`translateY(-6px)`, decorative ghost numeral) with a single hairline-
+ruled, asymmetric editorial codex: three numbered `<li>` rows with
+oversized Instrument Serif italic numerals (01 / 02 / 03) bleeding
+alternating margins, sentence-case titles, and small italic margin-
+note annotations that mirror the publisher's-mark colophon's right-
+column language ("Twelve seconds to set", "Opaque pigment, archival.").
+
+Two adjacent a11y fixes were bundled into the same commit because they
+touch immediately neighbouring code:
+
+1. **Duplicate `id="colophon-heading"`** — the publisher's-mark `<h2>`
+   and the outro footer `<h3>` both carried the same id, and both
+   parent `<section>` elements used `aria-labelledby="colophon-heading"`
+   to claim it. Per HTML spec ids must be unique; screen readers were
+   resolving only the first match, so the outro section was silently
+   losing its accessible name. The outro is now `outro-colophon-heading`.
+2. **Heading hierarchy skip in `<section id="manifesto">`** — the
+   manifesto opened with `<h2>` then jumped straight to `<h4>` for its
+   four numbered items. AX trees building a TOC saw a level skip.
+   The `<h4>` is now `<h3>`; CSS selector updated to match.
+
+**Why this was the highest-leverage target.**
+
+Phase-1 discovery converged on this section from three independent
+directions:
+
+- The **visual auditor** ranked the Survival Guide as a top-3 HIGH-
+  severity finding alongside Press and Testimonials, calling out that
+  the page reads as "two sites, and the second one is a SaaS landing
+  page." Survival is the most adjacent of the three to the just-shipped
+  publisher's-mark colophon and the cleanest extension path — the
+  colophon spent its budget establishing a hairline-ruled, type-as-
+  imagery editorial syntax, and the next section the user scrolls into
+  immediately whiplashes back into 3-card SaaS chrome. One section
+  break does the most damage because of where it sits.
+- The **reference-scout** independently flagged the publisher's mark
+  as a single moment that wants to become a *system* — Pangram Pangram
+  Foundry uses massive serif glyphs not just as one-off heroes but as
+  recurring section dividers tracking with the chapter rail. Promoting
+  the K-glyph register to Chapter 02 via numbered italic 01/02/03 is
+  the cheapest way to turn a one-off flourish into the page's
+  compositional signature.
+- The **technical auditor** found a real HTML-spec / a11y bug
+  (duplicate id) on adjacent code, plus a heading-hierarchy skip in the
+  next section after the one being rewritten. Both are tiny fixes that
+  belong in the same commit since they live within ~200 lines of the
+  primary edit.
+
+Three concerns settled in one ship: the strongest remaining visual
+register break, an extension of the brand's signature compositional
+move into a *system*, and two real a11y bugs adjacent to the work.
+
+Refs scouted in phase 1 for the new register: Pangram Pangram Foundry
+(glyph-as-recurring-divider), Bureau Borsche (numbered editorial
+spreads), MM Paris (hairline-ruled marginalia), Pentagram MIT
+(numbered notes where the number is the composition).
+
+**What changed.**
+
+- `src/app/page.tsx` (was lines 356–401, now ~356–409) — Removed the
+  entire `<div className="survival">` block with its three
+  `<div className="survival-card">` children, the inset
+  `<span className="survival-num">` ghost numerals, and the
+  `<span className="survival-line">` hover-sweep. Replaced with
+  `<ol className="survival-codex">` containing three
+  `<li className="codex-row" data-side="left|right">` items, each
+  composed of:
+  - A `<span className="codex-numeral" aria-hidden>` carrying the
+    visible 01 / 02 / 03 (oversized Instrument Serif italic, weight
+    400, `clamp(96px, 24vw, 140px)` mobile → `clamp(140px, 17vw, 240px)`
+    ≥1100px, white with the same `text-shadow: 0 0 1px rgba(...0.18)`
+    inner-shadow the K colophon uses).
+  - A `<div className="codex-body">` holding `<span class="codex-
+    eyebrow">Note · {I|II|III}</span>` (uppercase, 11px, 0.34em
+    tracked, `border-bottom` hairline at `width: max-content`), the
+    `<h3 className="codex-title">` (sentence-case Inter 700, restored
+    from the prior all-caps treatment), the `<p className="codex-
+    prose">` (`var(--color-text-muted)`, `clamp(14px, 1.05vw, 15px)`,
+    `max-width: 46ch`), and — on rows 01 and 02 only — a
+    `<span className="codex-annotation">` set in Instrument Serif
+    italic for the margin-note echo.
+  - A `<span className="codex-rule" aria-hidden />` for the per-row
+    hairline that fills on hover.
+- `src/app/page.tsx` — Copy refresh on the three notes plus the lede.
+  Section title unchanged ("On the use of dark paper.").
+  - Lede was: *"Three notes for the page in front of you. None of them
+    are optional, all of them are obvious."* — now: *"Three notes on
+    writing into the dark. None optional. None new."* The original
+    repeated the count the oversized numerals will now telegraph;
+    the new lede trades two clauses for two fragments and matches the
+    spec ribbon's cadence.
+  - Title 01: *"Refuse standard ink"* → *"Choose the ink, not the
+    pen."* (editorial observation, not instruction; mirrors the
+    manifesto's "Specification first, slogan second." cadence).
+    Annotation: *"Opaque pigment, archival."*
+  - Title 02: *"Let the page rest"* → *"Let the pigment set."*
+    (material verb instead of soft anthropomorphism; "hold" → "keep"
+    avoids re-using the hero's "hold the dark"). Annotation:
+    *"Twelve seconds to set."* — a deliberate echo of the colophon's
+    annotation, placed beside the body that earns it.
+  - Title 03: *"Anticipate the attention"* → *"Expect to be asked."*
+    (concrete event from the body, not the abstract). Body
+    preserved nearly verbatim; no annotation (a margin note here
+    would gild a closer that wants to land on "single tone").
+- `src/app/page.tsx:443` — `<h4>{m.t}</h4>` → `<h3>{m.t}</h3>` inside
+  the manifesto-list map. Restores the heading hierarchy h2 → h3 → no
+  skip.
+- `src/app/page.tsx:583–586` — outro colophon section's
+  `aria-labelledby="colophon-heading"` and its child `<h3
+  id="colophon-heading">` both renamed to `outro-colophon-heading`.
+  Publisher's-mark `<h2 id="colophon-heading">` at line ~299 keeps the
+  canonical id.
+- `src/app/globals.css` — Deleted the entire prior `.survival, .survival-
+  card, .survival-num, .survival-line, .survival-card:hover, .survival-
+  card:hover .survival-line` block (was lines 1678–1738, ~60 lines).
+  Replaced with `.survival-codex, .codex-row, .codex-numeral, .codex-
+  body, .codex-eyebrow, .codex-title, .codex-prose, .codex-annotation,
+  .codex-rule` (~125 lines) plus two mid-width breakpoints (≥768px
+  and ≥1100px) that swap the row's grid columns for the N-shape
+  asymmetry. Row 1 and Row 3 carry `data-side="left"` (numeral in
+  column 1, body in column 2); Row 2 carries `data-side="right"`
+  (numeral grid-column 2 with `justify-self: end`, body in column 1).
+  DOM order is constant for screen readers — visual placement is
+  purely grid-column override.
+- `src/app/globals.css:1807` — `.manifesto-item h4 { … }` →
+  `.manifesto-item h3 { … }`. Rule body unchanged.
+- `src/app/globals.css:2974–2978` (the reduced-motion block) —
+  Replaced the stale `.survival-line` snap rule with a `.codex-rule`
+  treatment that pins the per-row hairline to a static, half-opacity
+  filled state under `prefers-reduced-motion: reduce`. Row entry
+  animations short-circuit via the existing `.reveal` reduced-motion
+  branch.
+
+**Motion spec.**
+
+- Row enter: each `<li>` wrapped in `<Reveal delay={`${i * 0.09}s`}>` —
+  identical cadence to the `colophon-row` immediately above. The 0.12s
+  delay used by the prior survival-card was inconsistent with the rest
+  of the page's 0.09s staircase; this aligns it.
+- Hover: only the `.codex-rule` width transitions from 0 → 100% over
+  `var(--dur-4)` (`700ms`) with `var(--ease-out-quart)`. The row, the
+  numeral, the title, the body, and the annotation do **not**
+  translate, scale, or change weight. The Awwwards bar for this
+  section was specifically "hover does not lift the card"; the rule
+  fill is a single-property width animation on a 1px element, which
+  is cheap and reads as a printed underline being drawn.
+- Reduced motion: rule snaps to its filled state at half opacity; no
+  Reveal translate or fade.
+
+**Verification.**
+
+- `bun run lint` — clean.
+- `bunx tsc --noEmit` — clean.
+- `bun run build` — clean. Five routes prerendered statically.
+- Live HTML inspection via `bun run start`:
+  - `id="colophon-heading"` appears exactly once (the publisher's-mark
+    `<h2>`); `id="outro-colophon-heading"` appears exactly once (the
+    outro `<h3>`).
+  - Both `aria-labelledby` references on the page (`colophon-heading`,
+    `outro-colophon-heading`) resolve to unique, present ids.
+  - Zero `<h4>` elements anywhere in the rendered HTML (was 4 inside
+    the manifesto-list; all promoted to `<h3>`).
+  - Heading map: 1 × h1, 8 × h2, 14 × h3, 0 × h4. No skips.
+  - Three `.codex-row` `<li>` elements rendered; six in raw count
+    because Next.js 16 also serialises the component tree into the
+    inline RSC flight payload. All three carry the correct
+    `data-side` attribute (left / right / left).
+  - All three `.codex-eyebrow` spans render "Note · I", "Note · II",
+    "Note · III"; all three `.codex-title` headings render the new
+    sentence-case copy ("Choose the ink, not the pen.", "Let the
+    pigment set.", "Expect to be asked.").
+  - Annotations render on rows 01 and 02 only ("Opaque pigment,
+    archival.", "Twelve seconds to set."), correctly absent on row 03.
+  - Zero hits for the legacy `.survival-card`, `.survival-num`,
+    `.survival-line`, `.survival` class names in either source files
+    or rendered DOM.
+  - Adjacent sections (chapter rail, catalogue, FAQ, manifesto,
+    colophon-mark, outro-colophon) all render unchanged.
+
+**Expected impact.**
+
+- Visual register: the only Chapter-02 break from the editorial
+  hairline syntax is gone. Read top-to-bottom the page now flows
+  colophon-mark (spec block) → survival-codex (numbered editorial
+  codex) → manifesto (sticky title + serif credo) — three contiguous
+  variations of the same hairline syntax at three different scales.
+  The publisher's-mark K stops being a one-off flourish and becomes
+  the start of a system.
+- Reading: titles are now editorial observations rather than
+  instructions, which matches the cadence the manifesto and product
+  copy have already earned. The italic-serif annotation column
+  rhymes with the colophon's right column, creating a cross-section
+  callback the page can keep mining.
+- Accessibility: two real bugs fixed. Duplicate id resolves the
+  silent loss of the outro section's accessible name; the h2→h4
+  skip in the manifesto is gone. Heading-map cleanup is also a
+  small SEO win.
+- Performance: net effect is negligible. The new section drops the
+  `linear-gradient` background fill (one paint cost), drops the
+  `transform: translateY(-6px)` hover (one composite cost), and
+  replaces the `transform: translateX(-100%) → 0` line sweep (one
+  composite) with a `width: 0 → 100%` rule fill (one paint). No new
+  JS, no new dependencies, no layout shift on entry.
+
+**Files modified.**
+
+- `src/app/page.tsx`
+- `src/app/globals.css`
+
+**Follow-ups uncovered (TODO for future runs).**
+
+- [ ] **Press section — flex-wrapped logos-as-text grid** still reads
+      as a B2B "as seen in" band. The visual auditor ranked it co-equal
+      HIGH severity with Survival. The reference-scout suggested
+      converting to a single auto-rotating pull-quote (Bureau Borsche /
+      Locomotive style) or a horizontal scrolling ticker of quoted
+      lines. Next run candidate.
+- [ ] **Testimonials section — two-column quote-card pattern** with
+      bordered, rounded (`18px`) cards on hover-lift. Same SaaS
+      chrome as the just-removed Survival cards. Co-equal HIGH
+      severity; ManvsMachine treats testimonials as full-bleed
+      editorial letters. Next-next run candidate.
+- [ ] **Cart "Cross the threshold" silent self-clear** — the cart's
+      single most expensive interaction currently evaporates with a
+      1.6s label flip and no in-character resolution. Content
+      auditor's CRITICAL finding. Needs a brief held "ledger entry"
+      state inside the drawer before the close.
+- [ ] **"Returns accepted, regret negotiable" (marquee) vs FAQ Q05
+      (legalese)** — the marquee promises a posture the FAQ then
+      walks back. Restage one or the other so they rhyme.
+- [ ] **Newsletter success message lives in `placeholder`** of a
+      disabled empty field rather than in an announced status line.
+      Confirmation reads as form failure.
+- [ ] **Hero lede first two sentences** — third sentence is excellent;
+      first two are the page's loosest writing and partly repeat
+      copy that the spec ribbon already states numerically.
+- [ ] **Marquee auto-scroll has no user pause control** (WCAG 2.2.2)
+      — reduced-motion users are covered, but `prefers-reduced-motion`
+      is not a substitute for hover/focus pause for the general case.
+      ~6 lines in globals.css.
+- [ ] **Low-contrast muted text**: `.press-disclaimer` (10px text at
+      0.35 white ≈ 2.6:1 contrast — fails WCAG AA), newsletter
+      placeholder, and a few `.colophon-row-id` glyphs at 0.48 white.
+      Swap to existing `--color-text-muted` (0.65 white ≈ 7:1).
+- [ ] **`apple-icon` + `manifest.webmanifest`** — Next 16 reads
+      `src/app/apple-icon.tsx` and `src/app/manifest.ts` automatically.
+      Tenth run open.
+- [ ] **OG image: load `Instrument_Serif` as buffer** so the OG render
+      matches the page rather than falling back to `ui-serif`.
+- [ ] **Lighthouse baseline** — still unmeasured.
+- [ ] **`turbopack.root` setting** in `next.config.ts` to silence the
+      multi-lockfile workspace-root warning.
+
+---
+
 ## 2026-05-13 — Publisher's mark (stat-band rewritten as type-as-imagery colophon)
 
 **Area:** The interstitial section between Chapter 01 (Catalogue) and

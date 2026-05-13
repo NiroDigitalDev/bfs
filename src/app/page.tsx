@@ -353,7 +353,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Survival Guide */}
+      {/* Survival Guide — editorial codex, hairline-ruled */}
       <section className="section">
         <div className="section-head">
           <span className="section-tag">CH. 02 / Care & Method</span>
@@ -364,39 +364,55 @@ export default function Home() {
             stagger={0.03}
           />
           <p className="section-lede">
-            Three notes for the page in front of you. None of them are
-            optional, all of them are obvious.
+            Three notes on writing into the dark. None optional. None new.
           </p>
         </div>
 
-        <div className="survival">
+        <ol className="survival-codex">
           {[
             {
               n: "01",
-              h: "Refuse standard ink",
-              p: "Dye-based ballpoint dries pale and arrives invisible on coated stock. Use opaque pigment instead — silver gel, white pigment, gold metallic. Ink, here, is a setting; choose it.",
+              roman: "I",
+              h: "Choose the ink, not the pen.",
+              p: "Dye-based ballpoint dries pale and arrives invisible on coated stock. Use opaque pigment — silver gel, white pigment, gold metallic. Ink, here, is a setting.",
+              note: "Opaque pigment, archival.",
             },
             {
               n: "02",
-              h: "Let the page rest",
-              p: "Pigment sits on the surface six to twelve seconds before it bonds. Close a notebook too early and the facing leaf will hold the message for you, less legibly.",
+              roman: "II",
+              h: "Let the pigment set.",
+              p: "Pigment sits on the surface six to twelve seconds before it bonds. Close a notebook too early and the facing leaf will keep the message for you, less legibly.",
+              note: "Twelve seconds to set.",
             },
             {
               n: "03",
-              h: "Anticipate the attention",
-              p: "A black book on the table reads as decision before it is opened. You will be asked. You owe no answer beyond preference. This is the cost of working in a single tone.",
+              roman: "III",
+              h: "Expect to be asked.",
+              p: "A black book on the table reads as decision before it is opened. You will be asked about it. You owe no answer beyond preference. This is the cost of working in a single tone.",
+              note: null,
             },
-          ].map(({ n, h, p }, i) => (
-            <Reveal key={n} delay={`${i * 0.12}s`}>
-              <div className="survival-card">
-                <span className="survival-num">{n}</span>
-                <h3>{h}</h3>
-                <p>{p}</p>
-                <span className="survival-line" />
-              </div>
+          ].map(({ n, roman, h, p, note }, i) => (
+            <Reveal key={n} delay={`${i * 0.09}s`}>
+              <li
+                className="codex-row"
+                data-side={i === 1 ? "right" : "left"}
+              >
+                <span className="codex-numeral" aria-hidden>
+                  {n}
+                </span>
+                <div className="codex-body">
+                  <span className="codex-eyebrow">Note · {roman}</span>
+                  <h3 className="codex-title">{h}</h3>
+                  <p className="codex-prose">{p}</p>
+                  {note && (
+                    <span className="codex-annotation">{note}</span>
+                  )}
+                </div>
+                <span className="codex-rule" aria-hidden />
+              </li>
             </Reveal>
           ))}
-        </div>
+        </ol>
       </section>
 
       {/* Manifesto — sticky title */}
@@ -440,7 +456,7 @@ export default function Home() {
                     {String(i + 1).padStart(2, "0")}
                   </span>
                   <div>
-                    <h4>{m.t}</h4>
+                    <h3>{m.t}</h3>
                     <p>{m.d}</p>
                   </div>
                 </li>
@@ -581,9 +597,9 @@ export default function Home() {
         <Reveal delay="0.45s">
           <section
             className="outro-colophon-wrap"
-            aria-labelledby="colophon-heading"
+            aria-labelledby="outro-colophon-heading"
           >
-            <h3 id="colophon-heading" className="outro-colophon-label">
+            <h3 id="outro-colophon-heading" className="outro-colophon-label">
               <span aria-hidden>§</span>
               <em>Colophon</em>
             </h3>

@@ -1675,66 +1675,140 @@ html.loading body {
   }
 }
 
-/* ============ SURVIVAL ============ */
-.survival {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 18px;
+/* ============ SURVIVAL CODEX ============
+   Editorial spread, hairline-ruled. Extends the publisher's-mark
+   syntax: oversized Instrument Serif italic numerals bleed the
+   margins on alternating rows (N-shape read path). No card chrome,
+   no hover lift; hover only fills a per-row hairline. */
+.survival-codex {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
 }
-@media (min-width: 900px) {
-  .survival {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 22px;
-  }
-}
-.survival-card {
+.codex-row {
   position: relative;
-  border: 1px solid var(--color-line);
-  border-radius: 18px;
-  padding: 36px;
-  background: linear-gradient(180deg, #0a0a0a, #050505);
-  overflow: hidden;
-  transition: border-color var(--dur-2) ease, transform var(--dur-3) ease;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  row-gap: 18px;
+  padding: 32px 0;
+  border-bottom: 1px solid var(--color-line);
 }
-.survival-card:hover {
-  border-color: var(--color-line-2);
-  transform: translateY(-6px);
+.codex-row:first-child {
+  border-top: 1px solid var(--color-line);
 }
-.survival-num {
-  font-size: clamp(80px, 12vw, 160px);
-  font-weight: 900;
-  letter-spacing: -0.06em;
-  line-height: 0.85;
-  color: rgba(255, 255, 255, 0.06);
-  position: absolute;
-  top: 8px;
-  right: 14px;
+.codex-numeral {
+  display: inline-block;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(96px, 24vw, 140px);
+  line-height: 0.82;
+  letter-spacing: -0.04em;
+  color: #ffffff;
+  text-shadow: 0 0 1px rgba(255, 255, 255, 0.18);
   user-select: none;
+  align-self: start;
+  margin-left: -0.04em;
+}
+.codex-body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  min-width: 0;
+}
+.codex-eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: rgba(244, 244, 244, 0.55);
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--color-line);
+  width: max-content;
+  max-width: 100%;
+}
+.codex-title {
+  font-size: clamp(22px, 2vw, 30px);
+  font-weight: 700;
+  letter-spacing: -0.018em;
+  line-height: 1.15;
+  text-transform: none;
+  margin: 16px 0 12px;
+  color: #ffffff;
+}
+.codex-prose {
+  font-size: clamp(14px, 1.05vw, 15px);
+  line-height: 1.6;
+  color: var(--color-text-muted);
+  max-width: 46ch;
+}
+.codex-annotation {
+  display: inline-block;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 14px;
+  letter-spacing: 0.005em;
+  color: rgba(244, 244, 244, 0.55);
+  margin-top: 18px;
+}
+.codex-rule {
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  width: 0;
+  height: 1px;
+  background: var(--color-line-2);
+  transition: width var(--dur-4) var(--ease-out-quart);
   pointer-events: none;
 }
-.survival-card h3 {
-  font-size: clamp(20px, 2vw, 26px);
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  text-transform: uppercase;
-  margin-bottom: 14px;
+.codex-row:hover .codex-rule {
+  width: 100%;
 }
-.survival-card p {
-  font-size: 14px;
-  color: rgba(244, 244, 244, 0.7);
-  line-height: 1.6;
-  max-width: 38ch;
+
+@media (min-width: 768px) {
+  .codex-row {
+    grid-template-columns: minmax(0, 0.55fr) minmax(0, 1.45fr);
+    column-gap: 32px;
+    row-gap: 0;
+    padding: clamp(28px, 4.2vw, 56px) 0;
+  }
+  .codex-row .codex-numeral {
+    grid-column: 1;
+    grid-row: 1;
+    align-self: start;
+  }
+  .codex-row .codex-body {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .codex-row[data-side="right"] .codex-numeral {
+    grid-column: 2;
+    justify-self: end;
+    margin-left: 0;
+    margin-right: -0.06em;
+  }
+  .codex-row[data-side="right"] .codex-body {
+    grid-column: 1;
+  }
+  .codex-numeral {
+    font-size: clamp(120px, 14vw, 180px);
+  }
 }
-.survival-line {
-  position: absolute;
-  inset: auto 0 0 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-  transform: translateX(-100%);
-  transition: transform var(--dur-4) ease;
-}
-.survival-card:hover .survival-line {
-  transform: translateX(0);
+
+@media (min-width: 1100px) {
+  .codex-row {
+    column-gap: clamp(28px, 4vw, 64px);
+  }
+  .codex-numeral {
+    font-size: clamp(140px, 17vw, 240px);
+  }
+  .codex-row[data-side="left"] .codex-numeral {
+    margin-left: -0.06em;
+  }
 }
 
 /* ============ MANIFESTO ============ */
@@ -1804,7 +1878,7 @@ html.loading body {
   color: var(--color-fog);
   padding-top: 6px;
 }
-.manifesto-item h4 {
+.manifesto-item h3 {
   font-size: clamp(22px, 2vw, 30px);
   font-weight: 800;
   letter-spacing: -0.02em;
@@ -2971,10 +3045,11 @@ html.loading body {
     transform: translateX(0);
     opacity: 0.6;
   }
-  /* Snap survival-card line into view */
-  .survival-line {
-    transform: translateX(0);
-    opacity: 0.6;
+  /* Snap codex per-row hairline into its filled, static state */
+  .codex-rule {
+    transition: none;
+    width: 100%;
+    opacity: 0.4;
   }
 }
 
