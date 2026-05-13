@@ -5,6 +5,151 @@ One entry per run. Newest first.
 
 ---
 
+## 2026-05-13 — Editorial errata layer — sitewide `<del>/<ins>` proof corrections
+
+**Area.** System / register. Three placements on the homepage
+across the **catalogue**, **codex**, and **manifesto** surfaces.
+The first two are warm (catalogue + codex shipped recently), the
+third (manifesto) is the historian-flagged **coldest surface** —
+sitewide distribution by design.
+
+**Why it's the focus.** Highest non-disqualified rubric total from
+the still-real backlog with a clean, focused scope. Picked from
+the historian's Top-8 picker-relevant list. Sets up a reusable
+BFS-press vocabulary ("the proof being corrected") that later
+ships can extend to long-form prose (`.journal-prose`) and
+typographic chrome (chapter eyebrows). Not Notion task-driven —
+the Tasks DB had no `To do` rows this run; all 7 user-submitted
+tasks were `Done` or `Split`.
+
+**Mode.** Shipped.
+
+**Risk band.** `low`. Final diff: 2 files (`page.tsx`,
+`globals.css`), 89 net LOC, no shared primitives touched, no
+font / dep / config changes, no SEO surface, no layout-affecting
+transitions. Picker initially banded `medium`; the implementation
+came in well under medium thresholds. Direct-to-main.
+
+**What ships.**
+
+- **Catalogue section-lede** (`src/app/page.tsx:211-220`): "Made
+  in small runs. ~~Stocked when stocked.~~ *Bound when bound.*"
+- **Codex section-lede** (`src/app/page.tsx:399-409`): "Three
+  notes on writing into the dark. None optional. ~~None new.~~
+  *None borrowed.*"
+- **Manifesto credo** (`src/app/page.tsx:471-483`): "On most
+  days, we are a stationery ~~brand~~ *press*. *On the others, a
+  position on colour.*"
+- **`.errata*` CSS block** (`src/app/globals.css:6685-6747`,
+  ~60 lines): `.errata` (inline wrapper), `.errata-cor`
+  (line-through at 0.55 alpha, hairline-color decoration),
+  `.errata-ins` (italic-serif at 0.95 alpha, default `<ins>`
+  underline overridden), `.errata-mark` (decorative "§ corr."
+  superscript marginalia at 0.62em, italic-serif, dimmed 0.42
+  alpha). Hover dims cor to 0.32 and brightens mark to 0.78 via
+  existing `--dur-1` / `--ease-out-quart` tokens. Mobile media
+  query (< 720px) hides the marginalia mark to keep small
+  viewports uncluttered. `prefers-reduced-motion: reduce` zeros
+  both transitions.
+
+**Architecture.** Pure CSS + inline JSX. No new component, no
+new client boundary, no new dep. The markup pattern (5 lines per
+placement) is intentionally inline at 3 placements — a `<Errata>`
+component would be premature abstraction this early in the
+grammar's life. Will revisit if a 4th placement arrives.
+
+**Semantic discipline.** `<del>` and `<ins>` are NOT
+`aria-hidden`. Screen readers announce "deleted: Stocked when
+stocked; inserted: Bound when bound" via native HTML5 semantics —
+the editorial intent reaches AT users at parity with sighted
+readers. The decorative "§ corr." marginalia mark IS
+`aria-hidden` because its job is purely visual (a typesetter's
+note).
+
+**Verification.**
+- `bun run lint` — clean (0 errors, 7 pre-existing warnings in
+  `.claude/improvement/scripts/*.mjs`).
+- `bunx tsc --noEmit` — clean.
+- `bun run build` — clean. 24 / 24 prerendered pages (matches
+  prior run; route inventory unchanged).
+- Perf-a11y — `.errata-cor` contrast ≈ **5.6:1** AA-passing on
+  `#0a0a0a` ground; `.errata-mark` ≈ 3.5:1, acceptable because
+  it's decorative + aria-hidden + desktop-only. Reduced-motion
+  guard correctly scoped to both transitioning selectors.
+  Keyboard focus order unchanged (no new tabbables). Zero JS
+  delta. Zero LCP / CLS / INP risk (inline text, compositor-only
+  transform/opacity).
+- Regression-spotter — all adjacent chrome intact: 1
+  `.chapter-rail`, 1 `.folio`, 1 `.manifesto-credo`, 3
+  `.section-lede`, 6 `.chapter`, plus the 3 new `.errata`
+  instances each carrying `<del>` and `<ins>` children. Non-home
+  routes (`/supplies/<id>`, `/journal`, `/checkout`) still
+  pathname-hide chrome correctly.
+- Diff-reviewer — clean. Hardcoded `rgba(255,255,255,*)` values
+  flagged as **low** severity, deferred-by-design to the existing
+  `hairline-opacity-token-sweep` backlog item rather than
+  pre-empted here.
+- Anti-patterns — 0.
+
+**Rubric.** T3 M1 L2 I2 A2 D3 = **13 / Distinctive**.
+- T 3 — typesetting-as-craft visible to a literate eye
+  (proof correction is literally typesetting vocabulary).
+- M 1 — competent hover transitions only; motion is not the
+  point of this move.
+- L 2 — marginalia composition (superscript "§ corr." note)
+  extends the established hairline / spec-ribbon register.
+- I 2 — every errata rewards hover with the cor dimming and the
+  marginalia mark brightening.
+- A 2 — semantic `<del>/<ins>` carries AT announcement; mark is
+  aria-hidden; contrast passes AA; reduced-motion guarded.
+- D 3 — recognisably BFS at a glance ("the proof being
+  corrected" register, italic-serif inserted phrasing, BFS
+  press-house self-identification in the manifesto correction).
+
+**Screenshots.**
+- Desktop: `.claude/improvement/screenshots/134e661/errata-layer-desktop.png`
+- Mobile: `.claude/improvement/screenshots/134e661/errata-layer-mobile.png`
+
+**SOTD comparison.** `sotd-compare.mjs` skipped — gallery parser
+still flagged unavailable in `state.yaml`; this is a known issue,
+not a regression of this run.
+
+**Notion.** Tasks DB had no `To do` rows this run; this is a
+backlog-driven ship, not task-driven. A Reports row will be
+appended after the commit lands.
+
+**Expected impact.** Establishes a sitewide editorial grammar
+that future ships extend. Three immediately-visible corrections
+add typographic-craft moments on three surfaces that previously
+read as flat prose. The manifesto correction ("brand" → "press")
+also strengthens the BFS self-identification on the coldest
+surface, partially closing the motion-vocabulary-beyond-reveal
+backlog item's "manifesto re-typesetting" remit without claiming
+the full ship.
+
+**Files modified.**
+- `src/app/page.tsx` (+20, -3)
+- `src/app/globals.css` (+62, 0)
+- Total: +82, -3 → 79 net LOC.
+
+**Follow-ups uncovered.**
+- `errata-grammar-journal-prose` — extend `.errata*` styles into
+  `.journal-prose` so journal posts can use the same vocabulary.
+  Small ship (~30 LOC of inheritance / scoping).
+- `errata-grammar-chapter-eyebrow` — evaluate a baseline-break
+  flourish on chapter eyebrows as a separate, more typographically
+  ambitious move (moves T from 2 → 3 on the catalogue surface).
+
+**Backlog closed-by-drift.** None this run.
+
+**Periodic triggers fired.** None this run. `last_retro_at` /
+`last_critic_at` both already at today's date (set earlier today
+when the journal SEO run flipped them); `shipped_count` = 25
+(no rubric calibration trigger, fires on multiples of 10).
+`consecutive_no_focus_runs` = 0 (no creativity-reset).
+
+---
+
 ## 2026-05-13 — /journal SEO layer — per-post OG images + RSS feed + sitemap entries + RSS link alternate
 
 **Area.** SEO surface. Sits on top of the `/journal` scaffolding

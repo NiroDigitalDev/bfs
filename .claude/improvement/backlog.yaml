@@ -228,12 +228,19 @@ items:
     severity: medium
     effort: M
     class: distinctive
-    status: open
+    status: shipped
     opened_on: 2026-05-13
     last_verified: 2026-05-13
     notes: |
-      Reference — Pentagram editorial / Marina Willer. a11y — must use
-      <del>/<ins> so screen readers announce the correction.
+      Shipped 2026-05-13 (commit pending). Three placements added on
+      the homepage: catalogue section-lede ("Stocked when stocked." →
+      "Bound when bound."), codex section-lede ("None new." → "None
+      borrowed."), manifesto credo ("brand" → "press"). Semantic
+      <del>/<ins> markup + "§ corr." marginalia (aria-hidden), all
+      hover/reduced-motion guarded. Reference — Pentagram editorial /
+      Marina Willer. Follow-ups: extend grammar to .journal-prose
+      (errata in long-form journal posts); evaluate baseline-break
+      flourish on chapter eyebrows as a separate move.
 
   - id: view-transitions-page-turn
     title: View Transitions API page-turn between chapters

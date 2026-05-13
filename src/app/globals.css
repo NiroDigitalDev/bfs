@@ -6681,3 +6681,67 @@ main.pdp ~ .folio {
   }
 }
 
+/* ============================================================
+   Errata — editorial proof corrections.
+   Semantic <del>/<ins> pairs read as the press correcting itself
+   in margin. Screen readers announce "deleted: X; inserted: Y" via
+   native <del>/<ins> semantics; the "§ corr." marginalia mark is
+   decorative and aria-hidden.
+   ============================================================ */
+.errata {
+  position: relative;
+  display: inline;
+}
+
+.errata-cor {
+  text-decoration: line-through;
+  text-decoration-color: rgba(255, 255, 255, 0.38);
+  text-decoration-thickness: 1px;
+  text-decoration-skip-ink: none;
+  color: inherit;
+  opacity: 0.55;
+  font-style: inherit;
+  transition: opacity var(--dur-1) var(--ease-out-quart);
+}
+
+.errata-ins {
+  text-decoration: none;
+  font-family: var(--font-serif);
+  font-style: italic;
+  color: inherit;
+  opacity: 0.95;
+}
+
+.errata-mark {
+  display: inline-block;
+  margin-inline-start: 0.4em;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 0.62em;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.42);
+  transform: translateY(-0.45em);
+  transition: color var(--dur-1) var(--ease-out-quart);
+  white-space: nowrap;
+}
+
+.errata:hover .errata-cor {
+  opacity: 0.32;
+}
+
+.errata:hover .errata-mark {
+  color: rgba(255, 255, 255, 0.78);
+}
+
+@media (max-width: 720px) {
+  .errata-mark {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .errata-cor,
+  .errata-mark {
+    transition: none;
+  }
+}

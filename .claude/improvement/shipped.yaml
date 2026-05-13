@@ -227,3 +227,11 @@ items:
     surface: seo
     tags: [journal, seo, og-image, ImageResponse, rss, rss-2.0, route-handler, sitemap, alternates, application-rss-xml, syndication, content-only]
     summary: SEO layer on top of the /journal scaffolding shipped earlier today. Per-post OpenGraph image at /journal/[slug]/opengraph-image (1200×630, matte-black ground, italic-serif title in dim white, hairline rule, italic subtitle aside, BFS · By <author> + edition signoff, prerendered via SSG for every slug). RSS 2.0 feed at /journal/rss.xml as a force-static route handler — channel + atom:link rel=self + RFC 822 pubDates + XML-escaped titles/excerpts/authors. sitemap.ts extended with /journal (priority 0.7) and one entry per post (priority 0.6), lastModified bound to post.publishedAt. /journal head emits `<link rel="alternate" type="application/rss+xml" href="/journal/rss.xml" title="Blacks For Sale · Journal" />` via Next's metadata.alternates.types — autodiscovered by feed readers without imperative head injection. Subtask 2/2 of parent "Blog posts" Notion task (now Done).
+
+  - id: errata-layer
+    title: Editorial errata layer — sitewide <del>/<ins> proof corrections
+    commit: pending
+    date: 2026-05-13
+    surface: system
+    tags: [catalogue, codex, manifesto, errata, del, ins, semantic-html, proof-correction, marginalia, editorial, micro-interaction, hover, prefers-reduced-motion, no-js]
+    summary: Three semantic `<del>/<ins>` errata pairs added on the homepage — catalogue section-lede ("Stocked when stocked." → "Bound when bound."), codex section-lede ("None new." → "None borrowed."), manifesto credo ("brand" → "press"). New `.errata*` CSS block (~60 lines, globals.css:6685+) styles strikethrough at 0.55 alpha with hairline color, inserted text in italic-serif at 0.95 alpha, and a decorative "§ corr." superscript marginalia mark (aria-hidden, hidden < 720px). `<del>` and `<ins>` are NOT aria-hidden — screen readers announce "deleted: X; inserted: Y" via native semantics. Hover: cor dims to 0.32, mark brightens to 0.78 via `--dur-1`/`--ease-out-quart` tokens. `prefers-reduced-motion` zeros transitions. Establishes a sitewide BFS-press grammar future ships can extend (journal-prose, chapter eyebrows). Pure CSS — zero client JS delta. Rubric T3 M1 L2 I2 A2 D3 = 13 / Distinctive.

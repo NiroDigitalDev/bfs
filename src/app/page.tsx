@@ -210,7 +210,14 @@ export default function Home() {
           />
           <p className="section-lede">
             Six objects, each engineered around a single hue. Made in small
-            runs. Stocked when stocked.
+            runs.{" "}
+            <span className="errata">
+              <del className="errata-cor">Stocked when stocked.</del>{" "}
+              <ins className="errata-ins">Bound when bound.</ins>
+              <span className="errata-mark" aria-hidden>
+                § corr.
+              </span>
+            </span>
           </p>
         </div>
 
@@ -393,7 +400,14 @@ export default function Home() {
             stagger={0.03}
           />
           <p className="section-lede">
-            Three notes on writing into the dark. None optional. None new.
+            Three notes on writing into the dark. None optional.{" "}
+            <span className="errata">
+              <del className="errata-cor">None new.</del>{" "}
+              <ins className="errata-ins">None borrowed.</ins>
+              <span className="errata-mark" aria-hidden>
+                § corr.
+              </span>
+            </span>
           </p>
         </div>
 
@@ -456,7 +470,15 @@ export default function Home() {
               stagger={0.03}
             />
             <p className="manifesto-credo">
-              On most days, we are a stationery brand.
+              On most days, we are a stationery{" "}
+              <span className="errata">
+                <del className="errata-cor">brand</del>{" "}
+                <ins className="errata-ins">press</ins>
+                <span className="errata-mark" aria-hidden>
+                  § corr.
+                </span>
+              </span>
+              .
               <em> On the others, a position on colour.</em>
             </p>
           </aside>
