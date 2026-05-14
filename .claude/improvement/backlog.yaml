@@ -1353,3 +1353,301 @@ items:
     notes: "Bookkeeping — Phase 6 in the same run should complete this; this backlog entry exists as a safety-net if the Notion write fails this run."
     opened_on: 2026-05-14
     dq_count: 0
+
+  - id: journal-prose-figure-pull-quote-marginalia-vocabulary
+    title: "Journal prose — pull-quote and marginalia vocabulary"
+    ship: |
+      Add a .pull-quote full-bleed-italic-serif variant (clamp(28→48), italic-serif,
+      with a hairline rule above and an italic-smallcaps <cite> attribution under)
+      and a .margin-note left-margin marginalia rule (small italic in margin at
+      >900px, inline-bracketed under). Then upgrade vol-iii-no-1's "A page that
+      admits no light…" blockquote to use the new pull-quote variant. Reuse Reveal
+      for enter; no JS needed otherwise.
+    severity: high
+    effort: M
+    class: distinctive
+    status: open
+    files:
+      - src/app/globals.css
+      - src/data/journal/vol-iii-no-1.tsx
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    dq_count: 0
+    notes: "Surfaced by editorial-auditor on the drop-cap ship (commit pending). Natural sibling pick for the next /journal run — drop-cap establishes the editorial register, pull-quote + marginalia complete the long-form vocabulary."
+
+  - id: journal-prose-link-focus-ring-token-drift
+    title: ".journal-prose anchor :focus-visible uses --color-line-2 instead of --color-ring"
+    ship: |
+      src/app/globals.css:6935-6938 — .journal-prose anchor focus-visible uses
+      `outline: 1px solid var(--color-line-2); outline-offset: 4px;` and the same
+      drift exists at .journal-post-return:focus-visible (~line 6991). Same family
+      as the open index-menu-focus-ring, checkout-input-focus-ring-token-drift,
+      cookie-banner-focus-ring-token items — could ship as a single focus-ring-token
+      sweep across all four call sites in one bundled a11y ship.
+    severity: medium
+    effort: S
+    class: a11y
+    status: open
+    files:
+      - src/app/globals.css:6935
+      - src/app/globals.css:6991
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    dq_count: 0
+    notes: "Surfaced by editorial-auditor on the drop-cap ship. --color-line-2 ≈ rgba(255,255,255,0.18) is ~1.4:1 contrast — fails WCAG focus-indicator guidance for a high-frequency keyboard target (inline body-copy anchors)."
+
+  - id: journal-display-h1-aria-label-strips-actual-heading-text
+    title: "Journal-index and post <h1> only carry aria-label — every inner SplitText word is aria-hidden"
+    ship: |
+      src/app/journal/page.tsx:102-118 and src/components/journal-post-frame.tsx:98-128
+      both use <h1 aria-label="…"> with both word spans set aria-hidden. Search engines
+      see the aria-label, but screen-readers reading body-text won't navigate to the
+      inner words and miss the italic emphasis register the title was designed around.
+      Fix: add an inline <span className="sr-only">{text}</span> first child carrying
+      the canonical text, drop the parent aria-label, keep aria-hidden on the visual
+      letter chrome. Lets the heading expose canonical text to in-page search and
+      browser Find — which aria-label does not.
+    severity: medium
+    effort: S
+    class: a11y
+    status: open
+    files:
+      - src/app/journal/page.tsx:102
+      - src/components/journal-post-frame.tsx:98
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    dq_count: 0
+    notes: "Surfaced by editorial-auditor on the drop-cap ship."
+
+  - id: article-jsonld-datemodified-equals-datepublished
+    title: "Article JSON-LD hard-codes dateModified = datePublished"
+    ship: |
+      src/app/journal/[slug]/page.tsx:75-76 sets datePublished + dateModified to the
+      same publishedAt value because JournalPost has no updatedAt. Add an optional
+      `updatedAt?: string` to JournalPost (src/lib/journal.ts:3-13) and fall back to
+      publishedAt only when absent. Search engines (and freshness signals) rely on
+      a real dateModified.
+    severity: medium
+    effort: S
+    class: seo
+    status: open
+    files:
+      - "src/app/journal/[slug]/page.tsx:75"
+      - src/lib/journal.ts:3
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    dq_count: 0
+    notes: "Surfaced by editorial-auditor on the drop-cap ship."
+
+  - id: journal-rss-link-tag-missing-on-post-pages
+    title: "RSS feed only auto-discoverable from /journal — post pages and homepage don't link it"
+    ship: |
+      src/app/journal/page.tsx:14-20 declares `alternates.types["application/rss+xml"]`,
+      but src/app/journal/[slug]/page.tsx (post metadata) and src/app/layout.tsx don't.
+      Subscribers landing on a post or the homepage get no <link rel="alternate"
+      type="application/rss+xml"> for feed-readers / browsers to discover. Lift the
+      alternates RSS declaration into layout.tsx so every route auto-discovers the
+      feed.
+    severity: medium
+    effort: S
+    class: seo
+    status: open
+    files:
+      - src/app/layout.tsx
+      - "src/app/journal/[slug]/page.tsx"
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    dq_count: 0
+    notes: "Surfaced by editorial-auditor on the drop-cap ship."
+
+  - id: about-jsonld-not-organization-and-no-breadcrumb
+    title: "/about JSON-LD missing BreadcrumbList; mainEntity.url has trailing slash"
+    ship: |
+      src/app/about/page.tsx:309-313 emits AboutPage + nested Organization JSON-LD but
+      no BreadcrumbList. The post page at journal/[slug]/page.tsx:94-111 DOES emit a
+      BreadcrumbList — /about diverges from established pattern. Also: `mainEntity.url:
+      ${siteUrl}/` has a trailing slash; should be `${siteUrl}` (no slash) for canonical
+      URL consistency with the homepage canonical metadata. Add a BreadcrumbList
+      ("Vol. III · The Press" → "About") matching the visible journal-breadcrumb already
+      on screen at lines 137-156.
+    severity: medium
+    effort: S
+    class: seo
+    status: open
+    files:
+      - src/app/about/page.tsx:309
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    dq_count: 0
+    notes: "Surfaced by editorial-auditor on the drop-cap ship."
+
+  - id: journal-prose-initial-letter-progressive-enhancement
+    title: "Journal-prose drop-cap — wrap in @supports (initial-letter: 3) for true baseline alignment"
+    ship: |
+      The drop-cap shipped as `float: left` with manual padding because initial-letter
+      isn't widely supported yet. Wrap a true-baseline-aligned variant in
+      `@supports (initial-letter: 3) { .journal-prose:not(.legal-prose):not(.about-prose)
+      > p:first-of-type { initial-letter: 3 1; } }` so future browsers get
+      typesetter-grade baseline alignment without the float hack. Float fallback remains
+      for current browsers — pure progressive enhancement.
+    severity: low
+    effort: S
+    class: distinctive
+    status: open
+    files:
+      - src/app/globals.css:6842
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    dq_count: 0
+    notes: "Surfaced by perf-a11y on the drop-cap ship (commit pending) as an optional nice-to-have."
+
+  - id: cart-drawer-scrim-as-focusable-button
+    title: "Cart-drawer scrim is a giant focusable <button>, becomes a Tab stop in the trap"
+    ship: |
+      src/components/cart-drawer.tsx:167-173 — `<button className="cart-drawer-scrim"
+      tabIndex={open ? 0 : -1}>` is a full-viewport invisible button that the focus-trap
+      query at L120-129 picks up. Tabbing through the open drawer hits "[invisible] Close
+      cart" before the close glyph; SR also announces it. Either render the scrim as a
+      non-focusable <div onClick> with aria-hidden (close stays accessible via the named
+      button + Esc), or exclude .cart-drawer-scrim from the focus-trap querySelector so
+      it's not a Tab stop while still receiving pointer clicks.
+    severity: medium
+    effort: S
+    class: a11y
+    status: open
+    files:
+      - src/components/cart-drawer.tsx:167
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    dq_count: 0
+    notes: "Surfaced by chrome-auditor on the drop-cap ship."
+
+  - id: cart-drawer-route-anchor-href
+    title: "CartEmpty CTA hrefs #supplies — broken on every route except /"
+    ship: |
+      src/components/cart-drawer.tsx:351 — `<a href="#supplies">` inside CartEmpty.
+      CartDrawer is mounted in layout.tsx so it ships on /supplies/[id], /journal,
+      /about, etc. — clicking "Browse the catalogue" from an empty cart on any non-home
+      route scrolls to nothing. Same family as the outro-anchor-normalize fix already
+      shipped for the footer. Change to `<Link href="/#supplies">` to match SiteFooter.
+    severity: medium
+    effort: S
+    class: hygiene
+    status: open
+    files:
+      - src/components/cart-drawer.tsx:351
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    dq_count: 0
+    notes: "Surfaced by chrome-auditor on the drop-cap ship."
+
+  - id: cursor-text-mode-on-input-focus
+    title: "Custom cursor never enters 'text' mode on real input/textarea hover — dead vocabulary"
+    ship: |
+      src/components/cursor.tsx:44-50 — pointerover collects input/textarea/select/label
+      but the ternary at L49 only ever sets `link` or `default`. The CSS
+      `.cursor-ring[data-mode="text"]` (globals.css:180-186) is therefore only triggered
+      when an author opts in by hand-setting data-cursor="text" (currently 1 site:
+      newsletter). Every form field on /checkout, every quantity stepper, every search
+      field renders the link cursor on a text field. In onOver, when the closest
+      element matches `input:not([type=button]):not([type=submit]), textarea` set mode
+      "text" with empty label. Promotes the I-beam vocabulary already designed in CSS
+      to a system rule.
+    severity: medium
+    effort: S
+    class: distinctive
+    status: open
+    files:
+      - src/components/cursor.tsx:44
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    dq_count: 0
+    notes: "Surfaced by chrome-auditor on the drop-cap ship."
+
+  - id: chrome-magnetic-pulse-on-cart-add
+    title: "NavCart has no system-level reaction when an item lands in the cart"
+    ship: |
+      src/components/cart-island.tsx:30-39 only bumps `data-bump` on the count digit;
+      the NavCart button (L136-150) and its <Magnetic> wrapper at page.tsx:66 stay inert.
+      No mark-pulse, no hairline draw-in, no magnetic re-snap when cart.ADD_EVT fires
+      from a /supplies/[id] PDP. Add a `data-pulse` attribute on .nav-cta that flips
+      true for 600ms when cart.ADD_EVT fires, drive a one-shot mark-pulse keyframe on
+      .nav-cta-count AND a hairline-radius ripple via ::after pseudo. Reduced-motion
+      bypass via existing @media block. Pairs with extending Magnetic to accept an
+      optional `pulseOn` event-name prop.
+    severity: medium
+    effort: S
+    class: distinctive
+    status: open
+    files:
+      - src/components/cart-island.tsx:30
+      - src/components/magnetic.tsx
+      - src/app/globals.css
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    dq_count: 0
+    notes: "Surfaced by chrome-auditor on the drop-cap ship. Tied with this run's drop-cap pick at 10/18 rubric, lost on D-axis tiebreaker (D:2 vs D:3). Strong second-pick for next chrome run."
+
+  - id: nav-mix-blend-difference-focus-ring-clash
+    title: "Nav focus-ring inherits mix-blend-mode: difference — keyboard focus halos invert against the page"
+    ship: |
+      src/app/globals.css:339-356 — `.nav { mix-blend-mode: difference }` cascades to all
+      descendants including focus rings. The site :focus-visible token (L80-85) renders
+      as 2px white outline + 0.5-alpha-black halo. Under difference blend, the halo
+      subtracts from white sections of a passing chapter (codex marquee, white plates)
+      and the outline shows up grey rather than the intended white. Isolate the focus-ring
+      by setting `mix-blend-mode: normal` on `.nav a:focus-visible, .nav button:focus-visible,
+      .nav .nav-cta:focus-visible`. Keeps body of nav inverting against the page; lifts
+      the keyboard halo back to a stable white-on-page-color.
+    severity: medium
+    effort: S
+    class: a11y
+    status: open
+    files:
+      - src/app/globals.css:339
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    dq_count: 0
+    notes: "Surfaced by chrome-auditor on the drop-cap ship. Highest-leverage chrome a11y win — affects every keyboard user on every route."
+
+  - id: split-text-no-js-reduced-motion-bail
+    title: "SplitText keeps spinning IntersectionObserver under reduced-motion; only CSS shorts the animation"
+    ship: |
+      src/components/split-text.tsx:24-40 — no prefers-reduced-motion guard. Reveal
+      (reveal.tsx:20-26) bails early and adds .active synchronously. Every SplitText
+      on every route still allocates an IO + writes per-char transitionDelay style props
+      that will never play. ~16 SplitText mounts on / alone. Mirror Reveal's pattern —
+      if (prefers-reduced-motion: reduce) matches, add split-active immediately and
+      return before constructing the observer. Bonus: skip emitting per-char
+      transitionDelay inline styles in that branch.
+    severity: low
+    effort: S
+    class: perf
+    status: open
+    files:
+      - src/components/split-text.tsx:24
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    dq_count: 0
+    notes: "Surfaced by chrome-auditor on the drop-cap ship."
+
+  - id: split-text-aria-label-redundancy-on-headings
+    title: "SplitText renders aria-label={text} on heading nodes — SR may read title twice on some VTs"
+    ship: |
+      src/components/split-text.tsx:50 — <As aria-label={text}>. Each .split-char is
+      aria-hidden, but the parent's aria-label overrides accessible-name computation
+      only when there is no descendant text. JAWS/NVDA in browse mode fall back to
+      text content for headings on some VTs. Replace the parent aria-label with an
+      inline <span className="sr-only">{text}</span> first child and keep aria-hidden
+      on every .split-word. Also lets the heading expose canonical text to in-page
+      search and browser Find — which aria-label does not.
+    severity: low
+    effort: S
+    class: a11y
+    status: open
+    files:
+      - src/components/split-text.tsx:50
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    dq_count: 0
+    notes: "Surfaced by chrome-auditor on the drop-cap ship. Pairs naturally with journal-display-h1-aria-label-strips-actual-heading-text — both are SplitText/aria-label vocabulary fixes."

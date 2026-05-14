@@ -5,6 +5,225 @@ One entry per run. Newest first.
 
 ---
 
+## 2026-05-14 — Journal prose — drop-cap, hanging punctuation, small-caps lede
+
+**Area.** `editorial` · `journal-prose` — the long-form post body at
+`/journal/[slug]` (currently the flagship essay
+`vol-iii-no-1-the-typography-of-black`). Three additions to the
+existing `.journal-prose` block in `src/app/globals.css`. The post
+template's markup is untouched — this is a pure typographic upgrade
+delivered through scoped CSS.
+
+**Why it's the focus.** Notion Tasks DB unavailable this run
+(MCP `notion-search` returned `net::ERR_FAILED` repeatedly,
+NOTION_TOKEN unset), so cron fell back to the standard discovery
+flow. Phase 1 dispatched historian + chrome-auditor +
+editorial-auditor in parallel. The editorial auditor surfaced a
+fresh, ownable typographic move (`journal-prose-drop-cap-and-hanging-punct`)
+that the historian's prioritized list hadn't named because the
+backlog had no editorial-typography items left after the legal /
+about / PDP shipping spree. Scored against the rubric, the drop-cap
+move tied with `chrome-magnetic-pulse-on-cart-add` at 10/18 (S
+effort), and won the D-axis tiebreaker (D:3 vs D:2). Surface
+freshness was a wash (both `chrome` and `journal/[slug]` were hot
+this week), but T:3 carries a rare strong-typography axis hit and
+the press's flagship essay was the right canvas for it. The
+historian's top-5 picks were also considered: `newsletter-reset-path`
+(4/18), `skip-link-main-landmark` (5/18) and a bundled a11y sweep
+(estimated 7/18) all scored too low to clear the abort threshold
+on their own; deferred for a future hygiene-bundle run.
+
+**Mode.** Shipped (discovery-driven, not task-driven).
+
+**Risk band.** `low` — single CSS file, +17 LOC, no shared
+primitive, no `layout.tsx`, no `page.tsx`, no route change, no
+client boundary, no new dep, no new font, no new keyframe, no new
+token. Direct-commit to `main` per `risk-rules.md` low-band
+mapping.
+
+**What ships.**
+
+1. **Drop cap on first paragraph.** Selector
+   `.journal-prose:not(.legal-prose):not(.about-prose) > p:first-of-type::first-letter`
+   renders the leading character at `clamp(56px, 7vw, 96px)` italic
+   `var(--font-serif)` (Instrument Serif), `float: left`,
+   `line-height: 0.84`, `padding: 6px 12px 0 0`, full-white
+   `rgba(255,255,255,1)` against the 0.86-alpha body — visually a
+   ~3-line dropped italic glyph that re-typesets the opening of the
+   essay as an editorial moment. `-webkit-font-smoothing:
+   antialiased` on the glyph to neutralise sub-pixel jitter on the
+   large italic.
+
+2. **Hanging punctuation on the prose container.** Adds
+   `hanging-punctuation: first last allow-end;` to `.journal-prose`
+   (kept on the unscoped class so legal + about prose also benefit
+   — hanging-punctuation is harmless graceful-degradation territory
+   in browsers that don't support it, and tasteful in browsers that
+   do). Quotation marks, opening em-dashes, and trailing commas
+   hang into the gutters in Safari + Chromium. Precedent: the
+   property already shipped on `.pullquote` at `globals.css:2494`.
+
+3. **Italic small-caps lede on the first line of the first
+   paragraph.** Selector
+   `.journal-prose:not(.legal-prose):not(.about-prose) > p:first-of-type:first-line`
+   applies `font-variant-caps: all-small-caps`, `letter-spacing:
+   0.04em`, and a 0.95-alpha white. The first line inherits italic
+   from `var(--font-serif)`, so the opening reads as italic
+   small-caps — typesetting-as-craft visible to a literate eye.
+
+**Architecture.** All three rules live inside the existing
+`/* ============ JOURNAL PROSE ============ */` block in
+`src/app/globals.css` (around lines 6829–6870). The drop-cap and
+small-caps selectors carry the defensive
+`:not(.legal-prose):not(.about-prose)` chain because `.journal-prose`
+is composed as a base class on `/about` (`class="journal-prose
+about-prose"`), `/terms`, `/privacy`, `/cookies` (`class=
+"journal-prose legal-prose"`) — the regression-spotter caught this
+on the first verification pass and the selector was tightened
+before commit. The container-level `hanging-punctuation` stays on
+the unscoped class because the property is uniformly desirable
+across editorial / legal / about prose; only the drop-cap +
+small-caps moves are scoped to the journal post body.
+
+**Verification.** `bun run lint` 0 errors + 7 pre-existing tooling
+warnings in `.claude/improvement/scripts/*.mjs`; `bunx tsc
+--noEmit` clean; `bun run build` 28/28 static routes prerendered
+(same count as prior ship — pure CSS additive, no route change).
+Adjacent surface regression PASS: SSR class-chain grep across
+`/journal/vol-iii-no-1-the-typography-of-black` (`class=
+"journal-prose"` only — drop-cap fires), `/about` (`class=
+"journal-prose about-prose"` — drop-cap excluded by `:not`),
+`/terms`, `/privacy`, `/cookies` (`class="journal-prose
+legal-prose"` — drop-cap excluded by `:not`). Chrome (nav, footer,
+cart-drawer, chapter-rail, running-folio) signatures unchanged on
+`/`. perf-a11y PASS: 0 bytes JS delta, ~250 bytes gzipped CSS
+delta, no LCP/CLS/INP risk (drop-cap floats inside the existing
+first-paragraph line box, no width/height tokens added,
+hanging-punctuation is a paint-time hint), reduced-motion
+vacuously satisfied (zero new keyframes / transitions / animations
+in the diff). diff-reviewer PASS-WITH-NITS: noted the original
+`color: #fff` literal as a style-consistency nit (the surrounding
+`.journal-prose` rules use `rgba(255,255,255,…)` notation) — fixed
+inline by switching to `rgba(255,255,255,1)`. anti-patterns: 0
+findings.
+
+**Rubric.** T:3 M:0 L:2 I:0 A:2 D:3 = **10/18** (Distinctive).
+T:3 because type behaves as a living element — the opening
+re-typesets between dropped-italic-glyph and small-caps-lede
+states without any motion, and the hanging-punctuation register is
+typesetting-as-craft. M:0 because the move is intentionally static
+— motion would compete with the typographic moment. L:2 because
+the drop-cap reshapes the first paragraph's composition into a
+proper editorial opening with hanging margins and a dropped
+counter-form. I:0 because the move adds no new interactive state
+(this is the editorial moment, not the interactive one). A:2
+because `::first-letter` and `:first-line` are decorative pseudos
+that don't alter the DOM (SR reads the canonical text
+uninterrupted), drop-cap contrast is 21:1 against the body
+background (well above WCAG AAA), no new focus targets, no
+reduced-motion concern. D:3 because the asymmetric italic-serif
+drop-cap + hanging-punctuation + small-caps lede vocabulary is the
+move that puts a long-form page on a print-quality footing — could
+be photographed as a printed page and identified as BFS at a
+glance.
+
+**Screenshots.** Captured to
+`.claude/improvement/screenshots/4b9abd3/journal-prose-dropcap-{desktop,mobile}.png`
+(gitignored).
+
+**SOTD comparison.** `sotd-compare.mjs` returned `skipped: could
+not parse SOTD entry — gallery markup may have changed`
+(`sotd_parser_available: false` per `state.yaml`; the
+`sotd-parser-fix` backlog item carries this followup). No SOTD
+artifact this run.
+
+**Notion.** Reports row append SKIPPED — `NOTION_TOKEN` unset and
+MCP `notion-search` returns `net::ERR_FAILED` consistently this
+session. Same outage pattern as the prior PDP-press-notes run; the
+existing backlog item `pdp-press-notes-mark-task-shipped` already
+tracks the cron's Notion-write degradation. No task to release
+(this run was discovery-driven, not task-driven).
+
+**Expected impact.** The flagship essay's opening paragraph now
+reads as a printed page — the dropped italic "B" of "Black is not
+the absence of colour" is the editorial moment the volume's
+typography deserves. Hanging punctuation tightens every prose
+margin across journal + legal + about. The small-caps lede is the
+typesetter-grade detail that rewards a literate reader (and a
+jury). Pure CSS, instant on next page load, no JS cost, no font
+cost.
+
+**Files modified.**
+
+- `src/app/globals.css` — +17 LOC; added
+  `hanging-punctuation: first last allow-end;` to `.journal-prose`
+  container rule (line 6835), and two new rules at lines
+  6842–6857: `.journal-prose:not(.legal-prose):not(.about-prose) >
+  p:first-of-type::first-letter` (drop-cap, 11 lines) and
+  `.journal-prose:not(.legal-prose):not(.about-prose) >
+  p:first-of-type:first-line` (small-caps lede, 4 lines).
+
+**Follow-ups uncovered.**
+
+- `journal-prose-initial-letter-progressive-enhancement` (low,
+  perf-a11y nit) — wrap the drop-cap in
+  `@supports (initial-letter: 3) { .journal-prose > p:first-of-type
+  { initial-letter: 3 1; } }` so future browsers get true
+  baseline-aligned drop-caps without the float hack. Float fallback
+  remains for current browsers. Optional progressive-enhancement.
+- `journal-prose-figure-pull-quote-marginalia-vocabulary` (high/M,
+  surfaced by editorial-auditor this run, naturally pairs as the
+  next ship — already in the picker's tier B for the next run) —
+  add a `.pull-quote` full-bleed-italic-serif variant with
+  optional `<cite>` and a `.margin-note` left-margin marginalia
+  rule, then upgrade vol-iii-no-1's "A page that admits no light…"
+  blockquote.
+- `journal-prose-link-focus-ring-token-drift` (medium/S/a11y,
+  surfaced by editorial-auditor) — `.journal-prose a:focus-visible`
+  uses `--color-line-2` instead of `--color-ring`. Same family as
+  `index-menu-focus-ring`, `checkout-input-focus-ring-token-drift`,
+  `cookie-banner-focus-ring-token` — could ship as a single
+  focus-ring-token sweep across all four call sites.
+- `journal-display-h1-aria-label-strips-actual-heading-text`
+  (medium/S/a11y, surfaced by editorial-auditor) — journal-index
+  and post `<h1>` carry only `aria-label` while every inner
+  SplitText word is `aria-hidden`; SR navigates a synthetic string
+  rather than the real heading.
+- `article-jsonld-datemodified-equals-datepublished` (medium/S/seo,
+  surfaced by editorial-auditor) — Article JSON-LD hard-codes
+  `dateModified = datePublished`; add optional `updatedAt?: string`
+  to `JournalPost` and fall back to `publishedAt` only when absent.
+- `journal-rss-link-tag-missing-on-post-pages` (medium/S/seo,
+  surfaced by editorial-auditor) — RSS auto-discovery
+  `<link rel="alternate" type="application/rss+xml">` only on
+  `/journal` index, missing from post pages and homepage.
+- `about-jsonld-not-organization-and-no-breadcrumb` (medium/S/seo,
+  surfaced by editorial-auditor) — `/about` JSON-LD is `AboutPage`
+  but lacks a `BreadcrumbList` (the post page emits one). Also
+  `mainEntity.url: ${siteUrl}/` should drop the trailing slash for
+  canonical consistency.
+- Six chrome-auditor findings logged separately (`cart-drawer-scrim-as-focusable-button`,
+  `cart-drawer-route-anchor-href`, `cursor-text-mode-on-input-focus`,
+  `chrome-magnetic-pulse-on-cart-add`, `nav-mix-blend-difference-focus-ring-clash`,
+  `split-text-no-js-reduced-motion-bail`,
+  `split-text-aria-label-redundancy-on-headings`) — bundled in the
+  next chrome-surface ship.
+
+**Backlog closed-by-drift.** None this run. Historian noted
+`checkout-form-floating-label-dead-selector` is partially fixed
+(the `:focus-within` fallback now matches at `globals.css:5818`,
+the legacy `:focus ~` half is harmless dead code) but the spec
+isn't fully closed; left as `open` for a future checkout touch.
+
+**Periodic triggers fired.** None — `last_retro_at: 2026-05-13`
+(1 day ago, threshold ≥7), `last_critic_at: 2026-05-13` (1 day ago,
+threshold ≥28), `last_calibration_at: 2026-05-14` (today,
+threshold every 10th ship — currently shipped_count=38, next
+calibration at 40), `consecutive_no_focus_runs: 0` (no
+creativity-reset trigger).
+
+---
+
 ## 2026-05-14 — PDP — press notes + dispatch & care editorial sections under the colophon
 
 **Area.** `catalogue` · `system` — extends every `/supplies/[id]` PDP

@@ -6832,11 +6832,28 @@ main.pdp ~ .folio {
   margin: 80px auto 64px;
   font-family: var(--font-serif);
   color: rgba(255, 255, 255, 0.86);
+  hanging-punctuation: first last allow-end;
 }
 .journal-prose p {
   font-size: 18px;
   line-height: 1.55;
   margin: 0 0 1.4em;
+}
+.journal-prose:not(.legal-prose):not(.about-prose) > p:first-of-type::first-letter {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  float: left;
+  font-size: clamp(56px, 7vw, 96px);
+  line-height: 0.84;
+  padding: 6px 12px 0 0;
+  color: rgba(255, 255, 255, 1);
+  -webkit-font-smoothing: antialiased;
+}
+.journal-prose:not(.legal-prose):not(.about-prose) > p:first-of-type:first-line {
+  font-variant-caps: all-small-caps;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.95);
 }
 .journal-prose p em {
   font-style: italic;
