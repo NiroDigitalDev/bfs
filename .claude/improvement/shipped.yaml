@@ -302,7 +302,7 @@ items:
 
   - id: cart-autoopen-drawer-and-live-region
     title: "AddToCart auto-opens cart drawer + polite live-region announces the added item"
-    commit: pending
+    commit: e1f0743
     date: 2026-05-14
     surface: cart
     tags: [cart, system, catalogue, add-to-cart, drawer-autoopen, aria-live, polite-region, role-status, aria-atomic, sr-only, hydration-safe, focus-trap, escape-returns-focus, custom-event-add, custom-event-open, useSyncExternalStore, idempotent-setopen, return-focus-ref, react-fragment-sibling, no-new-deps, no-new-css, no-new-keyframes, behavior-only-ship, task-driven]
