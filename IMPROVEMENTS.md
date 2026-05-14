@@ -155,11 +155,19 @@ evidence here and the screenshots dir is gitignored regardless).
 **SOTD comparison.** sotd-compare.mjs is currently broken
 (sotd-parser-fix backlog item open); skipped this run.
 
-**Notion.** Task `35faf8d3-d3e2-8188-a138-ddf72125fe36` ('PDP —
-add more editorial sections (specimen-detail, edition-history,
-dispatch-notes, related editions)') flipped `In progress → Done`
-with `Completed: 2026-05-14`. Reports row to be appended via MCP
-fallback after the commit lands (NOTION_TOKEN unset).
+**Notion.** Task `35faf8d3-d3e2-8188-a138-ddf72125fe36` was
+claimed in Phase 0 (Status flipped `To do → In progress`,
+Started=2026-05-14), but the post-commit complete-task write
+failed this run — the Notion MCP returned `net::ERR_FAILED` on
+every retry across a 90s window, and `notion-sync.mjs
+complete-task` skipped because NOTION_TOKEN is unset. The task is
+left at `Status: In progress` with the feature commit `a635f7c`
+landed on `main`; the next hourly run's Phase 0 will find it
+still claimed and a human can flip it (or a backlog item
+`pdp-press-notes-mark-task-shipped` carries the followup in
+`backlog.yaml`). Reports row append also skipped for the same
+reason. This is the routine-documented degraded mode: "log the
+omission in IMPROVEMENTS.md's Notion field and continue."
 
 **Expected impact.** Each PDP now carries three load-bearing
 paragraphs of editorial press-notes per product + a five-row

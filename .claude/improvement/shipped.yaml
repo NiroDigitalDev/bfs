@@ -326,7 +326,7 @@ items:
 
   - id: pdp-editorial-sections-press-notes-and-dispatch-care
     title: "PDP — press notes + dispatch & care editorial sections under the colophon"
-    commit: pending
+    commit: a635f7c
     date: 2026-05-14
     surface: catalogue
     tags: [pdp, catalogue, system, press-notes, dispatch-care, editorial-prose, italic-serif, reveal, hairline-rule, journal-prose-register, colophon-vocabulary, per-product-data, product-type-extension, no-new-primitives, no-new-deps, no-new-fonts, prefers-reduced-motion, task-driven]
