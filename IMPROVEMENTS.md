@@ -5,6 +5,192 @@ One entry per run. Newest first.
 
 ---
 
+## 2026-05-14 — AddToCart auto-opens cart drawer + polite live-region announces the added item
+
+**Area.** `cart` · system · catalogue — every chapter-CTA AddToCart and
+PDPAddToCart click on the site now hard-opens the drawer and politely
+announces the added item to assistive tech. Behavior-only ship; zero
+new visible surface.
+
+**Why it's the focus.** Task-driven run. Notion Tasks DB returned two
+`To do` rows at top priority (both High, identical Added timestamp):
+this one (`35faf8d3-d3e2-810a-8c09-c05c76894f56` "When AddToCart
+commits an item, auto-open the cart drawer", risk medium, ~80–120 LOC)
+and `35faf8d3-d3e2-8111d-a834-d03772a81905` "Show the footer on all
+routes except /checkout" (risk high, ~300 LOC refactor). Picked the
+medium-risk single-concern task — the AddToCart UX gap affects every
+PDP and chapter-CTA commit today; the footer extraction is a larger
+architectural lift better shipped alone in a high-risk run.
+
+**Mode.** Task-driven.
+
+**Risk band.** `medium` — touches the cart-island consumed by every PDP
++ chapter CTA, plus modifies the CartDrawer mount with a new ADD_EVT
+listener. Mitigated by reusing existing `cart.open()` plumbing,
+existing focus-trap, and an established repo pattern for empty-then-
+populated polite live regions (checkout-form.tsx:121).
+
+**What ships.**
+
+1. **`src/components/cart-island.tsx`** (+2 LOC) — In both
+   `AddToCart.onClick` and `PDPAddToCart.onClick`, the existing
+   `cart.add(productId, productTitle[, quantity])` call is followed
+   by a one-line `cart.open()`. That dispatches the existing
+   `OPEN_EVT` (defined at `src/lib/cart.ts:10`, already listened to
+   by `CartDrawer` at `cart-drawer.tsx:89`) — no new event plumbing.
+2. **`src/components/cart-drawer.tsx`** (+24/-2 LOC) — Inside
+   `CartDrawer`:
+   - Two new pieces of state — `announce` (string) and
+     `announceTimer` (number ref) — for the polite live region.
+   - The existing `useEffect` that listened to `OPEN_EVT` grows a
+     second listener for `cart.ADD_EVT`. On each fire, it reads the
+     `productTitle` off the `CustomEvent` detail (typed as
+     `{ productTitle?: string } | undefined`, with `?? "item"`
+     fallback), sets `announce` to `"Added <title> to cart."`, and
+     schedules a `4000ms` `setTimeout` to clear it so re-adds
+     re-announce. Cleanup clears both listeners and any pending
+     timer.
+   - The return JSX is wrapped in a Fragment. A new
+     `<span class="sr-only" role="status" aria-live="polite"
+     aria-atomic="true">{announce}</span>` is rendered as a sibling
+     immediately before `cart-drawer-root` — outside the root's
+     `aria-hidden={!open}` boundary so screen readers can read it
+     whether the drawer is open or closed at the moment of
+     announcement.
+
+**No CSS, no new keyframes, no new dependencies, no new fonts.**
+Reuses the `.sr-only` utility at `src/app/globals.css:97-104` and the
+existing drawer slide-in keyframes (already gated on
+`prefers-reduced-motion`).
+
+**Architecture.**
+
+- **Why Fragment-sibling (not nested child).** `cart-drawer-root`
+  carries `aria-hidden={!open}`. A live region nested inside would be
+  suppressed by AT when the drawer is closed — defeating the entire
+  feature, because the announcement fires exactly when an add happens
+  and the drawer is mid-opening. Sibling-outside is the only correct
+  placement.
+- **Why empty string + always-mounted, not conditional render.**
+  Screen readers only watch *existing* live regions for mutations.
+  Conditional render (mount on first announce) risks the first
+  announcement being missed. Empty string keeps the node in the
+  accessibility tree at mount, ready to speak the moment `announce`
+  changes. Matches the existing pattern at `checkout-form.tsx:121`.
+- **Why `aria-atomic="true"`.** For short status strings like
+  "Added Void Book to cart.", AT should read the full new message in
+  one utterance rather than just diffing characters. `atomic` is the
+  right call for replacement-style announcements.
+- **Why both `role="status"` and `aria-live="polite"`.** `role="status"`
+  implicitly maps to `aria-live="polite"`, so the explicit attribute
+  is redundant — but matches the repo's existing convention and is
+  defensive against AT engines that under-implement the implicit
+  mapping.
+- **Idempotent setOpen.** `setOpen(true)` while already-true is a
+  React no-op for state — no re-render churn, no animation re-trigger.
+  Satisfies the brief's "Adding a second item with the drawer already
+  open does NOT re-trigger the open animation" criterion.
+- **Focus return path unchanged.** The `OPEN_EVT` handler captures
+  `document.activeElement` *before* `setOpen(true)` — at the moment
+  of `cart.open()`, focus is still on the AddToCart button (the
+  click handler is mid-execution), so `returnFocusRef.current`
+  correctly stores the trigger. On close, the existing
+  `returnFocusRef.current?.focus({ preventScroll: true })` at
+  `cart-drawer.tsx:106` returns focus to the same AddToCart button.
+- **Event ordering.** `cart.add()` dispatches `ADD_EVT` synchronously
+  (`cart.ts:107`); `cart.open()` dispatches `OPEN_EVT` synchronously
+  (`cart.ts:143`). Both `onAdd` (sets `announce`) and `onOpen`
+  (captures focus + flips open) fire in the same microtask, then
+  React batches both state updates into a single re-render. AT
+  perceives this as: drawer slide-in begins + "Added X to cart."
+  spoken in parallel.
+
+**Verification.**
+
+- `bun run lint`: 0 errors + 7 pre-existing warnings (all in
+  `.claude/improvement/scripts/*.mjs` tooling, unrelated).
+- `bunx tsc --noEmit`: clean.
+- `bun run build`: clean — 27/27 static pages prerendered, same count
+  as the prior ship (drawer SSRs with `data-open="false"` on every
+  route).
+- Regression-spotter PASS — verified the new `<span class="sr-only"
+  role="status" aria-live="polite" aria-atomic="true"></span>` is
+  present on 13 of 13 prerendered shell-bearing pages (`/`, the 6
+  `/supplies/*` PDPs, `/journal` + the seed post, `/checkout`,
+  `/privacy`, `/terms`, `/cookies`) as a direct sibling immediately
+  preceding `cart-drawer-root`, with empty SSR content (no `announce`
+  text bleeds into static HTML). `data-open="false"` on every drawer
+  in SSR. All adjacent chrome (chapter-rail, folio, hero, colophon,
+  journal listing, PDP add-to-cart, checkout form, legal shells)
+  intact.
+- Perf-a11y PASS — bundle delta ~+22 LOC (< 1 KB gzipped), zero new
+  CSS, zero new keyframes, `.sr-only` is not focusable so tab order
+  is preserved. No LCP/CLS/INP risk (live region is `position:
+  absolute; clip: rect(0,0,0,0)` so it cannot shift surrounding
+  layout when state updates). Lighthouse intentionally skipped —
+  behavior-only ship, no perf-sensitive surface touched.
+- Diff-reviewer PASS-WITH-NITS — 3 findings, all follow-ups
+  (cart-announce-ttl-token medium; cart-drawer-fragment-indent
+  cosmetic; cart-add-double-announce low UX nuance).
+- Anti-patterns: 0 findings.
+- Visual-diff: skipped — no prior `cart-desktop.png` / `cart-mobile.png`
+  baseline to diff against (first capture for `surface=cart`).
+
+**Rubric (self-rated).** T:0 M:1 L:1 I:0 A:3 D:0 = 5/18.
+Distinctiveness score is 0 by design — this is a behavior-only ship
+addressing a concrete UX gap. A:3 because the ship's entire point is
+the live-region + focus management + drawer reveal.
+
+**Screenshots.** `.claude/improvement/screenshots/16410f2/cart-desktop.png`,
+`.claude/improvement/screenshots/16410f2/cart-mobile.png` (informational
+— drawer SSRs closed so visuals match prior cookie-banner ship).
+
+**SOTD comparison.** Skipped — `sotd-compare.mjs` exits with
+"could not parse SOTD entry" (known issue, `sotd-parser-fix` backlog
+item already open). Not blocking.
+
+**Notion.** Task `35faf8d3-d3e2-810a-8c09-c05c76894f56` — Status flips
+to Done with commit SHA + Surface auto-inferred from diff
+(cart,system) in Step 9. Reports row appended in Step 3.5.
+
+**Expected impact.** Closes a long-standing UX gap on the PDPs + every
+chapter-CTA: clicking AddToCart now produces visible (drawer slides
+in) AND audible (polite-region announcement) feedback that the item
+has landed, eliminating the previous silent-commit confusion.
+Improves SEO indirectly via better engagement; improves a11y
+materially for AT users (the cart was previously announceless on
+add). Pairs the previously-open `add-to-cart-no-live-announcement`
+follow-up into the same ship per the task brief's explicit
+recommendation.
+
+**Files modified.** 2 — `src/components/cart-island.tsx`,
+`src/components/cart-drawer.tsx`. Net diff +28/-2 LOC. Zero new files,
+zero new dependencies, zero new CSS lines, zero new keyframes.
+
+**Follow-ups uncovered.**
+
+- `cart-announce-ttl-token` (medium) — Replace the 4000ms literal in
+  CartDrawer with a named const or motion token. Pair with the
+  pre-existing 1800ms `added`-state-clear timers in cart-island so
+  all cart timing literals tokenize together.
+- `cart-drawer-fragment-indent` (low) — Cosmetic: re-indent the
+  ~180 lines of inner JSX after the Fragment wrap, on the next
+  CartDrawer-touching change.
+- `cart-add-double-announce` (low) — Verify in a real screen-reader
+  session that CartCount's existing `aria-live="polite"` on the
+  count badge + the new drawer announce region don't produce an
+  awkward double-utterance. If so, guard one of the regions.
+
+**Backlog closed-by-drift.** None — Notion-task-driven run; backlog
+inspection deferred to the next standard-discovery run.
+
+**Periodic triggers fired.** None — consecutive_no_focus_runs=0
+(no creativity-reset), retro fired yesterday (skip), critic fired
+yesterday (skip), shipped_count=34 → 35 not a multiple of 10
+(no calibration). Standard pre-flight only.
+
+---
+
 ## 2026-05-14 — Cookie banner — sitewide GDPR consent UI + localStorage + layout mount + /cookies cross-link
 
 **Area.** `chrome` · sitewide first-visit consent strip; ships the second

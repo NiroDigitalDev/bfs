@@ -60,6 +60,7 @@ function formatUSD(amount: number): string {
 
 export function CartDrawer() {
   const [open, setOpen] = useState(false);
+  const [announce, setAnnounce] = useState("");
   const lines = useSyncExternalStore(
     cart.subscribe,
     cart.getCart,
@@ -68,6 +69,7 @@ export function CartDrawer() {
   const panelRef = useRef<HTMLDivElement | null>(null);
   const closeBtnRef = useRef<HTMLButtonElement | null>(null);
   const returnFocusRef = useRef<HTMLElement | null>(null);
+  const announceTimer = useRef<number | null>(null);
 
   useEffect(() => {
     const onOpen = () => {
@@ -75,9 +77,21 @@ export function CartDrawer() {
       if (active instanceof HTMLElement) returnFocusRef.current = active;
       setOpen(true);
     };
+    const onAdd = (e: Event) => {
+      const detail = (e as CustomEvent).detail as
+        | { productTitle?: string }
+        | undefined;
+      const title = detail?.productTitle ?? "item";
+      setAnnounce(`Added ${title} to cart.`);
+      if (announceTimer.current) window.clearTimeout(announceTimer.current);
+      announceTimer.current = window.setTimeout(() => setAnnounce(""), 4000);
+    };
     window.addEventListener(cart.OPEN_EVT, onOpen);
+    window.addEventListener(cart.ADD_EVT, onAdd);
     return () => {
       window.removeEventListener(cart.OPEN_EVT, onOpen);
+      window.removeEventListener(cart.ADD_EVT, onAdd);
+      if (announceTimer.current) window.clearTimeout(announceTimer.current);
     };
   }, []);
 
@@ -136,6 +150,15 @@ export function CartDrawer() {
   );
 
   return (
+    <>
+      <span
+        className="sr-only"
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+      >
+        {announce}
+      </span>
     <div
       className="cart-drawer-root"
       data-open={open ? "true" : "false"}
@@ -308,6 +331,7 @@ export function CartDrawer() {
         ) : null}
       </aside>
     </div>
+    </>
   );
 }
 

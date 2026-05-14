@@ -51,6 +51,7 @@ export function AddToCart({
 
   const onClick = () => {
     cart.add(productId, productTitle);
+    cart.open();
     setAdded(true);
     if (timer.current) window.clearTimeout(timer.current);
     timer.current = window.setTimeout(() => setAdded(false), 1800);
@@ -93,6 +94,7 @@ export function PDPAddToCart({
 
   const onClick = () => {
     cart.add(productId, productTitle, quantity);
+    cart.open();
     setAdded(true);
     if (timer.current) window.clearTimeout(timer.current);
     timer.current = window.setTimeout(() => setAdded(false), 1800);

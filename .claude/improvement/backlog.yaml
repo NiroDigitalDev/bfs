@@ -1137,3 +1137,73 @@ items:
       only — Magnetic is (pointer: fine)-gated, so touch devices won't
       see the translate. The actual visual risk is desktop window
       <720px wide with a mouse, which is uncommon.
+
+  - id: cart-announce-ttl-token
+    title: CartDrawer announce-clear timeout uses untokenized 4000ms literal
+    ship: |
+      Replace the magic 4000ms in CartDrawer's announce-state-clear
+      setTimeout with a named const or motion-system token. Pair with
+      the pre-existing 1800ms `added`-state-clear timer in cart-island
+      (2 occurrences) so all cart timing literals tokenize together —
+      either as a module-scope `ANNOUNCE_TTL_MS = 4000` const + a
+      `ADDED_BADGE_TTL_MS = 1800` const, or as CSS-style `--dur-*`
+      tokens read from a shared `cart-timings.ts` module.
+    severity: medium
+    effort: S
+    class: hygiene
+    status: open
+    files:
+      - src/components/cart-drawer.tsx:87
+      - src/components/cart-island.tsx:56
+      - src/components/cart-island.tsx:99
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    notes: |
+      Surfaced by diff-reviewer on cart-autoopen-drawer-and-live-region
+      ship. The 4000ms was introduced by this ship for clearing the
+      polite live-region `aria-live` text; the 1800ms timers predate
+      and clear the chapter-cta `data-added` momentary confirm state.
+
+  - id: cart-drawer-fragment-indent
+    title: CartDrawer JSX inside Fragment retains pre-wrap indentation
+    ship: |
+      The cart-drawer-root and ~180 lines of inner JSX were wrapped
+      in a top-level Fragment without re-indenting. Closing </> sits
+      flush with the inner </div>. Cosmetic only — Prettier on the
+      next format pass will normalise. Worth applying when touching
+      this file next so the diff stays small.
+    severity: low
+    effort: S
+    class: hygiene
+    status: open
+    files:
+      - src/components/cart-drawer.tsx:152-334
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    notes: |
+      Surfaced by diff-reviewer on cart-autoopen-drawer-and-live-region
+      ship. Re-indenting in this ship would have ballooned LOC; defer
+      to the next CartDrawer-touching change.
+
+  - id: cart-add-double-announce
+    title: CartCount aria-live + new drawer announce may double-speak on add
+    ship: |
+      CartCount has its own aria-live="polite" on the count badge.
+      The new CartDrawer announce region also fires "Added X to cart."
+      on the same dispatch. NVDA/VoiceOver will queue: "Added Void Book
+      to cart. Cart: 3 items." Acceptable and arguably useful — but
+      verify in a screen-reader session. If a single utterance is
+      preferred, downgrade the CartCount aria-live to a more reserved
+      label or guard one of the regions while the other is live.
+    severity: low
+    effort: S
+    class: hygiene
+    status: open
+    files:
+      - src/components/cart-drawer.tsx:152-160
+      - src/components/cart-island.tsx:30-39
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    notes: |
+      Surfaced by perf-a11y on cart-autoopen-drawer-and-live-region
+      ship. UX nuance only — perf-a11y verdict was PASS.
