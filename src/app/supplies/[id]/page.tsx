@@ -309,6 +309,68 @@ export default async function ProductPage({
         </Reveal>
       </section>
 
+      {/* Press notes — per-product editorial paragraphs */}
+      <section className="pdp-press" aria-label="Press notes">
+        <Reveal>
+          <span className="pdp-press-eyebrow">
+            <em>Editorial · Press notes</em>
+          </span>
+        </Reveal>
+        <div className="pdp-press-rule" aria-hidden />
+        <Reveal>
+          <h2 className="pdp-press-display">
+            <em>Press notes.</em>
+          </h2>
+        </Reveal>
+        <div className="pdp-press-prose">
+          {product.pressNotes.map((paragraph, i) => (
+            <Reveal key={`pn-${i}`} delay={`${0.08 + i * 0.06}s`}>
+              <p>{paragraph}</p>
+            </Reveal>
+          ))}
+        </div>
+      </section>
+
+      {/* Dispatch & care — shared editorial dl */}
+      <section className="pdp-dispatch" aria-label="Dispatch and care">
+        <Reveal>
+          <span className="pdp-press-eyebrow">
+            <em>Provenance · Dispatch &amp; care</em>
+          </span>
+        </Reveal>
+        <div className="pdp-press-rule" aria-hidden />
+        <dl className="pdp-dispatch-dl">
+          {[
+            { k: "Dispatch", v: "48 hours · Tracked · Worldwide" },
+            { k: "Care", v: product.careNote },
+            { k: "Edition cap", v: "No run exceeds 250 numbered copies" },
+            {
+              k: "Returns",
+              v: "Opened editions cannot be returned · Damaged-on-receipt: write within 7 days",
+            },
+            {
+              k: "Correspondence",
+              v: (
+                <a
+                  href="mailto:studio@blacksforsale.studio"
+                  className="pdp-dispatch-mail"
+                  data-cursor="link"
+                >
+                  studio@blacksforsale.studio
+                </a>
+              ),
+            },
+          ].map(({ k, v }, i) => (
+            <Reveal key={k} delay={`${0.06 + i * 0.04}s`}>
+              <div className="pdp-dispatch-row">
+                <dt>{k}</dt>
+                <dd>{v}</dd>
+              </div>
+            </Reveal>
+          ))}
+        </dl>
+      </section>
+
       {/* Related — siblings */}
       <RelatedProducts current={product.id} />
 

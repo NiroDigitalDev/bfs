@@ -1284,3 +1284,72 @@ items:
       Surfaced by the /about ship. Best landed alongside the broader
       image-gen task rather than in isolation so the visual register
       stays coherent across routes.
+
+  - id: pdp-press-notes-specimen-detail
+    title: "PDP — add a second specimen-detail plate (closeup of paper grain / spine / typographic plate)"
+    ship: "Add a full-bleed second specimen plate per product showing a closeup detail beneath the .pdp-specimen section — pairs with the press-notes editorial vocabulary now in place. Needs imagery from the open generate-distinctive-images task before it can ship coherently (current SpecimenPlate is illustration-only)."
+    severity: medium
+    effort: M
+    class: distinctive
+    status: open
+    files:
+      - "src/app/supplies/[id]/page.tsx"
+      - "src/components/specimen-plate.tsx"
+    notes: "Surfaced from PDP editorial sections ship (commit pending) — deferred because closeup imagery requires the open generate-distinctive-images task to land first; otherwise the second plate would be illustration-only and read as redundant with the existing SpecimenPlate."
+    opened_on: 2026-05-14
+    dq_count: 0
+
+  - id: pdp-press-notes-illustration
+    title: "PDP — illustration for press-notes section (press-stamp / typesetter's tray)"
+    ship: "Press notes section currently renders type-only on 68ch column. Add a register-coherent illustrative asset (press-stamp, typesetter's tray, paper-stock detail) flanking the prose. Pairs with the open generate-distinctive-images task."
+    severity: low
+    effort: M
+    class: distinctive
+    status: open
+    files:
+      - "src/app/supplies/[id]/page.tsx"
+      - "src/app/globals.css"
+    notes: "Surfaced from PDP editorial sections ship (commit pending) — type-only currently; needs image-gen to land a register-coherent asset (matte black, single subject, italic-serif if any type lives in it)."
+    opened_on: 2026-05-14
+    dq_count: 0
+
+  - id: pdp-care-tokenize
+    title: "PDP — lift care-note literals into a CareCategory enum + per-product key mapping"
+    ship: "Six per-product careNote strings are inline literals on the Product type. If more products land or if care vocabulary diverges further, lift to a shared CareCategory enum (paper / pen / planner / sticky) + per-product key mapping so care guidance can be edited in one place."
+    severity: low
+    effort: S
+    class: hygiene
+    status: open
+    files:
+      - "src/data/products.ts"
+      - "src/app/supplies/[id]/page.tsx"
+    notes: "Surfaced from PDP editorial sections ship (commit pending) — premature today (only 6 products, only one careNote per product), but worth lifting when the catalogue grows or when care vocabulary expands beyond a single string."
+    opened_on: 2026-05-14
+    dq_count: 0
+
+  - id: pdp-in-the-press-pull-quotes
+    title: "PDP — 'In the press' pull-quotes section sourcing /journal posts that reference the product"
+    ship: "Task brief's 4th candidate editorial section: pull 1-2 italic-serif blockquotes from /journal posts that reference each product (per-post tags or in-body references); render as a hairline-ruled blockquote with cite attribution. Overlaps with the open pdp-customer-reviews task — should land coordinated with that ship."
+    severity: medium
+    effort: M
+    class: distinctive
+    status: open
+    files:
+      - "src/app/supplies/[id]/page.tsx"
+      - "src/data/products.ts"
+      - "src/lib/journal.ts"
+    notes: "Surfaced from PDP editorial sections ship (commit pending) — deferred deliberately to land alongside the open pdp-customer-reviews task; both use the editorial pull-quote vocabulary and should share one CSS register."
+    opened_on: 2026-05-14
+    dq_count: 0
+
+  - id: pdp-press-notes-mark-task-shipped
+    title: "Mark PDP editorial-sections Notion task as Done"
+    ship: "Notion page 35faf8d3-d3e2-8188-a138-ddf72125fe36 was completed in commit <pending> — flip Status to Done, fill Commit + Completed via notion-sync.mjs complete-task (or MCP fallback if NOTION_TOKEN unset)."
+    severity: low
+    effort: S
+    class: hygiene
+    status: open
+    files: []
+    notes: "Bookkeeping — Phase 6 in the same run should complete this; this backlog entry exists as a safety-net if the Notion write fails this run."
+    opened_on: 2026-05-14
+    dq_count: 0

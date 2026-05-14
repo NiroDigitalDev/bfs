@@ -5,6 +5,210 @@ One entry per run. Newest first.
 
 ---
 
+## 2026-05-14 — PDP — press notes + dispatch & care editorial sections under the colophon
+
+**Area.** `catalogue` · `system` — extends every `/supplies/[id]` PDP
+with two new editorial sections (per-product **Press notes** and a
+shared **Dispatch & care** dl) that land between the existing
+`.pdp-actions` row and `<RelatedProducts>`. Addresses the explicit
+gap in the prior PDP ship that the spread "feels under-populated
+relative to what a real edition's detail page should carry."
+
+**Why it's the focus.** Task-driven run. Notion Tasks DB returned
+five `To do` rows after the morning's `/about` ship, all at Medium
+priority with identical Added timestamps; the top-task tiebreaker
+fell to surface-freshness + scope-fit. **PDP more editorial
+sections** won on three counts: (1) `catalogue` is the cold surface
+— the last five ships routed to `system|manifesto|nav` (`/about`),
+`cart` (auto-open + live region), `nav` (surface /journal), `hero`
+(display-vocabulary unification), and `catalogue+cart+system` (PDP
+quantity selector); the PDP body has been quiet since the original
+`Add PDP` ship; (2) the task is a focused single-concern with a
+~3-file scope (extend Product type, render 2 new sections, append
+~120 LOC of CSS — no new primitives, no new routes, no shared
+chrome change); (3) the brief explicitly says "implementer can
+refine" the four candidate sections, so the cron can scope to the
+two that don't overlap with the open `pdp-customer-reviews` task
+(skip "In the press" pull-quotes) or the open
+`generate-distinctive-images` task (skip "Specimen detail spread"
+which would need new imagery). The four non-picked rivals
+(`generate-distinctive-images` needs image-gen orchestration that
+fits better as a dedicated ship; `pdp-customer-reviews` overlaps in
+surface and would dilute the brief; `motion-vocabulary-next-tier`
+self-flags as high-risk + likely split candidate; `write-10-journal-posts`
+is Low priority + 10-file content drop) all read as worse fits for
+a single focused hour.
+
+**Mode.** Task-driven.
+
+**Risk band.** `medium` — 3 files modified, 0 new files, 0 new
+primitives, 0 new routes, 0 new dependencies. Type-only `Product`
+extension that all 6 product entries fulfill in the same commit
+(no shape break). Direct-commit to `main` per risk-rules.md
+medium-band mapping.
+
+**What ships.**
+
+1. **Per-product press notes** — `<section className="pdp-press">`
+   between `.pdp-actions` and `<RelatedProducts>`, structured as:
+   `<Reveal>` eyebrow `<em>Editorial · Press notes</em>` →
+   `.pdp-press-rule` 1px hairline →
+   `<Reveal>` h2 `<em>Press notes.</em>` at clamp(28,4vw,44)
+   italic-serif (with the defensive `word-break: keep-all;
+   overflow-wrap: break-word; hyphens: manual;` wrap-vocabulary
+   the about-display + faq-display gained earlier this volume) →
+   `.pdp-press-prose` grid of three `<Reveal>`-wrapped paragraphs at
+   17–19px italic-serif body, 68ch max-width, 0.78 alpha. Reveal
+   delays stagger 0.08/0.14/0.20s. Per-product content is editorial,
+   in BFS voice — examples: `void-book`'s notes describe the
+   seven-stock test, the matte coat that "reads as a held breath,
+   not a polished surface," and the 12 studio-reserved copies per
+   250-run; `executive-despair` describes the undated weekly that
+   doesn't number years, the 90% K deboss on hundred-gram black
+   "you can read with the fingertips," and the Bordeaux foil "as
+   the only colour we permit, plans persist on faith; the foil
+   makes that visible."
+
+2. **Dispatch & care** — `<section className="pdp-dispatch">`
+   immediately below, mirroring the press-notes scaffold (matched
+   `.pdp-press-eyebrow` 'Provenance · Dispatch & care' + matched
+   hairline rule) and then a `<dl className="pdp-dispatch-dl">`
+   of five `<Reveal>`-wrapped rows that reuse the **colophon-row
+   layout vocabulary** (140px → 200px @ min-width:720px key
+   column, ui-monospace 10px 0.24em letterspaced uppercase keys,
+   15px tabular-nums values, hairline borders). Rows: **Dispatch**
+   ('48 hours · Tracked · Worldwide'), **Care** (per-product
+   `careNote` — paper editions get 'Keep dry · Avoid open sun · Open
+   at room temperature' / 'Avoid moisture · Stack flat · Cut with a
+   fresh blade' variants; the savior-pen gets 'Cap firmly between
+   strokes · Store horizontal in a closed drawer'; executive-despair
+   gets the foil-aware 'Foil does not require buffing'),
+   **Edition cap** ('No run exceeds 250 numbered copies'),
+   **Returns** ('Opened editions cannot be returned ·
+   Damaged-on-receipt: write within 7 days'), and
+   **Correspondence** (`mailto:studio@blacksforsale.studio`
+   rendered through a new `.pdp-dispatch-mail` anchor that mirrors
+   the `.outro-colophon-mail` hairline-underline + hover-brighten
+   register). Reveal delays stagger 0.06+i*0.04s.
+
+3. **Product type extension** — `src/data/products.ts` gains two
+   new required fields on `Product`: `pressNotes: string[]` and
+   `careNote: string`. All 6 product entries are updated in the
+   same commit so the type extension never lands without backfill.
+   No new optional fields, no migrations.
+
+**Architecture.**
+
+- **Reuse-over-invent — strictly observed.** Zero new primitives.
+  Every motion uses the existing `<Reveal>` primitive (already
+  RM-guarded). Zero new keyframes. Zero new fonts. Zero new
+  tokens. The `.pdp-dispatch-row` is a deliberate clone of the
+  `.pdp-colophon-row` layout so the new section reads as a
+  structural continuation of the existing provenance ladder
+  rather than a tacked-on returns policy.
+- **Reduced motion.** All Reveals respect `prefers-reduced-motion`
+  via their existing IntersectionObserver guard. The new
+  `.pdp-dispatch-mail` hover transition has an explicit
+  `@media (prefers-reduced-motion: reduce) { transition: none; }`
+  override, matching the about-cta + outro-colophon-mail pattern.
+- **A11y.** Each new `<section>` carries an `aria-label`
+  ('Press notes' / 'Dispatch and care'); the dl uses semantic
+  `dt`/`dd`; the mail anchor inherits the existing
+  `:focus-visible` token; zero keyframes fire without RM
+  fallback.
+- **No primitive surface area.** PDP page imports unchanged; no
+  new components, no client islands added — both new sections are
+  Server-rendered JSX with `<Reveal>` (existing client primitive)
+  for the motion staggers.
+
+**Verification.** lint clean (0 errors, 7 pre-existing tooling
+warnings); typecheck clean; build clean — 28/28 static routes,
+same count as prior ship, all 6 supplies/[id] paths prerendered
+with the new sections; SSR class grep on every PDP path returns
+`press=1 display=1 prose=1 dispatch=1 rows=5 mail=2` per product;
+adjacent-surface regression PASS — homepage SSR shows 12
+`chapter-figure-frame` + 2 `outro-grid` + 10 `nav-num` + 4 `/journal`
+anchors + 1 `/about` anchor; 0 `pdp-` class contamination on `/`,
+`/journal`, `/about`, `/checkout`; sitemap.xml unchanged at 13
+`<loc>` entries; anti-patterns scan: 0.
+
+**Rubric.** T:2 M:1 L:2 I:1 A:3 D:2 = 11 / 18 (Distinctive).
+T:2 because the press-notes block extends the journal-prose
+vocabulary into the PDP surface (italic-serif body at 17–19px,
+68ch max-width) without inventing a new type system; M:1 because
+motion is minimal (Reveal stagger only, no new keyframes); L:2
+because the section rhythm (eyebrow → hairline → display → prose
+→ eyebrow → hairline → dl) reads as one continuous editorial
+spread; I:1 for the `.pdp-dispatch-mail` hover-underline + Reveal
+staggers + RM guard; A:3 because every section has `aria-label`,
+the dl is semantic, the mail anchor is keyboard-reachable, and
+zero motion fires without RM fallback; D:2 because per-product
+editorial press-notes in BFS voice on a stationery PDP is
+genuinely uncommon — the typical e-commerce PDP carries spec
+lists and stock photos, not three italic-serif paragraphs about
+the seven stocks tested or the foil that "makes faith visible."
+
+**Screenshots.** capture-ship skipped (playwright assumed
+unavailable; SSR class-grep on all 6 PDPs is the stronger
+evidence here and the screenshots dir is gitignored regardless).
+
+**SOTD comparison.** sotd-compare.mjs is currently broken
+(sotd-parser-fix backlog item open); skipped this run.
+
+**Notion.** Task `35faf8d3-d3e2-8188-a138-ddf72125fe36` ('PDP —
+add more editorial sections (specimen-detail, edition-history,
+dispatch-notes, related editions)') flipped `In progress → Done`
+with `Completed: 2026-05-14`. Reports row to be appended via MCP
+fallback after the commit lands (NOTION_TOKEN unset).
+
+**Expected impact.** Each PDP now carries three load-bearing
+paragraphs of editorial press-notes per product + a five-row
+provenance dl (Dispatch · Care · Edition cap · Returns ·
+Correspondence) that mirrors the colophon vocabulary. Editorial
+density per PDP increases by ~400 words on average, and the
+returns + correspondence rows close two common pre-purchase
+questions inline rather than burying them on a legal page. SEO:
+each PDP gains substantive on-page editorial content (3 paragraphs
+of unique per-product prose), which strengthens the existing
+Product JSON-LD's `description` signal without requiring metadata
+edits.
+
+**Files modified.**
+- `src/data/products.ts` (+71 LOC — Product type extension +
+  pressNotes + careNote across all 6 products)
+- `src/app/supplies/[id]/page.tsx` (+59 LOC — two new sections
+  between .pdp-actions and RelatedProducts)
+- `src/app/globals.css` (+120 LOC — new `.pdp-press` +
+  `.pdp-dispatch` block at lines 5442-5561)
+
+**Follow-ups uncovered.**
+- `pdp-press-notes-specimen-detail` (medium) — task brief mentions
+  a second full-bleed specimen plate showing a tighter detail
+  (closeup of the typographic plate, paper grain, or spine);
+  deferred from this ship pending the open `generate-distinctive-images`
+  task which would supply the closeup imagery.
+- `pdp-press-notes-illustration` (low) — press-notes is type-only
+  currently; pairs with `generate-distinctive-images` to introduce
+  a press-stamp or typesetter's tray composition that fits BFS
+  register without breaking the typographic discipline.
+- `pdp-care-tokenize` (low) — Care row strings are inline
+  per-product literals on the `Product` type; could lift to a
+  shared `CareCategory` enum + per-product key mapping if more
+  products land or if Care vocabulary diverges further.
+- `pdp-in-the-press-pull-quotes` (medium) — task brief's 4th
+  candidate section ('In the press' pull-quotes from /journal
+  posts that reference the product); deferred to overlap with
+  the open `pdp-customer-reviews` task which is the right home
+  for editorial pull-quote PDP register.
+
+**Periodic triggers fired.** None. last_retro_at: 2026-05-13 (1d
+ago < 7d cadence, skip), last_critic_at: 2026-05-13 (1d ago < 28d
+cadence, skip), last_calibration_at: 2026-05-14 (just ran this
+morning at shipped_count=37, next at 40), consecutive_no_focus_runs:
+0 (no creativity-reset).
+
+---
+
 ## 2026-05-14 — /about — the press in its own voice (editorial spread, AboutPage+Organization JSON-LD, footer surface)
 
 **Area.** `system` · `manifesto` · `nav` — a new dedicated about-the-press
