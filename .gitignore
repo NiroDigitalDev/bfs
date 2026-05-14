@@ -48,3 +48,7 @@ next-env.d.ts
 /.claude/improvement/screenshots/*
 !/.claude/improvement/screenshots/.gitkeep
 !/.claude/improvement/screenshots/README.md
+
+# Scheduled-task runtime lock — written by the harness while a
+# scheduled task is in flight, removed when the run completes.
+/.claude/scheduled_tasks.lock
