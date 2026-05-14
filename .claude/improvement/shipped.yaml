@@ -350,7 +350,7 @@ items:
 
   - id: pdp-customer-reviews-editorial-pull-quotes
     title: "PDP — customer reviews as editorial pull-quotes (no stars, no avatars, no dates)"
-    commit: pending
+    commit: 361d51c
     date: 2026-05-14
     surface: catalogue
     tags: [pdp, catalogue, system, reviews, pull-quotes, editorial-register, italic-serif, hairline-rule, blockquote, cite, reuse-strict, pullquote-vocabulary, cult-fig, pdp-press-chrome, per-product-data, product-type-extension, reveal, no-new-primitives, no-new-deps, no-new-fonts, no-new-keyframes, no-new-tokens, no-jsonld-aggregaterating, prefers-reduced-motion, task-driven]
