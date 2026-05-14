@@ -5,6 +5,193 @@ One entry per run. Newest first.
 
 ---
 
+## 2026-05-14 — Journal — 3 BFS-voice posts (subtask [1/3] of 10-post split)
+
+**Area.** `journal` · `editorial-content` · `seo` — three new long-form
+posts under `src/data/journal/` plus a one-line update to
+`src/data/journal/index.ts`. The 3 posts auto-wire through the
+existing `/journal` index, `/journal/[slug]` route + Article JSON-LD,
+`/journal/rss.xml` feed, `/sitemap.xml`, and per-post
+`opengraph-image` route via `getAllPosts()` in `src/lib/journal.ts`
+— zero changes to route handlers or shared primitives.
+
+**Why it's the focus.** Task-driven. Phase 0 successfully reached
+Notion via MCP this run (NOTION_TOKEN still unset, but MCP
+notion-search + query-data-source + create-pages + update-page all
+healthy — the prior two runs' `net::ERR_FAILED` outage has cleared).
+`check-tasks` query returned 4 `Status: To do` candidates: the Low
+'Write 10 BFS-voice journal posts' (Notion's quirky select-order
+sort placed it first in the API response, ahead of 3 same-Added
+Mediums — this matches `notion-sync.mjs:290`'s `results[0]` rule
+verbatim). The body brief explicitly hinted at splitting ('Could be
+split into 2-3 subtasks of 3-4 posts each if the cron's
+task-splitting heuristic fires (it should…)') and the heuristic
+agreed: 10 new files (> 6), 10 new public-facing routes (> 1), L
+effort with 3000–5000 LOC (> 250). Split into 3 thematic subtasks
+([1/3] pigment/paper/seal, [2/3] type/marginalia/numerals/folio,
+[3/3] editions/manifesto/noindex), parent flipped to Status: Split
+with the 3 subtask URLs filled into the Subtasks column. Subtask
+[1/3] claimed for this run.
+
+**Mode.** Task-driven (split).
+
+**Risk band.** `medium` per parent task brief — 3 new public-facing
+routes (`/journal/<slug>`), ~900 LOC of new prose JSX, but pure
+content + data (no shared primitive touched, no client islands
+added, no new dep / token / font / keyframe). Direct-commit to
+`main` per `risk-rules.md` medium-band mapping (not a shared
+primitive or architectural change).
+
+**What ships.**
+
+1. **`src/data/journal/the-grammar-of-blackest-black.tsx`** —
+   publishedAt 2026-04-12, tags pigment/press-notes/edition III.
+   Covers Outrenoir (Soulages's surface-not-pigment ridged
+   impasto), Mars Black as honest opaque iron oxide, Vantablack's
+   carbon-nanotube light-trap chemistry, and the K100-vs-rich-black
+   30% cyan plate. Opens "Vantablack absorbs *99.965%* of incident
+   light. We mention the figure not because it matters, but because
+   the chase for it does." Three paragraphs, one h2, one h3, one
+   blockquote. 81 LOC.
+2. **`src/data/journal/paper-that-resists-journalism.tsx`** —
+   publishedAt 2026-04-26, tags paper/press-notes/edition III.
+   Covers newsprint-as-confession, 240gsm/180gsm density specs,
+   why uncoated stocks ("the image is the type; the reflection
+   would be a third party we did not invite"), why BFS does not
+   specify whiteness, the deckle as "a romance we no longer keep."
+   76 LOC.
+3. **`src/data/journal/on-the-seal-of-a-dispatch.tsx`** —
+   publishedAt 2026-05-03, tags dispatch/ritual/edition III.
+   Covers the 0.5pt hairline rule "set 28mm from the upper edge…
+   so the seal has a register to violate," *noir d'imprimerie* wax,
+   the quartered crest with two blank quarters ("blank on purpose…
+   the part of the gesture that does not have to explain itself"),
+   and the paper knife included in every dispatch. 78 LOC.
+4. **`src/data/journal/index.ts`** updated — imports the 3 new
+   named exports + adds them to the `journalPosts` array. All
+   three new posts placed after the seed in array order, but the
+   index sorts by `publishedAt` desc so the on-screen order is
+   seed (2026-05-13) → on-the-seal (2026-05-03) → paper-that
+   (2026-04-26) → grammar-of-blackest (2026-04-12).
+
+**Architecture.** No new primitives, no new components, no new
+keyframes, no new tokens, no new fonts, no new dependencies.
+Every post is a pure Server Component data file. The journal route
+infrastructure (`getAllPosts` / `getPostBySlug` /
+`generateStaticParams` / per-post `generateMetadata` / Article
+JSON-LD / RSS feed / sitemap) was already designed to consume the
+`journalPosts` array, so the only wiring needed was the
+`index.ts` import + array push. Voice register inherits from the
+seed's reference register — italic-serif inline `<em>` for
+emphasis (typographic figures, terms in French, gsm), short
+paragraphs in BFS's dry editorial first-person plural ("we mention
+this", "we have shipped editions with…"), one blockquote per post
+serving as the pull-quote that the journal-prose drop-cap +
+hanging-punctuation + small-caps-lede shipped earlier today is
+designed to typeset.
+
+**Verification.** `bun run lint` 0 errors + 7 pre-existing tooling
+warnings in `.claude/improvement/scripts/*.mjs` (the initial first
+pass surfaced 11 `react/no-unescaped-entities` errors on `'` and
+`"` in prose; fixed inline by switching to the proper typographic
+curly quotes `’` and `“/”`, which is also the correct register
+for BFS's editorial baseline — straight quotes were a placeholder).
+`bunx tsc --noEmit` clean. `bun run build` 34/34 static routes
+(was 28; **+6** = 3 new posts × `/journal/<slug>` + `/journal/<slug>/opengraph-image`).
+SSR class grep on all 3 new post pages: each renders
+`<article>=1`, `<h1>=1`, `<h2>=1`, `<blockquote>=1`,
+`"@type":"Article"`=1, canonical link present. Journal index SSR
+PASS — 4 `href="/journal/<slug>"` cards present (vol-iii,
+on-the-seal, paper-that, the-grammar), h1=1, Blog JSON-LD=1.
+RSS feed PASS — 4 `<item>` entries with correct titles in
+publishedAt-desc order. `sitemap.xml` includes 4 post URLs +
+`/journal` index. Adjacent-surface regression PASS — homepage 12
+`chapter-figure-frame` (unchanged), `/about` 4 `about-section`
+blocks (3 plain + 1 coda variant, unchanged), `/supplies/void-book`
+1 `pdp-press-display` (unchanged). `anti-patterns.mjs` reports 0
+findings.
+
+**Rubric.** T:1 M:0 L:1 I:0 A:2 D:2 = **6/18** (Solid).
+T:1 because the posts inherit the existing journal-prose
+typographic register (no new type system); the drop-cap +
+hanging-punctuation + small-caps-lede shipped earlier today now
+fires on three additional opening paragraphs. M:0 — intentionally
+static; long-form prose reads, doesn't animate. L:1 — each post
+uses the existing `JournalPostFrame` composition; no new layout
+primitive. I:0 — pure read-only content. A:2 — semantic
+h2/h3/p/blockquote/em markup, Article JSON-LD per post, canonical
+links, descriptive excerpts, screen-readable text with
+typographic curly quotes that voice synth handles cleanly. D:2 —
+the editorial voice (Outrenoir/K100/Mars Black; the 240gsm density
+vs newsprint-as-confession framing; the 0.5pt hairline that
+precedes the wax; the paper knife "not on the invoice") is
+distinctive against the typical Next.js journal post — the per-post
+register is the move, even though the typographic primitives are
+inherited.
+
+**Screenshots.** Skipped (`playwright_available: unknown` — no
+screenshot infra this run; SSR class-grep is the stronger evidence
+and the screenshots dir is gitignored anyway).
+
+**SOTD comparison.** Skipped (`sotd_parser_available: false` —
+sotd-parser-fix backlog item still open).
+
+**Notion.** Parent task `35faf8d3-d3e2-81e5-8b57-f446e4a5a226`
+flipped to Status: Split with Subtasks column populated with the 3
+new subtask URLs. Subtask [1/3]
+`360af8d3-d3e2-81c5-b589-c8125c18504e` claimed → In progress →
+Done (Completed: 2026-05-14, Commit: `<sha>`, Surface auto-derived
+as `seo` from the diff). Subtasks [2/3] `360af8d3-d3e2-8104-add9-eabcfda776bf`
+and [3/3] `360af8d3-d3e2-810a-8282-c1e54dde1343` remain at Status:
+To do for future runs. Reports row appended via MCP fallback
+(NOTION_TOKEN still unset; MCP path is healthy this run).
+
+**Expected impact.** Editorial register on the journal — three new
+long-form essays in the press's voice, each genuinely useful as
+editorial prose (not SEO-keyword stuffing). Lifts `/journal` from
+a one-post placeholder to a 4-post editorial spread. RSS feed +
+sitemap + Article JSON-LD give the new posts search-and-feed
+discoverability without ad-hoc per-post wiring. Each post benefits
+from the drop-cap + hanging-punctuation + small-caps-lede
+typographic register that shipped earlier today.
+
+**Files modified.**
+
+- `src/data/journal/the-grammar-of-blackest-black.tsx` (new, +81)
+- `src/data/journal/paper-that-resists-journalism.tsx` (new, +76)
+- `src/data/journal/on-the-seal-of-a-dispatch.tsx` (new, +78)
+- `src/data/journal/index.ts` (+6 / -1)
+
+Net delta: 4 files, +263/-1 LOC, 3 new files, 0 modified
+components, 0 modified routes, 0 modified shared primitives,
+0 new dependencies.
+
+**Follow-ups uncovered.**
+
+- `journal-subtask-2-of-3` — queued, Notion subtask
+  `360af8d3-d3e2-8104-add9-eabcfda776bf` (4 posts on
+  type/marginalia/numerals/folio).
+- `journal-subtask-3-of-3` — queued, Notion subtask
+  `360af8d3-d3e2-810a-8282-c1e54dde1343` (3 posts on edition
+  physics/SaaS manifesto/noindex).
+- `journal-post-curly-quote-codemod` — low. Consider a build-time
+  codemod or `eslint-plugin-typographic` rule to enforce `’`/`“`/`”`
+  across all `.tsx` prose surfaces so future posts don't
+  first-pass-fail `react/no-unescaped-entities`.
+- `journal-post-related-posts-component` — low. Parent task brief
+  mentions optional `<RelatedJournalPosts>` cross-referencing;
+  `getRelatedPosts` is already wired in `src/lib/journal.ts` but
+  no component renders it under the post body yet.
+
+**Backlog closed-by-drift.** None this run.
+
+**Periodic triggers fired.** None — `last_retro_at` 2026-05-13
+(1 day ago, < 7-day threshold), `last_critic_at` 2026-05-13
+(< 28-day threshold), `last_calibration_at` 2026-05-14
+(today; next at shipped_count=40, currently 39).
+
+---
+
 ## 2026-05-14 — Journal prose — drop-cap, hanging punctuation, small-caps lede
 
 **Area.** `editorial` · `journal-prose` — the long-form post body at
