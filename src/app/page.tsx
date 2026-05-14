@@ -820,6 +820,17 @@ export default function Home() {
               Studio
             </a>
           </nav>
+          <nav className="outro-links outro-links-statutory" aria-label="Statutory">
+            <Link href="/privacy" data-cursor="link">
+              Privacy
+            </Link>
+            <Link href="/terms" data-cursor="link">
+              Terms
+            </Link>
+            <Link href="/cookies" data-cursor="link">
+              Cookies
+            </Link>
+          </nav>
         </div>
 
         <p className="outro-signoff">

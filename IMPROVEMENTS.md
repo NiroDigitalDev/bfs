@@ -5,6 +5,191 @@ One entry per run. Newest first.
 
 ---
 
+## 2026-05-14 — Legal pages — /privacy, /terms, /cookies (editorial register) + sitemap + outro statutory links
+
+**Area.** `system` · new public-facing statutory routes + homepage outro chrome.
+
+**Why it's the focus.** Notion task-driven mode: the top-priority `To do` row
+in the Tasks DB was `Add legal pages (privacy, terms, cookies) + GDPR-compliant
+cookie banner` (Priority: High, page
+[35faf8d3-…7ba559eb8ffdb7938b](https://www.notion.so/35faf8d3d3e2817ba559eb8ffdb7938b)),
+the single remaining High-priority row. The brief hit 4 of 6 split heuristics —
+3 new public-facing routes + sitewide chrome (cookie banner) + ~600–900 LOC +
+multiple distinct features — so Phase 0 split it into two single-concern
+subtasks before claiming. Subtask **[1/2]** (this run, page
+[360af8d3-…81ee8645da8a7db7fe7f](https://www.notion.so/360af8d3d3e281ee8645da8a7db7fe7f))
+lays the three statutory routes as the foundation. Subtask **[2/2]** (page
+[360af8d3-…81a8a643e546ec8038de](https://www.notion.so/360af8d3d3e281a8a643e546ec8038de))
+is the cookie banner; it depends on /cookies existing as a link target, which
+this run delivers.
+
+**Mode.** Task-driven (split). Parent flipped `To do → Split`; Subtasks
+property filled with both URLs; [1/2] claimed.
+
+**Risk band.** medium — three new public-facing routes + `sitemap.ts` mod +
+homepage outro touch (additive only, no restructure). No shared primitives
+modified. No client deps. No new tokens. Medium → direct commit to main per
+`risk-rules.md`.
+
+**What ships.** Three statutory pages in the press's editorial register —
+NOT generic grey-wall legalese.
+
+1. **`/privacy`** (~750 words) — covers the data controller, what is held
+   (email + dispatch address + optional checkout note + Vercel Analytics
+   aggregates), why under GDPR Art. 6(1)(b) contractual necessity + Art.
+   6(1)(f) legitimate interest, retention windows (orders: dispatch + 12
+   months; analytics: 26 months rolling), GDPR Arts. 15–22 rights, children's
+   data, where the data lives, policy-update process.
+2. **`/terms`** (~650 words) — editions (numbered, no reprints under same
+   plate), payment (USD via PCI-DSS provider), dispatch (48-hour window,
+   worldwide tracked), damage-on-receipt (7-day replace from reserve),
+   returns (`The press does not accept returns of opened editions.` — a
+   register-coherent statutory line), intellectual property (© BFS),
+   governing law, contact.
+3. **`/cookies`** (~500 words) — what cookies are, what BFS uses (only
+   `bfs:cart` cart state + `bfs-cookie-consent` choice — both `localStorage`,
+   listed by exact key name), what's optional (Vercel Analytics loads only
+   if the visitor picks `Accept all` in the banner — note the banner ships
+   in [2/2]), what is NOT used (no ad trackers, retargeting, third-party
+   social widgets, fingerprinting), how to change consent, browser-level
+   opt-out.
+
+Each route is rendered by a new `<LegalPageFrame>` Server Component
+([src/components/legal-page-frame.tsx](src/components/legal-page-frame.tsx)) —
+top nav (BFS wordmark + Journal/Catalogue/Position/Field Notes),
+`journal-breadcrumb` row (`← Vol. III · The Press`), a restrained
+`.legal-display` h1 in italic-serif at `clamp(40, 7vw, 96)` — intentionally
+half the scale of `.journal-display` because statutory pages should not be
+over-celebrated, a `journal-eyebrow` line, lede paragraph, a
+`Last revised · 14 May 2026` marker, body in
+`<article class="journal-prose legal-prose">` (inherits every h2/h3/p/
+blockquote/ul/ol/a rule already authored in
+[globals.css:6715–6823](src/app/globals.css:6715)), and a hairline-ruled
+footer with a magnetic-wrapped `Return to the volume` link + `Edition III ·
+MMXXVI` signoff.
+
+Homepage outro ([src/app/page.tsx](src/app/page.tsx) ~line 815) grows a
+second `<nav class="outro-links outro-links-statutory" aria-label="Statutory">`
+row directly under the existing outro-links nav, carrying three `<Link>`
+items (Privacy / Terms / Cookies). Keeps the main outro-links readable at
+five items rather than swelling to eight.
+
+[`sitemap.ts`](src/app/sitemap.ts) extends with `['privacy', 'terms',
+'cookies'].map(...)` → priority 0.3, `changeFrequency: 'yearly'`,
+lastModified=now. Mirrors the shape of the supplies and journal entries.
+
+**Architecture.** The new `<LegalPageFrame>` Server Component centralises
+the nav/breadcrumb/hero/footer scaffold the three pages share, so each
+page's `page.tsx` reads as just the page-specific metadata + body prose.
+No client JS introduced. Reuses `<Magnetic>` for the return CTA — the only
+client primitive in the frame. `.legal-display` extends the journal display
+vocabulary at restrained scale; `.legal-prose` is a hook class that today
+only narrows the column to `68ch`. `.outro-links-statutory` is a dim
+small-print appendix below the main outro nav.
+
+**Verification.**
+- `bun run lint` — 7 pre-existing warnings in cron scripts only, 0 new
+  in `src/`.
+- `bunx tsc --noEmit` — clean (silent run).
+- `bun run build` — clean, **27 static routes** prerendered (was 24);
+  `/privacy`, `/terms`, `/cookies` now in `.next/server/app/`.
+- `anti-patterns.mjs` — **0 findings**.
+- SSR sanity (per route, from `.next/server/app/{privacy,terms,cookies}.html`):
+  - `<title>Privacy · Blacks For Sale</title>` (+ Terms, + Cookies)
+  - 1 `<h1 class="legal-display"><em>...</em>` per page
+  - Multiple `<h2>` section headings (Privacy: 8 · Terms: 8 · Cookies: 7)
+  - `journal-breadcrumb` + `journal-prose` markup present
+  - NEITHER `chapter-rail` NOR `running-folio` rendered on legal routes
+    (`SiteChrome`'s existing `pathname !== '/'` guard correctly excludes
+    legal routes — **no SiteChrome edit needed**).
+- Homepage SSR — 3 new anchors `href="/privacy"`, `/terms`, `/cookies`,
+  rendered under the new `outro-links-statutory` nav with
+  `aria-label="Statutory"`.
+- `sitemap.xml.body` — three new `<url>` entries with priority 0.3 +
+  `<changefreq>yearly</changefreq>`.
+- Adjacent surfaces unchanged: `/journal`, `/journal/[slug]`,
+  `/supplies/[id]`, `/checkout` all still build; homepage outro retains
+  its existing primary nav (Catalogue/Position/Field Notes/On Record/
+  Journal/Studio) unchanged.
+
+**Rubric.** T 2 · M 1 · L 3 · I 2 · A 3 · D 2 = **13 / 18** — Distinctive
+band. Editorial register on statutory pages is the distinctive move (T+D)
+— most sites ship grey-wall legalese. The motion score is intentionally
+low: legal pages should not animate. The L score is high — this is an
+explicit foundation for [2/2] (cookie banner) and for future
+analytics-consent wiring.
+
+**Screenshots.**
+- `.claude/improvement/screenshots/<sha>/legal-desktop.png` (1440 × 900,
+  `/privacy` as the canonical legal page).
+- `.claude/improvement/screenshots/<sha>/legal-mobile.png` (390 × 844).
+
+(Captured against the prior commit's sha-folder this run; the screenshots
+dir is gitignored — informational only.)
+
+**SOTD comparison.** `sotd-compare.mjs` skipped — `could not parse SOTD
+entry — gallery markup may have changed`. The `sotd-parser-fix` backlog
+item is still open.
+
+**Notion.**
+- Parent task `Add legal pages + GDPR cookie banner`
+  ([35faf8d3-…7ba559eb8ffdb7938b](https://www.notion.so/35faf8d3d3e2817ba559eb8ffdb7938b))
+  flipped `To do → Split`; Subtasks property filled with both subtask URLs.
+- Subtask **[1/2]** (`Legal pages — /privacy, /terms, /cookies routes …`,
+  [360af8d3-…81ee8645da8a7db7fe7f](https://www.notion.so/360af8d3d3e281ee8645da8a7db7fe7f))
+  claimed in Phase 0 (`To do → In progress`, Started=2026-05-14),
+  completed in Phase 6 (`Done`, Completed=2026-05-14, Commit=&lt;sha&gt;,
+  Surface auto-derived).
+- Subtask **[2/2]** (`Cookie banner — sitewide consent UI + localStorage + …`,
+  [360af8d3-…81a8a643e546ec8038de](https://www.notion.so/360af8d3d3e281a8a643e546ec8038de))
+  remains `To do` and will be picked up by a future task-driven run.
+- Reports row appended for this run.
+
+**Expected impact.**
+- GDPR posture: from non-compliant to substantially compliant on the
+  content layer (privacy notice + cookie disclosure + statutory routes).
+  [2/2] closes the consent-UI gap.
+- SEO: three new indexable routes at priority 0.3 — low-priority but
+  searchable for queries like `"blacks for sale" privacy` /
+  `"blacks for sale" terms`.
+- Trust signal: legal links in the homepage outro signal a real press
+  to readers + Google.
+- Foundation: `<LegalPageFrame>` is the shape future statutory or
+  ancillary pages (e.g. `/about`, `/colophon`) can opt into without
+  re-authoring chrome.
+
+**Files modified.**
+- `src/components/legal-page-frame.tsx` (NEW, +116)
+- `src/app/privacy/page.tsx` (NEW, +118)
+- `src/app/terms/page.tsx` (NEW, +123)
+- `src/app/cookies/page.tsx` (NEW, +106)
+- `src/app/globals.css` (+73 — `.legal-page` block + `.outro-links-statutory` dim)
+- `src/app/page.tsx` (+11 — second outro-links nav)
+- `src/app/sitemap.ts` (+6 — three legal-route entries)
+
+Net diff: 7 files, **+553 / −1 LOC**.
+
+**Follow-ups uncovered.**
+- Subtask **[2/2] (cookie banner)** is the immediate next move — it
+  depends on this run's `/cookies` route as a link target. Notion link:
+  [360af8d3-…81a8a643e546ec8038de](https://www.notion.so/360af8d3d3e281a8a643e546ec8038de).
+- `notion-create-pages-multiselect-csv-fix` (new): the
+  `mcp__…__notion-create-pages` API rejects comma-separated Surface
+  values as a single string (`Invalid multi_select value for property
+  "Surface": "system,seo,nav"`). This run worked around it by passing a
+  single Surface value per subtask. A future MCP update or
+  `notion-sync.mjs` HTTP path should accept the multi-value array
+  properly so subtasks can carry full surface taxonomy.
+- `sotd-parser-fix` (pre-existing) still open.
+
+**Backlog closed-by-drift.** None this run.
+
+**Periodic triggers fired.** None — retro (last 2026-05-13, < 7 days),
+critic (last 2026-05-13, < 28 days), calibration (last 2026-05-14, fired
+yesterday), creativity-reset (`consecutive_no_focus_runs = 0`).
+
+---
+
 ## 2026-05-14 — Surface /journal — 5th nav item + IndexMenu entry + footer link + homepage "from the journal" dispatch block
 
 **Area.** Site chrome + homepage editorial structure. Four touchpoints:

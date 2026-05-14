@@ -7119,3 +7119,86 @@ main.pdp ~ .folio {
     transition: none;
   }
 }
+
+/* ============================================================
+   Legal pages — /privacy, /terms, /cookies.
+   Statutory copy in the press's editorial register: italic-serif
+   headings, journal-prose body, hairline-ruled hero. NOT an
+   over-celebrated display heading — these are statutory pages,
+   not editorial pieces. Inherits .journal + .journal-prose +
+   .journal-breadcrumb from the journal block. Adds a restrained
+   .legal-display heading (~half the scale of .journal-display),
+   a "last revised" line, and a paired footer rule.
+   ============================================================ */
+.legal-page {
+  /* extends .journal — same outer container, same padding */
+}
+
+.legal-header {
+  /* extends .journal-header — same vertical rhythm and hairline */
+}
+
+.legal-display {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(40px, 7vw, 96px);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.96);
+}
+
+.legal-display em {
+  font-style: italic;
+}
+
+.legal-display-period {
+  display: inline-block;
+  color: rgba(255, 255, 255, 0.5);
+  margin-left: 0.02em;
+}
+
+.legal-revised {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.5);
+  margin: 0;
+}
+.legal-revised em {
+  font-style: italic;
+}
+
+/* The legal prose lives inside .journal-prose so it inherits all
+   the same h2/h3/p/blockquote/ul/ol/a styling. The .legal-prose
+   class is a hook for future overrides; for now it carries the
+   same vocabulary and only narrows the lede column slightly. */
+.legal-prose {
+  max-width: 68ch;
+}
+
+.legal-prose code {
+  letter-spacing: 0.01em;
+}
+
+.legal-page-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding: 48px 0 64px;
+  border-top: 1px solid var(--color-line);
+}
+
+/* Footer's statutory link row — slightly dimmer than the main
+   outro-links above it, reading as a smaller-print appendix. */
+.outro-links-statutory {
+  margin-top: 8px;
+  font-size: 13px;
+  letter-spacing: 0.05em;
+  opacity: 0.62;
+}
+

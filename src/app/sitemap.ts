@@ -33,5 +33,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly" as const,
       priority: 0.6,
     })),
+    ...(["privacy", "terms", "cookies"] as const).map((slug) => ({
+      url: `${siteUrl}/${slug}`,
+      lastModified: now,
+      changeFrequency: "yearly" as const,
+      priority: 0.3,
+    })),
   ];
 }

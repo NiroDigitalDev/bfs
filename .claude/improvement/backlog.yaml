@@ -902,3 +902,61 @@ items:
     notes: |
       Source — surface-journal-nav-and-homepage-block ship. Defensive
       backlog entry — not a current bug.
+
+  - id: notion-create-pages-multiselect-csv-fix
+    title: "notion-create-pages MCP rejects comma-separated multi-select Surface values"
+    ship: |
+      During Phase 0 task-splitting this run, the
+      `mcp__625e67a9-...__notion-create-pages` call rejected a
+      Surface value of `"system,seo,nav"` with: `Invalid multi_select
+      value for property "Surface": "system,seo,nav". Value must be
+      one of the following: ...`. The MCP layer is treating the
+      comma-separated string as a single option key rather than
+      splitting it. Workaround used this run: pass a single Surface
+      string per subtask (`"system"` for [1/2], `"chrome"` for [2/2]).
+      Real fix: either (a) call `notion-sync.mjs split-task` once
+      NOTION_TOKEN is in env (the HTTP path correctly emits the multi_
+      select array), or (b) escalate the MCP issue to whoever
+      maintains the Notion MCP server so the SQLite-style "CSV-as-
+      multi-select" syntax is supported. Until then, subtask Surface
+      tagging is partial.
+    severity: low
+    effort: S
+    class: hygiene
+    status: open
+    files:
+      - .claude/improvement/scripts/notion-sync.mjs
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    notes: |
+      Source — legal-pages-privacy-terms-cookies split. Not a code
+      bug in BFS — a workflow gap. Documented for the next run that
+      hits Notion subtask splitting.
+
+  - id: cookie-banner-subtask
+    title: "[2/2] Cookie banner — sitewide consent UI + localStorage + layout mount + /cookies cross-link (Notion subtask of legal-pages)"
+    ship: |
+      Notion subtask 360af8d3-d3e2-81a8-a643-e546ec8038de
+      (https://www.notion.so/360af8d3d3e281a8a643e546ec8038de) — the
+      second half of the legal-pages parent task. Builds a
+      `<CookieBanner />` client component mounted in `layout.tsx`
+      with localStorage consent state and a slide-up motion gated
+      on prefers-reduced-motion. Depends on this run's `/cookies`
+      route. Will be picked up by a future task-driven cron run as
+      the next-highest-priority To-do task.
+    severity: medium
+    effort: M
+    class: feature
+    status: open
+    files:
+      - src/components/cookie-banner.tsx
+      - src/app/layout.tsx
+      - src/app/globals.css
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    notes: |
+      Source — legal-pages-privacy-terms-cookies ship.
+      Surfaced here so reference-scout and historian know
+      about the planned follow-up; the Notion row is the source
+      of truth, but visibility in backlog.yaml helps the picker
+      see the dependency chain.
