@@ -2708,16 +2708,164 @@ items:
     severity: medium
     effort: S
     class: infra
-    status: open
+    status: shipped
     files:
       - .claude/improvement/scripts/notion-sync.mjs
       - public/img/
     opened_on: 2026-05-14
-    last_verified: 2026-05-14
+    last_verified: 2026-05-15
     dq_count: 0
     notes: |
-      The motion-vocabulary parent task was split this run via
-      MCP — same pattern will work for image-gen. The first-time-
-      use-of-image-gen-skill risk that earlier pickers cited is
-      addressed by the split (each subtask is small enough to
-      verify the skill end-to-end with low blast radius).
+      Shipped on 2026-05-15 — Phase 0 split image-gen parent into 3
+      surface-scoped subtasks via MCP create-pages, parent flipped
+      Status: To do → Split, subtask [1/3] homepage section divider
+      claimed and shipped same run (commit pending → backfilled).
+      Mandate honored.
+
+  - id: image-gen-subtask-2-of-3-pdp-specimen-plates
+    title: Image-gen subtask [2/3] — 6 SVG specimen-plate frames around each /supplies/[id] hero
+    ship: |
+      Notion subtask 360af8d3-d3e2-816e-84c5-d94cdd04faf3 (Medium,
+      Surface: catalogue,system) — generate 6 inline-SVG specimen-
+      plate frame compositions, one per product (void-book,
+      abyssal-cardstock, event-horizon-pad, sticky-voids, savior-
+      pen, executive-despair), wrapping the existing PDP OG image
+      area. Each frame uses the [1/3] established pattern: server
+      component + inline SVG via image-gen skill (generate-svg.ts
+      on google/gemini-3-pro-preview, ~7s real time per SVG). New
+      component src/components/specimen-plate-frame.tsx (~80-120
+      LOC), mounted in src/app/supplies/[id]/page.tsx. CSS scoped
+      to .specimen-plate-frame, absolute / pointer-events:none /
+      inset:0 wrapping the OG image. Risk medium because 6 PDP
+      routes are touched, but each is identical structure with
+      product-specific variant data — no shared primitive change.
+    severity: medium
+    effort: M
+    class: distinctive
+    status: open
+    files:
+      - src/components/specimen-plate-frame.tsx
+      - src/app/supplies/[id]/page.tsx
+      - src/app/globals.css
+    opened_on: 2026-05-15
+    last_verified: 2026-05-15
+    dq_count: 0
+    notes: |
+      Subtask 2/3 of image-gen parent. [1/3] homepage section
+      divider shipped this run and validated the image-gen skill
+      invocation pattern. Pick this next time the cron has bandwidth
+      for a medium-risk PDP-spanning ship.
+
+  - id: image-gen-subtask-3-of-3-journal-manifesto-colophon-imagery
+    title: Image-gen subtask [3/3] — 3 SVG compositions for journal index + manifesto + colophon
+    ship: |
+      Notion subtask 360af8d3-d3e2-81d5-a53d-f21127250381 (Medium,
+      Surface: manifesto,colophon,system) — generate 3 inline-SVG
+      compositions via the image-gen skill: (a) a wax-seal-on-
+      black-paper composition for the /journal index header, (b)
+      a press-stamp/typesetter's-tray composition for the homepage
+      manifesto sticky-rail area, (c) a hand-press colophon
+      composition for the colophon section. Each uses the [1/3]
+      established pattern (server component + inline SVG via
+      generate-svg.ts). Mount sites: src/app/journal/page.tsx,
+      src/app/page.tsx (manifesto), site-footer.tsx or colophon
+      component. Risk medium because 3 surfaces are touched.
+    severity: medium
+    effort: M
+    class: distinctive
+    status: open
+    files:
+      - src/components/imagery/
+      - src/app/journal/page.tsx
+      - src/app/page.tsx
+      - src/components/site-footer.tsx
+      - src/app/globals.css
+    opened_on: 2026-05-15
+    last_verified: 2026-05-15
+    dq_count: 0
+    notes: |
+      Subtask 3/3 of image-gen parent. Ship after [2/3] to give
+      the imagery vocabulary 2+ existing precedents on different
+      surfaces before extending to 3 more.
+
+  - id: section-divider-additional-mount-sites
+    title: SectionDivider — consider second mount at Manifesto → Press or Catalogue → Colophon
+    ship: |
+      After [2/3] and [3/3] of image-gen establish the imagery
+      vocabulary across PDPs and journal/manifesto/colophon,
+      consider adding ONE more <SectionDivider /> mount on the
+      homepage at either: (a) the Manifesto → Press transition
+      (src/app/page.tsx:527→530), or (b) the Catalogue → Colophon-
+      mark transition (src/app/page.tsx:337→340). Cap at 2 site-
+      wide so the gesture stays special — beyond that the divider
+      would read as ambient pattern rather than editorial accent.
+      Same component, same SVG, same CSS — only the mount point
+      differs.
+    severity: low
+    effort: S
+    class: distinctive
+    status: open
+    files:
+      - src/app/page.tsx
+    opened_on: 2026-05-15
+    last_verified: 2026-05-15
+    dq_count: 0
+    notes: |
+      Wait until [2/3] and [3/3] land so we can judge whether the
+      site needs a second divider mount or if the imagery
+      vocabulary is already saturated by then.
+
+  - id: image-gen-skill-svg-output-fidelity-spot-check
+    title: image-gen skill — spot-check temperature variants for SVG path composition quality
+    ship: |
+      First use of image-gen skill via generate-svg.ts succeeded on
+      google/gemini-3-pro-preview with 0 retries and produced a
+      composition-correct torn-edge path with registration ticks +
+      press-mark exactly as prompted. On a future image-gen ship
+      ([2/3] PDP frames is the natural next pick), spot-check
+      whether explicit temperature:0.8 yields better-composed paths
+      than the default. Compare 3 outputs at temperature 0.7 / 1.0
+      / 1.3 on the same prompt and capture which composes best for
+      the BFS register.
+    severity: low
+    effort: S
+    class: hygiene
+    status: open
+    files:
+      - ~/.claude/skills/image-gen/scripts/generate-svg.ts
+    opened_on: 2026-05-15
+    last_verified: 2026-05-15
+    dq_count: 0
+    notes: |
+      Comparison data is most valuable when there's a future SVG
+      ship to apply it to. Schedule this for the [2/3] PDP-frames
+      ship as a side-experiment.
+
+  - id: image-gen-skill-as-first-class-tool-doc-claudemd
+    title: Document image-gen skill invocation pattern in CLAUDE.md so future ships short-circuit discovery
+    ship: |
+      The image-gen skill was successfully invoked in the autonomous
+      cron via:
+        cd ~/.claude/skills/image-gen/scripts &&
+          bun run generate-svg.ts /tmp/<config>.json
+      where the config JSON shape is documented in the skill's
+      SKILL.md. Document this exact pattern in CLAUDE.md (or
+      .claude/CLAUDE.md) under an "image-gen invocation" section so
+      the next ship can short-circuit the discovery overhead. Include
+      the generate-svg.ts JSON shape, the temperature/model fields,
+      where the default model lives (scripts/models.ts), and the
+      auto-versioning behavior on outputPath.
+    severity: low
+    effort: S
+    class: infra
+    status: open
+    files:
+      - .claude/CLAUDE.md
+      - CLAUDE.md
+    opened_on: 2026-05-15
+    last_verified: 2026-05-15
+    dq_count: 0
+    notes: |
+      The [1/3] image-gen ship is the first successful invocation;
+      the [2/3] and [3/3] subtasks will use the same recipe.
+      Codifying it in CLAUDE.md is a small but real time-saver.

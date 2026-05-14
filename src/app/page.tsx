@@ -10,6 +10,7 @@ import { FaqItem } from "@/components/faq-item";
 import { CartCount, AddToCart, NavCart } from "@/components/cart-island";
 import { IndexMenu } from "@/components/index-menu";
 import { SpecimenPlate } from "@/components/specimen-plate";
+import { SectionDivider } from "@/components/section-divider";
 import {
   NotebookVisual,
   CardstockVisual,
@@ -620,11 +621,13 @@ export default function Home() {
 
       {/* From the Journal — editorial dispatch interstitial, links into /journal */}
       {journalLatest.length > 0 ? (
-        <section
-          id="from-journal"
-          className="from-journal"
-          aria-labelledby="from-journal-heading"
-        >
+        <>
+          <SectionDivider />
+          <section
+            id="from-journal"
+            className="from-journal"
+            aria-labelledby="from-journal-heading"
+          >
           <div className="from-journal-head">
             <span className="from-journal-eyebrow">
               <span className="from-journal-eyebrow-rule" aria-hidden />
@@ -689,7 +692,8 @@ export default function Home() {
               </Link>
             </Magnetic>
           </Reveal>
-        </section>
+          </section>
+        </>
       ) : null}
 
       {/* FAQ */}

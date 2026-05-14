@@ -2615,6 +2615,25 @@ html.loading body {
    Compact list register — numeral · date · title · subtitle · CTA.
    Italic-serif vocabulary inherited from the journal index; no new keyframes
    (motion is delegated to <Reveal>, which already respects reduced-motion). */
+/* SectionDivider — inline-SVG decorative torn-edge composition, used at the
+   Field Notes → From the Journal transition. Pure presentational element,
+   aria-hidden, currentColor stroke at low opacity. */
+.section-divider {
+  display: block;
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: clamp(28px, 4vw, 56px) 22px clamp(8px, 1.5vw, 24px);
+  color: var(--color-line-2);
+  pointer-events: none;
+  user-select: none;
+}
+.section-divider svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
 .from-journal {
   padding: clamp(72px, 11vw, 144px) 22px;
   max-width: 1240px;
