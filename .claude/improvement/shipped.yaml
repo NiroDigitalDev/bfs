@@ -334,7 +334,7 @@ items:
 
   - id: journal-prose-drop-cap-and-hanging-punct
     title: "Journal prose — drop-cap, hanging punctuation, small-caps lede"
-    commit: pending
+    commit: 4ab2be3
     date: 2026-05-14
     surface: editorial
     tags: [journal, journal-prose, editorial, typography, drop-cap, first-letter-pseudo, first-line-pseudo, hanging-punctuation, small-caps, font-variant-caps, italic-serif, instrument-serif, clamp-typography, css-only, no-new-deps, no-new-tokens, no-new-fonts, no-new-keyframes, scoped-selector-not-legal-prose, scoped-selector-not-about-prose, regression-spotter-caught-leak, base-class-isolation, ssr-stable, low-risk, discovery-driven]

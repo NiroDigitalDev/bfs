@@ -215,6 +215,17 @@ cost.
 the legacy `:focus ~` half is harmless dead code) but the spec
 isn't fully closed; left as `open` for a future checkout touch.
 
+**Review.** Skipped — formal `review` skill invocation skipped
+because the diff is single-file CSS at +17 LOC and was already
+vetted by Phase 5's four-agent gate (verifier + perf-a11y +
+regression-spotter + diff-reviewer all returned PASS or
+PASS-WITH-NITS, with the regression-spotter's WARN on the legal /
+about base-class composition resolved before commit by tightening
+the selector to `:not(.legal-prose):not(.about-prose)` and
+diff-reviewer's nit on the `#fff` literal fixed inline by
+switching to `rgba(255,255,255,1)`). No findings to log; ship
+commit 4ab2be3 reflects the post-fix tightened state.
+
 **Periodic triggers fired.** None — `last_retro_at: 2026-05-13`
 (1 day ago, threshold ≥7), `last_critic_at: 2026-05-13` (1 day ago,
 threshold ≥28), `last_calibration_at: 2026-05-14` (today,
