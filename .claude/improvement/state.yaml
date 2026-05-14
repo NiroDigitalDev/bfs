@@ -9,8 +9,8 @@
 version: 1
 
 # Last-run telemetry — written at the end of every run.
-last_run_at: 2026-05-14T01:00:00Z
-last_run_commit: 3a54460
+last_run_at: 2026-05-14T07:30:00Z
+last_run_commit: 53e90aa
 last_run_mode: shipped   # shipped | no-focus | pr-opened
 
 # Anti-stagnation — incremented on every no-focus run, reset to 0 on ship.
@@ -20,25 +20,25 @@ consecutive_no_focus_runs: 0
 
 # Shipped-count — incremented on every shipped (not no-focus) run.
 # When this becomes a multiple of 10, Phase 0 fires the rubric-calibrator.
-shipped_count: 32   # +1: surface-journal-nav-and-homepage-block direct-to-main (task-driven, medium risk — Notion task "Surface /journal in the site nav + homepage 'from the journal' block"; /journal was orphaned after four prior journal-* ships built the route end-to-end with no entry path on the site; this run lands four touchpoints — homepage desktop nav 5th item, mobile IndexMenu 5th entry, outro footer Journal link, and a new .from-journal editorial dispatch interstitial between Field Notes and FAQ; reuses <Reveal>/<Magnetic>/getAllPosts/romanNumeral/formatJournalDate only, zero new components/deps/tokens; side fix adds aria-current="page" to /journal/<slug> nav; net diff: 4 src files +278/-1 LOC; build clean, 0 anti-patterns, SSR confirms 5 nav items + 6 href="/journal" anchors + aria-current on both /journal and /journal/<slug>; rubric T2 M1 L2 I3 A3 D2 = 13/18 Distinctive — calibration-conservative score paralleling last run's 13/18 per DRIFTING verdict)
+shipped_count: 33   # +1: legal-pages-privacy-terms-cookies direct-to-main (task-driven [1/2] split, medium risk — Notion subtask 360af8d3-d3e2-81ee-8645-da8a7db7fe7f of parent 35faf8d3-d3e2-817b-a559-eb8ffdb7938b "Add legal pages + GDPR-compliant cookie banner"; Phase 0 split the High-priority parent into [1/2] legal-pages + [2/2] cookie-banner because the parent hit 4 of 6 split heuristics — 3 new public routes + sitewide chrome + ~600-900 LOC + multiple distinct features; this run ships [1/2]: three statutory routes /privacy /terms /cookies in editorial register through a new <LegalPageFrame> Server Component (mirrors journal chrome at restrained .legal-display scale clamp(40,7vw,96), reuses .journal-prose body styling); content covers GDPR Art. 6(1)(b)+(f) + Arts. 15-22 rights + retention windows + a register-coherent no-returns line + the two localStorage keys BFS uses by name; sitemap.ts gains 3 entries at priority 0.3 / changefreq yearly; homepage outro grows a second .outro-links-statutory nav row; SiteChrome's existing pathname !== '/' guard correctly excludes ChapterRail/RunningFolio from legal routes — no SiteChrome edit needed; net diff 7 files +553/-1 LOC; build clean (27 static routes, was 24), 0 anti-patterns; subtask [2/2] cookie banner (Notion 360af8d3-d3e2-81a8-a643-e546ec8038de) remains To do for a future run; rubric T2 M1 L3 I2 A3 D2 = 13/18 Distinctive)
 
 # Periodic cron triggers — Phase 0 compares against today's date and
 # fires the corresponding agent when the gap exceeds the cadence.
 last_retro_at: 2026-05-13      # weekly cadence (≥ 7 days since last run → fire retro)
 last_critic_at: 2026-05-13     # monthly cadence (≥ 28 days → fire critic)
-last_calibration_at: 2026-05-14   # event-driven (every 10th ship) — fired this run; verdict DRIFTING, captured at .claude/improvement/calibrations/2026-05-14.md
+last_calibration_at: 2026-05-14   # event-driven (every 10th ship) — fired yesterday's run; next at shipped_count=40
 
 # Optional integrations status — Phase 0 self-checks these on startup
 # and degrades gracefully when they're absent or broken.
 gh_available: true           # `gh auth status` ok this run
-playwright_available: true   # capture-ship.mjs wrote journal-display-desktop + journal-display-mobile under 44fdc55/
-lighthouse_available: unknown  # perf-a11y skipped lighthouse (low-risk CSS+SSR ship — only the /journal heading SSR markup changed, rest of the page unchanged; poor signal-to-cost)
-sotd_parser_available: false   # sotd-compare.mjs: "could not parse SOTD entry — gallery markup may have changed" (still broken — sotd-parser-fix backlog item queued)
+playwright_available: true   # capture-ship.mjs wrote legal-desktop + legal-mobile under 1cdc5c1/ (prior SHA — screenshots dir is gitignored, informational)
+lighthouse_available: unknown  # perf-a11y skipped lighthouse (content-only SSR pages — three statutory routes with no client JS delta; lighthouse signal-to-cost poor for this band)
+sotd_parser_available: false   # sotd-compare.mjs: "could not parse SOTD entry — gallery markup may have changed" (still broken — sotd-parser-fix backlog item open)
 
 # Daily improvements.md archival check — Phase 0 reads size and rotates
 # if exceeded. Recorded here so a freshly-archived run doesn't try again.
 last_archival_at: ""
-improvements_md_bytes: 184500
+improvements_md_bytes: 196500   # approx after this run's entry; still under 200KB threshold
 
 # Notion integration — fixed IDs for the BFS workspace surfaces. The
 # routine reads Tasks at Phase 0 (task-driven mode override) and writes

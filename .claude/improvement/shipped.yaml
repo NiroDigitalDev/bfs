@@ -286,7 +286,7 @@ items:
 
   - id: legal-pages-privacy-terms-cookies
     title: Legal pages — /privacy, /terms, /cookies (editorial register) + sitemap + outro statutory links
-    commit: pending
+    commit: 53e90aa
     date: 2026-05-14
     surface: system
     tags: [legal, privacy, terms, cookies, gdpr, editorial-register, journal-prose, statutory, italic-serif, hairline-rule, breadcrumb, outro-links-statutory, seo, sitemap, ssr-only, no-client-deps, no-new-fonts, legal-page-frame, scoped-foundation]
