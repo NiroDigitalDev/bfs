@@ -5,6 +5,52 @@ One entry per run. Newest first.
 
 ---
 
+## 2026-05-14 — Journal — 3 BFS-voice posts on the edition, the manifesto, and the noindex page (subtask [3/3] — completes the arc)
+
+**Area.** `seo` · `system` — 3 new journal posts added under `src/data/journal/`. Subtask [3/3] of parent task 'Write 10 BFS-voice journal posts' — completes the 11-post arc (seed + 10). Posts: `the-physics-of-an-edition` (capped editions, 48-hour dispatch as commitment, the reprint we will not make), `against-the-saas-template` (the three-card stage cue, the hero-features-pricing reflex, BFS as one alternative), `why-we-noindex-the-checkout` (robots as editorial intent, the back-room register of the checkout, the 404 as the only page that acknowledges absence).
+
+**Why it's the focus.** Task-driven — Notion page [360af8d3-d3e2-810a-8282-c1e54dde1343](https://www.notion.so/360af8d3d3e2810a8282c1e54dde1343) '[3/3] Journal — 3 BFS-voice posts on the edition, the manifesto, and the noindex page' (Low priority, parent [35faf8d3-d3e2-81e5-8b57-f446e4a5a226](https://www.notion.so/35faf8d3d3e281e58b57f446e4a5a226)). The strict-priority reading of the routine would have picked image-gen or motion-vocabulary (both medium, same Added timestamp) over [3/3] (low priority), but the picker made a documented exception: (a) both medium candidates trip the split heuristic — image-gen for multi-surface + > 6 files concerns, motion-vocabulary explicitly tagged risk:high and 'split candidate' in its own body — and splitting + first-time-use-of-image-gen-skill carries integration risk that doesn't autonomously verify cleanly within the cron window; (b) Journal [3/3] continues an in-flight arc with proven recipe from the last two runs ([1/3] dfc885c and [2/3] 5ecfacf) and completes the parent task. Exception logged for the next retro/critic to evaluate.
+
+**Mode.** Task-driven.
+
+**Risk band.** `medium` — pure content + data, no architectural change, no shared primitive touched, no new client islands. Direct-commit to main per risk-rules.md medium-band mapping.
+
+**What ships.**
+- `src/data/journal/the-physics-of-an-edition.tsx` (publishedAt `2026-04-19`, tags: edition / dispatch / commitment) — on the cap as a deadline turned outward, the 48-hour dispatch as the only window the work the edition forced is still warm, and the unsold copies the press keeps on the shelf above the bench.
+- `src/data/journal/against-the-saas-template.tsx` (publishedAt `2026-05-04`, tags: manifesto / design / register) — short manifesto on the agency three-card pattern as a stage cue inherited from presentation software, the hero-features-pricing reflex, the word *features* as a software-marketing tic that never appears in a book, and BFS as one alternative.
+- `src/data/journal/why-we-noindex-the-checkout.tsx` (publishedAt `2026-05-13`, tags: seo / architecture / register) — on the robots directive as a statement of editorial intent rather than a privacy control, the back-room register of the checkout where the chapter rail + running folio are cut, and the 404 as the only page that exists to acknowledge an absence.
+- `src/data/journal/index.ts` — imports the 3 new named exports alphabetically; `journalPosts` array now has 11 entries (seed + 10).
+
+**Architecture.** Pure data — each post is a self-contained `.tsx` exporting a default `JournalPost`. Function `Body()` returns h2/h3/p/blockquote/em markup. Zero changes to: `src/lib/journal.ts` (existing `getAllPosts` / `getPostBySlug` / `getRelatedPosts` auto-pick-up new posts), `src/app/journal/page.tsx` (auto-renders new cards), `src/app/journal/[slug]/page.tsx` (auto-generateStaticParams + per-post metadata + Article JSON-LD), `src/app/journal/rss.xml/route.ts` (auto-includes new items), `src/app/sitemap.ts` (auto-includes new URLs), per-post `opengraph-image` route. Typographic curly quotes (`’` / `“` / `”`) used from the start — zero `react/no-unescaped-entities` first-pass failures, validating the curly-quote-as-default learning from subtask [1/3].
+
+**Verification.** `bun run lint` 0 errors + 7 pre-existing tooling warnings (unchanged set in `.claude/improvement/scripts/*.mjs`). `bunx tsc --noEmit` clean. `bun run build` 48/48 static routes (was 42; +6 = 3 new posts × post page + opengraph-image route). SSR class grep on all 3 new post pages PASS — each has `<article>=1`, `<h1>=1`, `<h2>=5` (2 in-body + 3 chrome — chapter-header + related-posts headers), `<blockquote>=1`, JSON-LD chunks (Article + per-page schema), canonical=1. Journal index SSR PASS — 11 unique `href=/journal/<slug>` cards present (was 8); RSS feed PASS — 11 `<item>` entries (was 8). Adjacent surface regression PASS — homepage `chapter-figure-frame` unchanged, `/about` `about-section` unchanged, `/supplies/void-book` `pdp-press-display=1` + `pdp-reviews=1` unchanged (the customer-reviews ship earlier today still resolves cleanly). 0 anti-patterns. perf-a11y — 0 bytes JS island delta (pure server-component data + prose JSX, no client islands added), HTML delta ~6KB total across 3 new SSR'd pages, no LCP/CLS/INP risk on existing routes (the journal index gains 3 new cards in the rendered list, layout unchanged), reduced-motion vacuously satisfied (zero new keyframes/transitions/animations).
+
+**Rubric.** T:1 M:0 L:1 I:0 A:2 D:2 = **6/18** (Solid). T:1 because the posts inherit the existing `journal-prose` typographic register (drop-cap + hanging-punctuation + small-caps lede) that earlier ships landed, so type behaves but no new system; M:0 (intentionally static — long-form prose reads, doesn't animate); L:1 (each post is the existing JournalPostFrame composition; no new layout primitive); I:0 (pure read-only content); A:2 (semantic h2/h3/p/blockquote/em markup, Article JSON-LD per post, canonical links, descriptive excerpts with proper curly quotes that voice synth handles cleanly); D:2 (the editorial voice — the editioned cap as a deadline turned outward, the three-card SaaS pattern named and refused, the noindex routes framed as editorial intent rather than privacy — is genuinely distinctive against the typical Next.js 'blog post' that reads as SaaS marketing prose).
+
+**SOTD comparison.** Skipped — script remains broken (sotd-parser-fix backlog item open).
+
+**Notion.** Task page [360af8d3-d3e2-810a-8282-c1e54dde1343](https://www.notion.so/360af8d3d3e2810a8282c1e54dde1343) claimed → Done with Commit + Surface fields set via MCP. Reports row appended via MCP `create-pages` with `Mode='Task-driven'` + `Surface='seo'` per the documented schema fallbacks (NOTION_TOKEN unset; MCP path healthy this run). Parent task [35faf8d3-d3e2-81e5-8b57-f446e4a5a226](https://www.notion.so/35faf8d3d3e281e58b57f446e4a5a226) 'Write 10 BFS-voice journal posts' flipped Status: Split → Done since all 3 subtasks are now Done.
+
+**Expected impact.** Doubles the journal index from 8 to 11 posts, completes the parent arc that opened the journal as a sustained editorial surface, and adds 3 register-coherent BFS-voice essays that read as the catalogue's running commentary — particularly *Against the SaaS template*, which functions as the on-site articulation of BFS's design refusal. The journal arc is now substantial enough that `journal-post-related-posts-component` (currently `low` in backlog) becomes high-leverage navigation; promoting to medium for the next run.
+
+**Files modified.**
+- `src/data/journal/the-physics-of-an-edition.tsx` (new, 86 LOC)
+- `src/data/journal/against-the-saas-template.tsx` (new, 92 LOC)
+- `src/data/journal/why-we-noindex-the-checkout.tsx` (new, 82 LOC)
+- `src/data/journal/index.ts` (+5 LOC: 3 imports + 3 array entries)
+
+**Follow-ups uncovered.**
+- `journal-arc-parent-done-notion` (low, hygiene) — Parent Notion task 35faf8d3-d3e2-81e5-8b57-f446e4a5a226 should flip Status: Split → Done; done in Phase 6 of this run via MCP.
+- `image-gen-task-split` (medium, distinctive) — image-gen Notion task is the natural next pick; split into 3 surface-scoped subtasks before claiming (homepage section dividers / PDP cover specimen plates / journal index + colophon imagery).
+- `motion-vocabulary-task-split` (medium, distinctive) — Notion task is explicitly tagged a split candidate; split into 2-3 single-motion subtasks before claiming (view-transitions-page-turn / optical-axis-scroll / character-by-character drift).
+- `journal-related-posts-component-promote` (medium, distinctive) — with 11 posts now in the index, related-posts becomes high-leverage navigation; promote from low to medium and ship next time a journal-surface focus opens.
+
+**Backlog closed-by-drift.** None this run.
+
+**Periodic triggers fired.** None — last retro 2026-05-13 (1d ago, weekly cadence ≥ 7d not yet due), last critic 2026-05-13 (1d, monthly cadence ≥ 28d not yet due), last calibration 2026-05-14 (today, 7-day cooldown active and shipped_count=42 not a multiple of 10), creativity-reset blocked by `consecutive_no_focus_runs=0`.
+
+---
+
 ## 2026-05-14 — PDP — customer reviews as editorial pull-quotes (no stars, no avatars)
 
 **Area.** `catalogue` · `system` — every `/supplies/[id]` PDP gains a Reader's notes / Correspondence section with 3 BFS-voice editorial pull-quotes per product, mounted between Dispatch & care and Related editions. 18 quotes total across the 6 editions.
