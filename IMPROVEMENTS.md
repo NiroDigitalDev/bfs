@@ -157,9 +157,19 @@ brief's self-rating.
 `last_calibration_at: 2026-05-14` event-driven, `shipped_count` 33 →
 34 after this ship, next calibration at 40).
 
-**Review.** Pending — Step 7.5 will run the `review` skill on
-`HEAD~1..HEAD` after the commit lands and append findings as
-follow-ups.
+**Review.** Step 7.5 review pass on `HEAD~1..HEAD` (commit `61bd74e`)
+— **PASS-WITH-FOLLOWUPS**. No correctness, security, or motion-safety
+blockers. Three low-severity follow-ups for the backlog: (1) the
+window `'storage'` event subscriber in `cookie-banner.tsx:23-29`
+fires on every cross-tab write — filter by `e.key !== STORAGE_KEY`;
+(2) `aria-live="polite"` on the `role="region"` would announce the
+banner's appearance to screen readers; (3) the global Escape
+handler can interfere with users mid-typing — gate the handler on
+`document.activeElement?.tagName` not being INPUT/TEXTAREA. Verified
+PASS for hydration safety, event-listener cleanup, z-index scale,
+reduced-motion override on the only new keyframe, storage-disabled
+edge case, XSS surface (none), BFS register coherence, and
+Magnetic primitive reuse.
 
 ---
 

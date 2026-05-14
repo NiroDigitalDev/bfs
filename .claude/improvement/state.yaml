@@ -9,8 +9,8 @@
 version: 1
 
 # Last-run telemetry — written at the end of every run.
-last_run_at: 2026-05-14T07:30:00Z
-last_run_commit: 53e90aa
+last_run_at: 2026-05-14T08:30:00Z
+last_run_commit: 61bd74e
 last_run_mode: shipped   # shipped | no-focus | pr-opened
 
 # Anti-stagnation — incremented on every no-focus run, reset to 0 on ship.
@@ -20,7 +20,7 @@ consecutive_no_focus_runs: 0
 
 # Shipped-count — incremented on every shipped (not no-focus) run.
 # When this becomes a multiple of 10, Phase 0 fires the rubric-calibrator.
-shipped_count: 33   # +1: legal-pages-privacy-terms-cookies direct-to-main (task-driven [1/2] split, medium risk — Notion subtask 360af8d3-d3e2-81ee-8645-da8a7db7fe7f of parent 35faf8d3-d3e2-817b-a559-eb8ffdb7938b "Add legal pages + GDPR-compliant cookie banner"; Phase 0 split the High-priority parent into [1/2] legal-pages + [2/2] cookie-banner because the parent hit 4 of 6 split heuristics — 3 new public routes + sitewide chrome + ~600-900 LOC + multiple distinct features; this run ships [1/2]: three statutory routes /privacy /terms /cookies in editorial register through a new <LegalPageFrame> Server Component (mirrors journal chrome at restrained .legal-display scale clamp(40,7vw,96), reuses .journal-prose body styling); content covers GDPR Art. 6(1)(b)+(f) + Arts. 15-22 rights + retention windows + a register-coherent no-returns line + the two localStorage keys BFS uses by name; sitemap.ts gains 3 entries at priority 0.3 / changefreq yearly; homepage outro grows a second .outro-links-statutory nav row; SiteChrome's existing pathname !== '/' guard correctly excludes ChapterRail/RunningFolio from legal routes — no SiteChrome edit needed; net diff 7 files +553/-1 LOC; build clean (27 static routes, was 24), 0 anti-patterns; subtask [2/2] cookie banner (Notion 360af8d3-d3e2-81a8-a643-e546ec8038de) remains To do for a future run; rubric T2 M1 L3 I2 A3 D2 = 13/18 Distinctive)
+shipped_count: 34   # +1: cookie-banner-subtask direct-to-main (task-driven [2/2] of legal-pages parent split, medium risk — Notion subtask 360af8d3-d3e2-81a8-a643-e546ec8038de of parent 35faf8d3-d3e2-817b-a559-eb8ffdb7938b "Add legal pages + GDPR-compliant cookie banner"; this run completes the parent — both [1/2] legal pages and [2/2] cookie banner now Done; new sitewide chrome client component src/components/cookie-banner.tsx (98 LOC) mounted in layout.tsx between CartDrawer and Analytics; uses useSyncExternalStore w/ "unknown" server snapshot so SSR renders nothing and the banner only paints after hydration confirms no localStorage('bfs-cookie-consent') flag; magnetic-wrapped Essentials only + Accept all buttons in italic-serif on a backdrop-blur bottom-edge wash at z-75 above folio z-70 and below cart-drawer z-80 so an open cart's scrim covers the consent strip during in-progress purchases; cross-tab sync via window 'storage' event listener; Escape → declined; first button auto-focused 60ms after mount; 320ms cookie-banner-rise slide animation gated on prefers-reduced-motion; mobile <720px stacks copy+buttons to single column with full-width touch targets; CSS at globals.css:7212-7365 (~150 LOC); SSR regression spot-check PASS 8/8 routes (banner absent in all 8, all adjacent chrome intact); net diff 3 files +263/0 LOC; build clean (27/27 static routes, same as prior ship), 0 anti-patterns; rubric T2 M2 L2 I2 A3 D2 = 13/18 Distinctive; 8 follow-ups uncovered (5 from Phase 5: focus-ring-token + ghost-border-contrast + color-tokenize + zindex-token-sweep + mobile-magnet-offset; 3 from Step 7.5 review: storage-key-filter + aria-live + escape-input-gate); parent task functionally complete with both subtasks Done in 2 cleanly-scoped commits 53e90aa + 61bd74e rather than one sprawling diff)
 
 # Periodic cron triggers — Phase 0 compares against today's date and
 # fires the corresponding agent when the gap exceeds the cadence.
@@ -31,14 +31,14 @@ last_calibration_at: 2026-05-14   # event-driven (every 10th ship) — fired yes
 # Optional integrations status — Phase 0 self-checks these on startup
 # and degrades gracefully when they're absent or broken.
 gh_available: true           # `gh auth status` ok this run
-playwright_available: true   # capture-ship.mjs wrote legal-desktop + legal-mobile under 1cdc5c1/ (prior SHA — screenshots dir is gitignored, informational)
-lighthouse_available: unknown  # perf-a11y skipped lighthouse (content-only SSR pages — three statutory routes with no client JS delta; lighthouse signal-to-cost poor for this band)
+playwright_available: true   # capture-ship.mjs wrote cookie-banner-desktop + cookie-banner-mobile under 75b8776/ (prior SHA — screenshots dir is gitignored, informational; banner not visible in screenshots because SSR renders null + Playwright capture races the client-mount, but the run still confirms playwright + dev server health)
+lighthouse_available: unknown  # perf-a11y skipped lighthouse (content-only adjacent surfaces; banner SSRs to null; signal-to-cost poor for this band)
 sotd_parser_available: false   # sotd-compare.mjs: "could not parse SOTD entry — gallery markup may have changed" (still broken — sotd-parser-fix backlog item open)
 
 # Daily improvements.md archival check — Phase 0 reads size and rotates
 # if exceeded. Recorded here so a freshly-archived run doesn't try again.
 last_archival_at: ""
-improvements_md_bytes: 196500   # approx after this run's entry; still under 200KB threshold
+improvements_md_bytes: 205000   # approx after this run's entry; just over 200KB threshold — archive-improvements.mjs will rotate >60d entries on next run if any qualify
 
 # Notion integration — fixed IDs for the BFS workspace surfaces. The
 # routine reads Tasks at Phase 0 (task-driven mode override) and writes

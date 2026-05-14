@@ -1050,6 +1050,69 @@ items:
       Sweep-shaped, not local — touches cart-drawer, chapter-rail,
       folio, and cookie-banner.
 
+  - id: cookie-banner-storage-key-filter
+    title: CookieBanner subscribes to all cross-tab storage events, not just bfs-cookie-consent
+    ship: |
+      Filter the window 'storage' listener in src/components/cookie-banner.tsx:23-29
+      so it only re-runs readPhase when the changed key matches STORAGE_KEY.
+      Pattern: `(e) => { if (e instanceof StorageEvent && e.key !== null
+      && e.key !== STORAGE_KEY) return; cb(); }`. Currently every
+      unrelated cross-tab write triggers a useSyncExternalStore re-read —
+      cheap (one getItem), but defensive and avoids a wake-up storm
+      if another tab is hot-writing some other key (e.g., the cart).
+    severity: low
+    effort: S
+    class: hygiene
+    status: open
+    files:
+      - src/components/cookie-banner.tsx:23
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    notes: |
+      Surfaced by Step 7.5 review on cookie-banner-subtask ship (M2).
+
+  - id: cookie-banner-aria-live
+    title: CookieBanner region has no aria-live so the slide-in lands silently for screen readers
+    ship: |
+      Add `aria-live="polite"` to the `<div role="region"
+      aria-label="Cookie consent">` wrapper in
+      src/components/cookie-banner.tsx so AT users hear the banner
+      announce itself when it appears. Polite (not assertive) because
+      this isn't urgent — the page is still usable while the banner
+      is shown.
+    severity: low
+    effort: S
+    class: a11y
+    status: open
+    files:
+      - src/components/cookie-banner.tsx
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    notes: |
+      Surfaced by Step 7.5 review on cookie-banner-subtask ship (L3).
+
+  - id: cookie-banner-escape-input-gate
+    title: CookieBanner Escape handler can fire while the user is typing in an input
+    ship: |
+      Gate the global keydown listener in src/components/cookie-banner.tsx:45-49
+      on `document.activeElement?.tagName` not being INPUT / TEXTAREA / SELECT
+      — otherwise a user pressing Escape to clear a form field while
+      the banner is shown would inadvertently dismiss it as 'declined'.
+      Low risk because the first-visit moment usually doesn't overlap
+      with form input (the newsletter sits below the fold and the
+      checkout route doesn't see the banner since consent is set by
+      then), but cleanly defensive.
+    severity: low
+    effort: S
+    class: a11y
+    status: open
+    files:
+      - src/components/cookie-banner.tsx:45
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    notes: |
+      Surfaced by Step 7.5 review on cookie-banner-subtask ship (L2).
+
   - id: cookie-banner-mobile-magnet-offset
     title: CookieBanner mobile magnetic translate may visually offset full-width button
     ship: |

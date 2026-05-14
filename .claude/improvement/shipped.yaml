@@ -294,7 +294,7 @@ items:
 
   - id: cookie-banner-subtask
     title: "[2/2] Cookie banner — sitewide GDPR consent UI + localStorage + layout mount + /cookies cross-link"
-    commit: pending
+    commit: 61bd74e
     date: 2026-05-14
     surface: chrome
     tags: [cookie-banner, gdpr, consent, sitewide-chrome, localStorage, useSyncExternalStore, hydration-safe, magnetic-buttons, italic-serif, hairline-rule, backdrop-blur, slide-up-motion, prefers-reduced-motion, escape-dismisses, focus-management, role-region, aria-label, cross-tab-sync, custom-event, mobile-stack-720, register-coherent, no-new-deps, task-driven-split]
