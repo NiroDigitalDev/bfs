@@ -318,7 +318,7 @@ items:
 
   - id: about-page-editorial-spread
     title: "/about — the press in its own voice (editorial spread, Organization+AboutPage JSON-LD, footer surface)"
-    commit: pending
+    commit: 831e97d
     date: 2026-05-14
     surface: system
     tags: [about, system, manifesto, nav, editorial-register, journal-prose, splittext, magnetic, reveal, hairline-rule, italic-serif, clamp-display, about-display, about-section, about-studio-dl, outro-colophon-reuse, about-cta, magnetic-cta, jsonld, aboutpage, organization-schema, sitemap, footer-link, no-new-deps, no-new-fonts, prefers-reduced-motion, task-driven]
