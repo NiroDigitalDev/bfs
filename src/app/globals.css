@@ -7202,3 +7202,165 @@ main.pdp ~ .folio {
   opacity: 0.62;
 }
 
+/* ============ COOKIE BANNER ============
+   First-visit GDPR consent strip. Reads as "A note on cookies." —
+   italic-serif on a soft ink wash, hairline top rule, two
+   magnetic-wrapped buttons. Persists choice to
+   localStorage('bfs-cookie-consent'): 'accepted' | 'declined'.
+   Hydration-safe: component renders nothing on the server and
+   on the first client tick; the banner only mounts once the
+   client has read the flag. Sits above the folio (z-70) and
+   below the cart drawer (z-80) so an in-progress cart purchase
+   visually supersedes the consent strip. */
+.cookie-banner {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 75;
+  display: flex;
+  justify-content: center;
+  padding: 18px 24px max(18px, env(safe-area-inset-bottom)) 24px;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.94) 0%,
+    rgba(0, 0, 0, 0.86) 55%,
+    rgba(0, 0, 0, 0.55) 100%
+  );
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+  pointer-events: auto;
+  animation: cookie-banner-rise var(--dur-2) var(--ease-out-quart) both;
+}
+
+.cookie-banner-inner {
+  width: 100%;
+  max-width: 920px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  column-gap: 40px;
+  row-gap: 14px;
+}
+
+.cookie-banner-eye {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: clamp(17px, 1.6vw, 22px);
+  line-height: 1.1;
+  color: #fff;
+}
+
+.cookie-banner-body {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: clamp(13px, 1.15vw, 15px);
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.74);
+  max-width: 62ch;
+}
+
+.cookie-banner-link {
+  color: #fff;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+  text-decoration-color: rgba(255, 255, 255, 0.38);
+  transition: text-decoration-color var(--dur-1) ease;
+}
+
+.cookie-banner-link:hover,
+.cookie-banner-link:focus-visible {
+  text-decoration-color: #fff;
+}
+
+.cookie-banner-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: nowrap;
+}
+
+.cookie-banner-magnet {
+  display: inline-flex;
+}
+
+.cookie-banner-btn {
+  appearance: none;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  background: transparent;
+  color: #fff;
+  padding: 11px 20px;
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background-color var(--dur-1) ease, border-color var(--dur-1) ease,
+    color var(--dur-1) ease;
+}
+
+.cookie-banner-btn--ghost:hover,
+.cookie-banner-btn--ghost:focus-visible {
+  border-color: #fff;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.cookie-banner-btn--solid {
+  background: #fff;
+  color: #000;
+  border-color: #fff;
+}
+
+.cookie-banner-btn--solid:hover,
+.cookie-banner-btn--solid:focus-visible {
+  background: rgba(255, 255, 255, 0.86);
+}
+
+.cookie-banner-btn:focus-visible {
+  outline: 1px solid #fff;
+  outline-offset: 3px;
+}
+
+@media (max-width: 720px) {
+  .cookie-banner {
+    padding: 16px 18px max(16px, env(safe-area-inset-bottom)) 18px;
+  }
+  .cookie-banner-inner {
+    grid-template-columns: 1fr;
+    column-gap: 0;
+  }
+  .cookie-banner-actions {
+    width: 100%;
+  }
+  .cookie-banner-magnet {
+    flex: 1;
+  }
+  .cookie-banner-btn {
+    width: 100%;
+    padding: 12px 14px;
+  }
+}
+
+@keyframes cookie-banner-rise {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cookie-banner {
+    animation: none;
+  }
+}
+

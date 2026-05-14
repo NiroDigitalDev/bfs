@@ -5,6 +5,164 @@ One entry per run. Newest first.
 
 ---
 
+## 2026-05-14 — Cookie banner — sitewide GDPR consent UI + localStorage + layout mount + /cookies cross-link
+
+**Area.** `chrome` · sitewide first-visit consent strip; ships the second
+half of the legal-pages parent task ([2/2] of split — [1/2] surfaced the
+/cookies route as a link target in the prior run).
+
+**Why it's the focus.** Task-driven run. Notion Tasks DB returned one
+`Status: To do` row at top priority — `[2/2] Cookie banner` (page
+`360af8d3-d3e2-81a8-a643-e546ec8038de`, High, surface `chrome`). Parent
+task `35faf8d3-d3e2-817b-a559-eb8ffdb7938b` "Add legal pages + GDPR-compliant
+cookie banner" — yesterday's [1/2] ship landed the three statutory routes
+and explicitly parked the banner here. With /cookies now reachable, the
+dependency unblocks. No rubric scoring in Phase 2 — the body brief IS the
+focus, and the implicit rubric (T2 M2 L2 I2 A3 D2 = 13/18, Distinctive)
+matches what the user wrote into the Notion page.
+
+**Mode.** Task-driven.
+
+**Risk band.** `medium` — sitewide chrome that appears on first visit on
+every route, but the SSR contract is "render nothing" via
+useSyncExternalStore, and the brief explicitly set medium.
+
+**What ships.**
+
+1. **`src/components/cookie-banner.tsx`** (new, 98 LOC) — `"use client"`
+   client component. Reads `localStorage('bfs-cookie-consent')` via
+   `useSyncExternalStore(subscribe, readPhase, getServerSnapshot)`. The
+   server snapshot returns `"unknown"`, so the component returns null on
+   the server AND on the first client render — only after hydration
+   confirms no flag does the banner mount. Two magnetic-wrapped buttons
+   (Essentials only / Accept all). `useEffect` auto-focuses the first
+   button 60ms after mount and binds an Escape→declined window listener
+   while `phase === "shown"`. `emit()` writes to localStorage (guarded
+   try/catch for quota / private-mode) and dispatches
+   `CustomEvent('bfs:cookie-consent-changed', { detail })` for analytics
+   hooks. The `subscribe` callback listens to BOTH the in-tab CustomEvent
+   AND the cross-tab `storage` event, so dismissal in one tab
+   synchronously hides the banner in every other open tab.
+2. **`src/app/layout.tsx`** (+2 LOC) — import `<CookieBanner />` and
+   mount it between `<CartDrawer />` and `<Analytics />`. No other
+   changes to layout.
+3. **`src/app/globals.css`** (+162 LOC) — new `.cookie-banner` block.
+   Bottom-fixed, `z-index: 75` (above folio z-70, below cart-drawer
+   z-80 so an open cart's scrim visually supersedes the strip). Linear
+   gradient `rgba(0,0,0,0.94) → 0.55` bottom-up + `backdrop-filter:
+   blur(10px)` + 1px white hairline top border. Grid layout
+   `1fr auto` on desktop (italic-serif copy left, action buttons
+   right), collapses to `1fr` at < 720px with full-width buttons.
+   Eyebrow `'A note on cookies.'` in italic-serif clamp(17,1.6vw,22).
+   Body italic-serif clamp(13,1.15vw,15) at 0.74 alpha, max-width 62ch.
+   Two button modifier classes: `.cookie-banner-btn--ghost` (transparent
+   + hairline border) and `.cookie-banner-btn--solid` (white-on-black).
+   Motion: 320ms `cookie-banner-rise` (translateY 100% → 0 + opacity)
+   on `--dur-2` + `--ease-out-quart`. `@media
+   (prefers-reduced-motion: reduce) { animation: none }` guard.
+
+**Architecture.**
+
+- **Hydration safety** via `useSyncExternalStore` is the cleanest pattern
+  for "read-once-from-storage-then-render-conditionally" in React 19. An
+  earlier `useState` + `useEffect → setState` draft was rejected by
+  `eslint-plugin-react-hooks` rule
+  `react-hooks/set-state-in-effect` — the rule is right; the
+  external-store pattern eliminates the lifecycle dance entirely.
+- **Z-index reasoning.** Folio z-70, cart-drawer z-80, chapter-rail z-90.
+  Cookie banner z-75 keeps the open cart drawer's scrim above the
+  consent strip (so an in-progress purchase isn't obscured by consent
+  copy), while still painting over the bottom-edge folio when it's the
+  only chrome on first visit.
+- **Magnetic re-use.** Both buttons wrap in the existing `<Magnetic
+  strength={0.18}>` primitive — gentler than catalogue/checkout because
+  the buttons sit close together and a higher strength would feel jumpy.
+- **No new tokens / no new deps / no new fonts.** Reuses `--font-serif`,
+  `--font-sans`, `--dur-1`, `--dur-2`, `--ease-out-quart`. The CSS uses
+  raw `#fff` / `#000` / `rgba(...)` literals for the banner palette
+  (consistent with other recently-shipped chrome blocks but flagged
+  as a tokenization follow-up in backlog).
+- **A11y.** `role="region"` + `aria-label="Cookie consent"` on the
+  outer wrapper. First button receives focus on mount. Escape key
+  globally dismisses with `'declined'`. Each button has
+  `.cookie-banner-btn:focus-visible` styled (1px white outline, 3px
+  offset). Link to /cookies has its own `:hover, :focus-visible`
+  state. Mobile: full-width touch targets.
+- **/cookies cross-link** points back to the route shipped in [1/2].
+  The link text reads `Read the cookie policy →` in italic-serif white
+  with a 38%-alpha underline that brightens on hover.
+
+**Verification.**
+- lint: 0 errors, 7 warnings (all pre-existing in `.claude/improvement/scripts/`).
+- typecheck: clean.
+- build: 27/27 static pages prerendered (same route count as prior ship — banner SSRs to null).
+- SSR regression spot-check: PASS across /, /journal, /journal/<slug>, /supplies/void-book, /privacy, /terms, /cookies, /checkout — `cookie-banner` absent in 8/8 prerendered HTML files (correct), all adjacent chrome (ChapterRail, RunningFolio, JournalPostFrame, LegalPageFrame, PDP, nav, cart-island, outro) intact.
+- perf-a11y: PASS-WITH-FOLLOWUPS — bundle delta tiny (one new client component, no new deps), no LCP/CLS/INP risk (fixed positioning + transform-only motion), keyboard Tab order correct, focus-visible styled, reduced-motion override complete; contrast ~19:1 on white-on-bottom-of-gradient, ~10:1 on body copy, ghost-button border at 0.4 alpha borderline against the top of the gradient (flagged).
+- diff-reviewer: PASS-WITH-NITS — tokenization of color literals + z-index layer-token are the only real follow-ups; empty try/catch around localStorage is intentional & well-commented; no `any`, no `@ts-ignore`, no dead imports, no debug logs, no scope creep.
+- anti-patterns: 0 findings.
+- visual-diff: skipped (no prior cookie-banner-{desktop,mobile}.png to compare).
+- Lighthouse: skipped (content-only adjacent surfaces; banner SSRs to null).
+
+**Rubric.** T2 M2 L2 I2 A3 D2 = 13 / 18 (Distinctive) — matches the
+brief's self-rating.
+
+**Screenshots.** `.claude/improvement/screenshots/75b8776/cookie-banner-{desktop,mobile}.png` (gitignored — informational).
+
+**SOTD comparison.** `.claude/improvement/sotd/<sha>.md` — skipped this run (`sotd-parser-fix` backlog item still open; gallery markup parser broken).
+
+**Notion.**
+- Task: https://www.notion.so/360af8d3d3e281a8a643e546ec8038de (subtask [2/2]) → will be flipped Done after commit lands.
+- Parent task: https://www.notion.so/35faf8d3d3e2817ba559eb8ffdb7938b — both subtasks now complete; parent is functionally satisfied.
+- Reports row: will be appended after commit.
+
+**Expected impact.**
+
+- **Compliance.** First GDPR-compliant consent surface on the site. The
+  privacy/cookies policy pages from [1/2] state the legal position; this
+  ship lands the technical control users need to enforce it. Combined,
+  the two ships close the parent task in two cleanly-scoped commits
+  rather than one sprawling diff that the spec-linter / diff-reviewer
+  would have rejected.
+- **Distinctiveness.** Most cookie banners read as generic SaaS chrome
+  ('We use cookies. Accept'). This one reads as the press's voice — `'A
+  note on cookies.'` is italic-serif, the body explains by name what
+  BFS stores (`bfs:cart` + `bfs-cookie-consent`) and admits there's
+  almost nothing to consent to, the buttons are press-vocabulary
+  italic-serif-adjacent sans-smallcaps at hairline weights. It reads
+  like editorial copy, not boilerplate.
+- **UX.** A first-time visitor sees the banner once, dismisses with one
+  click, and never sees it again. Returning visitors never see it.
+  Reduced-motion users see no slide animation. Mobile users get
+  full-width touch targets. Cross-tab dismissal sync covers the case
+  of a returning multi-tab user.
+
+**Files modified.**
+
+- `src/components/cookie-banner.tsx` (new, 98 LOC)
+- `src/app/layout.tsx` (+2 LOC: import + mount)
+- `src/app/globals.css` (+162 LOC: `.cookie-banner` block)
+
+**Follow-ups uncovered.**
+
+- `cookie-banner-focus-ring-token` — swap inline outline for shared `.focus-ring` token.
+- `cookie-banner-ghost-border-contrast` — bump alpha 0.4→0.55 so non-text UI element clears 3:1 across the full gradient.
+- `cookie-banner-color-tokenize` — replace raw #fff/#000/rgba literals with ink/paper tokens.
+- `cookie-banner-zindex-token` — promote z-index 75 to a layer-stack token (sweep: cart-drawer 80, chapter-rail 90, folio 70 also use literals).
+- `cookie-banner-mobile-magnet-offset` — visual verification that Magnetic's translate doesn't visually shift a full-width mobile button (low risk: Magnetic is `(pointer: fine)`-gated, so touch devices won't see it).
+
+**Backlog closed-by-drift.** None this run.
+
+**Periodic triggers fired.** None — no triggers due this run
+(`last_retro_at: 2026-05-13` < 7d, `last_critic_at: 2026-05-13` < 28d,
+`last_calibration_at: 2026-05-14` event-driven, `shipped_count` 33 →
+34 after this ship, next calibration at 40).
+
+**Review.** Pending — Step 7.5 will run the `review` skill on
+`HEAD~1..HEAD` after the commit lands and append findings as
+follow-ups.
+
+---
+
 ## 2026-05-14 — Legal pages — /privacy, /terms, /cookies (editorial register) + sitemap + outro statutory links
 
 **Area.** `system` · new public-facing statutory routes + homepage outro chrome.

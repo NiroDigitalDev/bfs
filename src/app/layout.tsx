@@ -7,6 +7,7 @@ import { ScrollProgress } from "@/components/scroll-progress";
 import { SiteChrome } from "@/components/site-chrome";
 import { ParallaxRoot } from "@/components/parallax-root";
 import { CartDrawer } from "@/components/cart-drawer";
+import { CookieBanner } from "@/components/cookie-banner";
 import { site, siteUrl } from "@/lib/site";
 import { products } from "@/data/products";
 import { faqs } from "@/data/faqs";
@@ -181,6 +182,7 @@ export default function RootLayout({
         {children}
         <SiteChrome />
         <CartDrawer />
+        <CookieBanner />
         <Analytics />
         <script
           type="application/ld+json"

@@ -947,7 +947,7 @@ items:
     severity: medium
     effort: M
     class: feature
-    status: open
+    status: shipped
     files:
       - src/components/cookie-banner.tsx
       - src/app/layout.tsx
@@ -955,8 +955,122 @@ items:
     opened_on: 2026-05-14
     last_verified: 2026-05-14
     notes: |
-      Source — legal-pages-privacy-terms-cookies ship.
-      Surfaced here so reference-scout and historian know
-      about the planned follow-up; the Notion row is the source
-      of truth, but visibility in backlog.yaml helps the picker
-      see the dependency chain.
+      Shipped 2026-05-14 — task-driven direct-to-main (medium risk).
+      Sitewide chrome via useSyncExternalStore("unknown" server snapshot)
+      so SSR renders nothing and the banner only mounts after client
+      hydration reads the localStorage flag. Magnetic-wrapped buttons,
+      hairline rules, italic-serif copy on a bottom-edge backdrop-blur
+      strip at z-75 (above folio z-70, below cart-drawer z-80).
+      Escape → declined. CustomEvent('bfs:cookie-consent-changed') and
+      cross-tab `storage` listener both subscribed for future analytics
+      hooks. Source — legal-pages-privacy-terms-cookies parent task.
+
+  - id: cookie-banner-focus-ring-token
+    title: CookieBanner buttons use inline outline rather than the shared .focus-ring token
+    ship: |
+      Swap globals.css:7325-7328 `.cookie-banner-btn:focus-visible {
+      outline: 1px solid #fff; outline-offset: 3px }` for the project's
+      shared `.focus-ring` token (or class) so the consent strip's
+      focus state matches the rest of the chrome (cart drawer, nav,
+      addToCart). Cosmetic consistency, not a a11y bug — the inline
+      outline still works.
+    severity: low
+    effort: S
+    class: hygiene
+    status: open
+    files:
+      - src/app/globals.css:7325
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    notes: |
+      Surfaced by perf-a11y on cookie-banner-subtask ship.
+
+  - id: cookie-banner-ghost-border-contrast
+    title: CookieBanner ghost-button border alpha 0.4 dips below 3:1 against the top of the gradient
+    ship: |
+      Bump `.cookie-banner-btn` border from rgba(255,255,255,0.4) to
+      rgba(255,255,255,0.55) (globals.css:7294) so the non-text UI
+      element clears WCAG 1.4.11 3:1 across the full
+      rgba(0,0,0,0.94→0.55) gradient band, not just the dark bottom.
+    severity: low
+    effort: S
+    class: a11y
+    status: open
+    files:
+      - src/app/globals.css:7294
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    notes: |
+      Surfaced by perf-a11y on cookie-banner-subtask ship. Borderline,
+      not blocking — solid button next to it carries the primary
+      affordance and is full-contrast.
+
+  - id: cookie-banner-color-tokenize
+    title: CookieBanner CSS uses raw #fff / #000 / rgba(...) literals instead of ink/paper tokens
+    ship: |
+      Replace #fff, #000, and rgba(255,255,255,*) / rgba(0,0,0,*)
+      literals in the `.cookie-banner` block (globals.css ~7212-7365)
+      with the project's existing ink/paper tokens (or define
+      `--cookie-banner-bg` / `--cookie-banner-fg` once at the top of
+      the block). Overlay alphas can stay literal — only the base
+      colors need to resolve to tokens. Keeps the "tokens, not
+      literals" discipline the rest of globals.css holds.
+    severity: low
+    effort: S
+    class: hygiene
+    status: open
+    files:
+      - src/app/globals.css:7212-7365
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    notes: |
+      Surfaced by diff-reviewer on cookie-banner-subtask ship.
+
+  - id: cookie-banner-zindex-token
+    title: CookieBanner z-index 75 is a bare literal, not a layer token
+    ship: |
+      Promote `z-index: 75` (globals.css:7213) to a CSS custom property
+      if the project has a layer-stack convention (the folio + cart
+      drawer + chapter rail use 70/80/90 literals too — there's no
+      shared --z-* token layer today, so this is a wider sweep rather
+      than a one-line fix). Track here as a system follow-up.
+    severity: low
+    effort: M
+    class: system
+    status: open
+    files:
+      - src/app/globals.css:7213
+      - src/app/globals.css:3272
+      - src/app/globals.css:3947
+      - src/app/globals.css:4418
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    notes: |
+      Surfaced by diff-reviewer on cookie-banner-subtask ship.
+      Sweep-shaped, not local — touches cart-drawer, chapter-rail,
+      folio, and cookie-banner.
+
+  - id: cookie-banner-mobile-magnet-offset
+    title: CookieBanner mobile magnetic translate may visually offset full-width button
+    ship: |
+      Visual verification only — at < 720px, .cookie-banner-magnet
+      becomes `flex: 1` (globals.css:7280-7284) and the inner button
+      stretches to `width: 100%`. The <Magnetic> wrapper's translate
+      transform on hover/move could visually shift a full-width button
+      a few pixels left/right of the gutter. Likely fine because
+      Magnetic only fires on (pointer: fine) which is rare on the
+      mobile breakpoint — confirm with a browser session.
+    severity: low
+    effort: S
+    class: hygiene
+    status: open
+    files:
+      - src/app/globals.css:7280
+      - src/components/cookie-banner.tsx:74
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    notes: |
+      Surfaced by diff-reviewer on cookie-banner-subtask ship. Cosmetic
+      only — Magnetic is (pointer: fine)-gated, so touch devices won't
+      see the translate. The actual visual risk is desktop window
+      <720px wide with a mouse, which is uncommon.
