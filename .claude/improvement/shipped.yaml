@@ -302,7 +302,7 @@ items:
 
   - id: site-footer-extract-mount-all-routes
     title: "SiteFooter — extract from page.tsx, mount layout-level on every route except /checkout"
-    commit: pending
+    commit: af804b3
     date: 2026-05-14
     surface: chrome
     tags: [chrome, system, colophon, outro, site-footer, site-footer-mount, server-component, client-mount-gate, usePathname, layout-tsx, page-tsx-refactor, ssr-pathname-aware, anchor-normalize, link-href-cross-route, hash-anchors, no-new-deps, no-new-tokens, no-new-keyframes, register-coherence, task-driven, high-risk-pr-mode]
