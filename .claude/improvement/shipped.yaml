@@ -374,7 +374,7 @@ items:
 
   - id: focus-ring-token-sweep-checkout-and-journal
     title: Focus-ring token sweep — remove 6 dim overrides so checkout + journal interactive elements inherit the strong global :focus-visible
-    commit: pending
+    commit: 9ca8f0c
     date: 2026-05-14
     surface: chrome
     tags: [a11y, focus-visible, wcag-247, focus-ring, token-drift, global-rule-inherit, css-deletion, no-jsx-change, no-new-primitives, no-new-deps, deep-discovery, regular-pick]
