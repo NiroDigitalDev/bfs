@@ -839,6 +839,40 @@ html.loading body {
 .hero-period .split-char {
   -webkit-text-stroke: 0;
 }
+/* Scroll-driven per-character drift on the hero title — extends the
+   view-timeline pattern from chapter-numeral-drift (1732445) and
+   outro-wordmark-settle (6a5a8e9) to per-glyph variation. Uses the
+   standalone `rotate` property so it composes cleanly with SplitText's
+   transform-based entrance — standalone rotate applies before the
+   matrix in `transform`, so the entrance `transform: translateY rotate`
+   and our rotate keyframe never fight. Per-char nth-child alternation
+   reads as asymmetric breathing rather than a uniform tilt. Triple-
+   gated identical to the prior two view-timeline ships. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) and (min-width: 900px) {
+    .hero-title {
+      view-timeline-name: --hero-title-tl;
+    }
+    .hero-title .split-char {
+      animation: hero-char-drift-a linear both;
+      animation-timeline: --hero-title-tl;
+      animation-range: entry 0% exit 100%;
+    }
+    .hero-title .split-char:nth-child(even) {
+      animation-name: hero-char-drift-b;
+    }
+    @keyframes hero-char-drift-a {
+      0%   { rotate: 2deg; }
+      50%  { rotate: -2deg; }
+      100% { rotate: 2deg; }
+    }
+    @keyframes hero-char-drift-b {
+      0%   { rotate: -2deg; }
+      50%  { rotate: 2deg; }
+      100% { rotate: -2deg; }
+    }
+  }
+}
 /* Eyebrow lifted out of the h1; baseline-anchored under the right column,
    parallaxes at a faster rate than the title (differential drag). */
 .hero-aside {

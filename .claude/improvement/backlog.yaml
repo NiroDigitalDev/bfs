@@ -2545,17 +2545,179 @@ items:
     severity: medium
     effort: S
     class: infra
-    status: open
+    status: shipped
     files:
       - .claude/improvement/scripts/notion-sync.mjs
     opened_on: 2026-05-14
     last_verified: 2026-05-14
     dq_count: 0
     notes: |
-      DO NOT DEFER A 4TH TIME — splitting unblocks the work and
-      removes the "oversized parent task" objection from future
-      pickers' tiebreak logic. Two of the six candidate moves
-      (chapter-numeral view() + outro-wordmark settle) have already
-      shipped via regular discovery; the split should reflect this
-      and surface live-kerning / character-drift / page-turn /
-      magnetic-reveal / optical-axis-scroll as the remaining slice.
+      SHIPPED 2026-05-14. Phase 0 of the hero-title char-drift run
+      split the parent into 3 subtasks via MCP notion-create-pages
+      and flipped Status: To do → Split with all 3 URLs in Subtasks.
+      The picked subtask order differs slightly from this backlog
+      item's suggestion (we shipped [1/3] = char drift on hero
+      title first since it extends the proven view-timeline pattern
+      that landed twice this week; [2/3] = hover-bound letter-
+      spacing; [3/3] = magnetic reveal extension — magnetic-reveal
+      was upgraded from "remaining slice" to its own subtask, and
+      live-kerning + character-drift collapsed into adjacent
+      subtasks). Subtasks now live in Notion as 360af8d3-d3e2-8118-
+      8122-d43bac403bd4 [1/3 → Done with this commit], 360af8d3-
+      d3e2-81d9-be2b-e36fc60aad23 [2/3 → To do], and 360af8d3-d3e2-
+      81ab-bdbb-fe56c3cd37ed [3/3 → To do]. The parent at 35faf8d3-
+      d3e2-816e-9304-f18860d09138 is now Status: Split and the
+      cron's next runs can pick [2/3] or [3/3] off the Tasks queue.
+
+  - id: motion-vocabulary-subtask-2-of-3-hover-letter-spacing
+    title: "[2/3] Motion — hover-bound live letter-spacing on chapter eyebrows + display CTAs"
+    ship: |
+      Subtask [2/3] of motion-vocabulary parent (Notion 35faf8d3-
+      d3e2-816e-9304-f18860d09138). Notion subtask page 360af8d3-
+      d3e2-81d9-be2b-e36fc60aad23, Surface: catalogue/chrome/system.
+      Pure CSS hover transition on display CTAs and chapter
+      eyebrows — letter-spacing eases from rest to slightly more
+      open (+0.02em or so) over ~240ms with cubic-bezier easing.
+      Reduced-motion gated. Targets: .chapter-eyebrow (6 instances
+      on homepage), .btn-primary span (primary CTAs), and other
+      identified display-link surfaces (audit during implement,
+      cap at 4-5 selectors total). ~20-25 LOC in globals.css.
+      Risk band low. Different motion mode (hover-driven) from
+      [1/3]'s scroll-driven, so this orthogonally extends the
+      vocabulary rather than overlapping.
+    severity: medium
+    effort: S
+    class: distinctive
+    status: open
+    files:
+      - src/app/globals.css
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    dq_count: 0
+    notes: |
+      Notion-managed task — pick via task-driven mode by claiming
+      via MCP update-page rather than via backlog-driven pick.
+      The body brief lives in the Notion page (canonical) — this
+      backlog mirror is for reference-scout's don't-resuggest pass
+      and surface-freshness tracking; the spec is the Notion body.
+
+  - id: motion-vocabulary-subtask-3-of-3-magnetic-reveal
+    title: "[3/3] Motion — magnetic reveal extension on shared Magnetic primitive"
+    ship: |
+      Subtask [3/3] of motion-vocabulary parent (Notion 35faf8d3-
+      d3e2-816e-9304-f18860d09138). Notion subtask page 360af8d3-
+      d3e2-81ab-bdbb-fe56c3cd37ed, Surface: system/hero/catalogue.
+      Extends the shared <Magnetic /> primitive at src/components/
+      magnetic.tsx with a `reveal` boolean prop — when set, the
+      component applies a CSS variable --magnetic-distance (0-1,
+      computed from cursor distance to element center) that the
+      consuming CSS can read. One CSS rule on .magnetic-reveal:
+      opacity: calc(0.65 + 0.35 * var(--magnetic-distance, 0)) +
+      scale: calc(0.96 + 0.04 * var(--magnetic-distance, 0)).
+      Composes with existing magnetic translate. ~60 LOC. JS
+      work — higher regression risk than [1/3] and [2/3] which
+      are pure CSS. Reduced-motion short-circuits at JS level.
+    severity: medium
+    effort: M
+    class: distinctive
+    status: open
+    files:
+      - src/components/magnetic.tsx
+      - src/app/globals.css
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    dq_count: 0
+    notes: |
+      Notion-managed task — pick via task-driven mode. Risk band
+      `medium` in the body brief — highest of the three subtasks
+      because the primitive is shared across multiple consumer
+      sites (hero CTA + others). Plan to ship LAST so [1/3] (now
+      shipped) and [2/3] establish the motion-vocabulary cadence
+      before touching shared-primitive JS.
+
+  - id: hero-char-drift-rotation-magnitude-token-promotion
+    title: hero-char-drift rotation magnitude (2deg) — promote to --char-drift-angle token if a second site lands
+    ship: |
+      The hero-title char drift ship (commit pending, this run)
+      uses a 2deg rotation literal in both keyframes (hero-char-
+      drift-a / hero-char-drift-b). One-off literals are defensible
+      for a single-site ship, but if a second view-timeline
+      rotation instance lands (e.g. on display titles in /about,
+      /journal, /supplies), promote the magnitude to a CSS custom
+      property in the design-token block (--char-drift-angle: 2deg)
+      so future ships can dial it from one source.
+    severity: low
+    effort: S
+    class: hygiene
+    status: open
+    files:
+      - src/app/globals.css
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    dq_count: 0
+    notes: |
+      Trigger condition — promote when the next view-timeline rotation
+      site needs the same magnitude or wants a per-surface variant.
+
+  - id: hero-char-drift-keyframe-name-collision-check-future-typography-ship
+    title: hero-char-drift-{a,b} keyframe-name convention — consolidate if more per-element drift variants land
+    ship: |
+      The two new keyframes hero-char-drift-a / hero-char-drift-b
+      from the hero-title char-drift ship are intentionally
+      typography-scoped names. If a future ship adds more per-
+      element drift variants (e.g. for chapter-rail-label, eyebrow
+      hairlines, etc), consolidate into a single keyframe family
+      naming convention rather than -a / -b doubling. Possible
+      conventions: (a) parametric via --char-drift-phase var and
+      one keyframe (b) name by surface: hero-char-drift, chapter-
+      char-drift, eyebrow-char-drift each with a/b suffixes.
+    severity: low
+    effort: S
+    class: hygiene
+    status: open
+    files:
+      - src/app/globals.css
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    dq_count: 0
+    notes: |
+      Cosmetic — the -a / -b pattern is fine for two keyframes; trigger
+      when the count grows past four.
+
+  - id: notion-task-image-gen-split-into-surface-subtasks-mandate-no-defer-5th
+    title: Notion image-gen task — now deferred 4 runs; next pick MUST split before claiming parent
+    ship: |
+      Notion task 35faf8d3-d3e2-8168-9026-c7ce8590e62b (image-gen,
+      Medium priority, Surface: hero/catalogue/system) has now been
+      deferred 4 consecutive runs. The motion-vocabulary split this
+      run validates the recipe — Phase 0 split the parent into 3
+      single-concern subtasks via MCP create-pages, parent flipped
+      to Status: Split, [1/3] claimed and shipped in the same run.
+      Same recipe applies to image-gen:
+      [1/3] homepage section dividers — 1-2 raster compositions
+        for the chapter spreads (e.g. torn-paper hairline-edge, wax-
+        seal-on-black-paper)
+      [2/3] PDP cover specimen plates — 6 product-specific specimen-
+        plate compositions for the 6 /supplies/[id] pages
+      [3/3] journal index + colophon imagery — wax-seal/typesetter's-
+        tray for journal header + colophon press shot
+      Each subtask is single-surface, ~150 LOC + ≤300KB assets,
+      and uses the image-gen Skill (first-time-use within the
+      cron — needs careful verification on first claim).
+      MANDATE: do not defer a 5th time.
+    severity: medium
+    effort: S
+    class: infra
+    status: open
+    files:
+      - .claude/improvement/scripts/notion-sync.mjs
+      - public/img/
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    dq_count: 0
+    notes: |
+      The motion-vocabulary parent task was split this run via
+      MCP — same pattern will work for image-gen. The first-time-
+      use-of-image-gen-skill risk that earlier pickers cited is
+      addressed by the split (each subtask is small enough to
+      verify the skill end-to-end with low blast radius).
