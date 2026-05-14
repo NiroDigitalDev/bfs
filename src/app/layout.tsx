@@ -5,6 +5,8 @@ import { Cursor } from "@/components/cursor";
 import { Loader } from "@/components/loader";
 import { ScrollProgress } from "@/components/scroll-progress";
 import { SiteChrome } from "@/components/site-chrome";
+import { SiteFooter } from "@/components/site-footer";
+import { SiteFooterMount } from "@/components/site-footer-mount";
 import { ParallaxRoot } from "@/components/parallax-root";
 import { CartDrawer } from "@/components/cart-drawer";
 import { CookieBanner } from "@/components/cookie-banner";
@@ -180,6 +182,9 @@ export default function RootLayout({
         <ParallaxRoot />
         <Cursor />
         {children}
+        <SiteFooterMount>
+          <SiteFooter />
+        </SiteFooterMount>
         <SiteChrome />
         <CartDrawer />
         <CookieBanner />

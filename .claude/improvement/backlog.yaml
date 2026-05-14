@@ -423,14 +423,20 @@ items:
     severity: low
     effort: S
     class: hygiene
-    status: open
+    status: closed-by-drift
     files:
-      - src/app/page.tsx:690-708
+      - src/components/site-footer.tsx
     opened_on: 2026-05-13
-    last_verified: 2026-05-13
+    last_verified: 2026-05-14
     notes: |
       Source — colophon auditor 2026-05-13. Outro currently only
       renders on `/` so latent until the IA grows; cheap insurance.
+      Closed by drift 2026-05-14 — the `site-footer-extract-mount-all-routes`
+      ship moved the outro nav into `src/components/site-footer.tsx` and
+      converted every `#supplies/#manifesto/#cult/#faq` anchor to
+      `/#supplies` etc. (and the magnetic 'Return to the catalogue'
+      button) as a natural consequence of the cross-route mount. No
+      separate ship needed.
 
   - id: colophon-edition-token-sweep
     title: Source Edition / Lat-Lon / Year from `site.ts` across colophon, 404, OG image
