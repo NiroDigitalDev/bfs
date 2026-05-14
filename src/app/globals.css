@@ -6090,27 +6090,45 @@ main.pdp ~ .folio {
   background: var(--color-line-2);
 }
 
+/* Journal index display heading — aligned with the hero / PDP / journal-post
+   vocabulary: italic-serif, asymmetric two-word stack (word 1 solid, word 2
+   outline-stroked), per-char SplitText reveal with a staggered start so the
+   second word reads as the editorial accent. Smaller than the hero clamp by
+   design — the index is a chapter heading, not the cover. */
 .journal-display {
   font-family: var(--font-serif);
+  font-style: italic;
   font-size: clamp(56px, 10vw, 144px);
   line-height: 0.92;
   letter-spacing: -0.02em;
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
   font-weight: 400;
 }
 .journal-display-word {
   display: inline-block;
+  position: relative;
 }
-.journal-display-italic {
-  font-style: italic;
+.journal-display-word-1 {
+  letter-spacing: -0.03em;
+  color: rgba(255, 255, 255, 0.96);
+}
+/* Word 2 indents into the column to break the grid — same asymmetric move
+   the hero, PDP, and journal-post titles make. */
+.journal-display-word-2 {
   padding-left: clamp(40px, 9vw, 132px);
   color: rgba(255, 255, 255, 0.92);
 }
+.journal-display-outline {
+  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.78);
+  color: transparent;
+}
 .journal-display-period {
+  display: inline-block;
   color: rgba(255, 255, 255, 0.5);
+  margin-left: 0.02em;
 }
 
 .journal-lede {

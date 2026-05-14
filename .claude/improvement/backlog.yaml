@@ -767,3 +767,62 @@ items:
     last_verified: 2026-05-13
     notes: |
       Source — interactions auditor on press-clipping-register run.
+
+  - id: display-title-primitive-extract
+    title: Extract <DisplayTitle> primitive consolidating hero / PDP / journal-post / journal-index titles
+    ship: |
+      The hero (`/`), PDP (`/supplies/[id]`), journal-post
+      (`/journal/[slug]`), and journal-index (`/journal`) all render
+      the same asymmetric two-word display-title composition (word 1
+      solid, word 2 italic outline-stroked, SplitText reveals with
+      staggered start). Each implements it independently with its own
+      class prefix (`.hero-word-*`, `.pdp-word-*`,
+      `.journal-post-word-*`, `.journal-display-word-*`). Extract a
+      `<DisplayTitle text={...} outlineWord="first"|"second"|"none"
+      scale="hero"|"chapter"|"index" />` primitive that consumes
+      `SplitText`, owns the canonical word stack, and exposes a CSS
+      module per scale. Three-route consumer refactor — keep the four
+      existing class prefixes during the transition, then deprecate
+      once consumers have migrated. Net delta likely ~200-300 LOC
+      added + 4 CSS blocks consolidated.
+    severity: low
+    effort: M
+    class: distinctive
+    status: open
+    files:
+      - src/app/page.tsx:99-115
+      - src/app/supplies/[id]/page.tsx:222-250
+      - src/components/journal-post-frame.tsx:97-128
+      - src/app/journal/page.tsx:101-119
+      - src/app/globals.css:800-841,4995-5040,6459-6480,6093-6134
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    notes: |
+      Source — flagged by the journal-display-vocabulary-align task
+      brief as an "extract if pattern stabilizes" follow-up.
+      Pattern is now in 4 places — pattern is stable.
+
+  - id: display-title-rgba-tokens
+    title: Migrate raw rgba(255,255,255,…) literals in display-title outline rules to a shared --color-stroke-display token
+    ship: |
+      `.hero-outline`, `.pdp-outline`, `.journal-post-outline`, and
+      `.journal-display-outline` each use raw rgba literals for the
+      `-webkit-text-stroke` color (varying between
+      `#f4f4f4`, `rgba(255,255,255,0.78)`, `rgba(255,255,255,0.1)`,
+      `rgba(255,255,255,0.32)` etc). Define
+      `--color-stroke-display-solid`,
+      `--color-stroke-display-italic`, and consume across the four
+      blocks. Companion to display-title-primitive-extract.
+    severity: low
+    effort: S
+    class: hygiene
+    status: open
+    files:
+      - src/app/globals.css:824-826
+      - src/app/globals.css:4017-4018
+      - src/app/globals.css:6477-6480
+      - src/app/globals.css:6116-6119
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    notes: |
+      Source — diff-reviewer nit on journal-display-vocabulary-align run.

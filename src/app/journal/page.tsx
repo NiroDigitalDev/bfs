@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { JournalPostCard } from "@/components/journal-post-card";
 import { Magnetic } from "@/components/magnetic";
+import { SplitText } from "@/components/split-text";
 import { getAllPosts } from "@/lib/journal";
 import { site, siteUrl } from "@/lib/site";
 
@@ -98,13 +99,21 @@ export default function JournalIndexPage() {
           <span className="journal-eyebrow-rule" aria-hidden />
           <em>Journal · Editorial dispatches</em>
         </span>
-        <h1 className="journal-display">
-          <span className="journal-display-word">
-            The
-            <span className="journal-display-period" aria-hidden>.</span>
+        <h1 className="journal-display" aria-label="The Journal.">
+          <span className="journal-display-word journal-display-word-1" aria-hidden>
+            <SplitText as="span" text="The" stagger={0.04} />
+            <span className="journal-display-period">
+              <SplitText as="span" text="." stagger={0} start={0.4} />
+            </span>
           </span>
-          <span className="journal-display-word journal-display-italic">
-            <em>Journal</em>
+          <span className="journal-display-word journal-display-word-2" aria-hidden>
+            <SplitText
+              as="span"
+              text="Journal"
+              stagger={0.04}
+              start={0.22}
+              className="journal-display-outline"
+            />
           </span>
         </h1>
         <p className="journal-lede">

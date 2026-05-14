@@ -5,6 +5,151 @@ One entry per run. Newest first.
 
 ---
 
+## 2026-05-14 — /journal index display heading — align with the hero/PDP/journal-post typographic vocabulary
+
+**Area.** Journal index display heading at
+[src/app/journal/page.tsx:101–119](src/app/journal/page.tsx:101)
+and the `.journal-display*` CSS block at
+[src/app/globals.css:6093–6134](src/app/globals.css:6093). The change
+closes the last divergence in BFS's display-title vocabulary: every
+other display surface — hero, PDP, journal-post — already shared the
+canonical pattern (italic-serif, asymmetric two-word stack, word 2
+outline-stroked, per-character SplitText reveal), but `/journal` index
+rendered the heading as a static flex stack with the italic treatment
+applied only to word 2 and no SplitText.
+
+**Why it's the focus.** Notion task
+[Apply the homepage hero's display-type vocabulary to /journal, /supplies, and /checkout headers](https://www.notion.so/35faf8d3d3e28147b2a0dadeb0e69bf6) —
+`Priority: Medium`, `Status: To do`, surface `[hero, system, catalogue]`.
+The cron entered task-driven mode on this row; it was tied at Medium
+with two other open tasks ("Add /about" and "PDP — more editorial
+sections") on identical Added timestamps. Picked because (a) typography
+is BFS's strongest signature axis and (b) auditing the four named
+routes showed `/journal` index was the only divergent surface — PDP +
+journal-post already match, and the brief explicitly defers checkout
+(its small italic-serif eyebrow is intentional functional restraint,
+not a candidate for display-type promotion).
+
+**Mode.** Task-driven.
+
+**Risk band.** Medium — visible visual register change to every
+`/journal` index visitor; touches the shared SplitText primitive's
+consumer count (`/journal` now joins hero / PDP / journal-post / FAQ /
+404 / homepage section heads). Net delta 2 files, +36 / -9 LOC. The
+existing global reduced-motion guard at
+[src/app/globals.css:3706–3726](src/app/globals.css:3706) already
+covers the new SplitText instances — no new RM logic needed. Captured
+both viewports at
+[.claude/improvement/screenshots/44fdc55/](.claude/improvement/screenshots/44fdc55/)
+(`journal-display-desktop.png`, `journal-display-mobile.png`).
+
+**What ships.**
+
+- **Promote `<h1 class="journal-display">` markup to the canonical
+  word-1/word-2 stack.** Word 1 = `"The"` (solid italic-serif) with the
+  period as a nested `<span class="journal-display-period">`. Word 2 =
+  `"Journal"` rendered with `-webkit-text-stroke: 1px rgba(255,255,255,0.78)`
+  via `.journal-display-outline` (italic-serif, outline-stroked, indented).
+  Three `<SplitText>` instances — `"The"` with `stagger=0.04`, the
+  period with `stagger=0, start=0.4` (so the punctuation lands after the
+  word reveals), and `"Journal"` with `stagger=0.04, start=0.22` so the
+  outline-stroked italic reads as an editorial accent that arrives after
+  the solid word. `<h1>` carries `aria-label="The Journal."`; the inner
+  `.journal-display-word-1/2` and `.journal-display-period` spans are
+  `aria-hidden` so AT users hear the title once via the label, not
+  thirteen times via SplitText scaffolds.
+- **Evolve the `.journal-display*` CSS block.** Replace the original
+  three-class set (`.journal-display`, `.journal-display-word`,
+  `.journal-display-italic`, `.journal-display-period`) with the
+  canonical six-class set (`.journal-display`, `.journal-display-word`,
+  `.journal-display-word-1`, `.journal-display-word-2`,
+  `.journal-display-outline`, `.journal-display-period`). The block
+  becomes `font-style: italic` at the parent (matches journal-post-title
+  pattern); word 1 sits at `letter-spacing: -0.03em, color: rgba(255,255,255,0.96)`;
+  word 2 carries the asymmetric `padding-left: clamp(40px, 9vw, 132px)`
+  indent (same indent the original `.journal-display-italic` used, but
+  now in service of the outline-stroked composition rather than a
+  decorative italic flag).
+
+**Architecture.** The smaller clamp scale (`clamp(56px, 10vw, 144px)`)
+is intentionally preserved — the journal index is a chapter heading,
+not the cover. Oversizing it to match the hero's `clamp(72px, 16vw, 288px)`
+would flatten the hero's primacy and read as derivative rather than
+coherent. Spread vocabulary across the family; spread scale only when
+the surface earns it. The journal-post `[slug]` title sits at
+`clamp(56px, 12vw, 200px)` — a step between index and hero — confirming
+the descending scale-by-context pattern. A `<DisplayTitle>` primitive
+was considered (the task brief flagged it as an "if the pattern
+stabilizes" follow-up), but extracting now would mean a three-route
+markup refactor (hero, PDP, post) that exceeds the spec — logged as a
+follow-up rather than landed inline.
+
+**Verification.**
+- `bun run lint` → clean (only pre-existing warnings in
+  `.claude/improvement/scripts/*` carried over from earlier runs).
+- `bunx tsc --noEmit` → clean.
+- `bun run build` → clean; all 24 routes prerender successfully,
+  `/journal` included.
+- SSR markup verified on `.next/server/app/journal.html`:
+  `journal-display` × 8, `journal-display-outline` × 2,
+  `journal-display-word-1` × 2, `journal-display-word-2` × 2,
+  `split-char` × 11 (4 for `"The"` + 1 for `"."` + 7 for `"Journal"`).
+- regression-spotter → PASS (`.hero-title/.hero-outline/.hero-word-1/2/.hero-period/.chapter-rail/.folio` all present on `/`; `.journal-post-title/.journal-post-outline/.journal-post-word-1/2` present on the seed post; `.pdp-title/.pdp-word-1/2/.pdp-outline/.pdp-period` present on `/supplies/void-book`; `.checkout-eyebrow` present on `/checkout`).
+- perf-a11y → PASS. No new client component (SplitText already client-imported elsewhere; same chunk reused); CSS delta < 1 KB; LCP/CLS risk low (composited transitions, no reflow); INP risk none (no new handlers); period at 0.5 alpha qualifies as large text (≥ 56px), contrast threshold 3:1 comfortably exceeded.
+- diff-reviewer → PASS-WITH-NITS. Two non-blocking findings: (1) the new CSS block uses raw `rgba(255,255,255,…)` literals rather than tokens — consistent with `.hero-outline`/`.pdp-outline`/`.journal-post-outline` which all use the same pattern (logged as a cross-cutting follow-up; a token migration would touch four CSS blocks); (2) a redundant `aria-hidden` on the inner period span (parent already hidden) — fixed inline.
+- `anti-patterns.mjs` → 0 findings.
+- Visual diff vs prior → skipped (no prior `journal-display-desktop.png`; this is the first capture for this surface).
+- SOTD compare → skipped (`sotd-compare.mjs` still failing to parse — `sotd-parser-fix` remains in backlog).
+
+**Rubric.** T 2 · M 2 · L 2 · I 2 · A 3 · D 2 = 13 / 18 (Distinctive
+band, below Awwwards-grade — applying an existing pattern to a missing
+surface is register-coherence work, not typographic invention). Note:
+the rubric-calibrator fired this run and returned `DRIFTING` (mean Δ
+-1.8 across last 10 ships; picker has been awarding L/M one band high
+on foundation/infra work). Scoring this ship deliberately conservative
+in response — L=2 because the visual is small-surface (one h1 above
+the fold of `/journal`), M=2 because reveal motion is consumer-of-
+existing-primitive not new, T=2 because the typographic move is
+applied not invented.
+
+**Screenshots.**
+[journal-display-desktop.png](.claude/improvement/screenshots/44fdc55/journal-display-desktop.png) ·
+[journal-display-mobile.png](.claude/improvement/screenshots/44fdc55/journal-display-mobile.png).
+
+**SOTD comparison.** Skipped (sotd-compare.mjs gallery parse failure).
+
+**Notion.** Task page
+[Apply the homepage hero's display-type vocabulary to /journal, /supplies, and /checkout headers](https://www.notion.so/35faf8d3d3e28147b2a0dadeb0e69bf6)
+flips `Status: In progress → Done`, Completed=2026-05-14, Commit=<sha>.
+Reports row appended to the Reports DB via MCP (NOTION_TOKEN unset
+this run — used the `mcp__625e67a9-…__notion-create-pages` fallback).
+
+**Expected impact.** Typographic coherence across the four display-
+heading surfaces. Journal index visitors get the same reveal-on-scroll
+moment the hero and PDP have — the surface no longer reads as a
+template chapter heading dropped into an otherwise BFS site. The
+asymmetric indent + outline-stroke vocabulary reinforces that `/journal`
+belongs to the same press, not to a generic CMS shelf.
+
+**Files modified.**
+- [src/app/journal/page.tsx](src/app/journal/page.tsx) — import SplitText; restructure h1 markup; add aria-label.
+- [src/app/globals.css](src/app/globals.css) — evolve `.journal-display*` block at lines 6093–6134.
+
+**Follow-ups uncovered.**
+- `display-title-primitive-extract` (low, distinctive) — Extract `<DisplayTitle>` primitive consuming `title` + `outlineWord` props; consolidates hero / PDP / journal-post / journal-index implementations. Three-route refactor; out of scope for this ship.
+- `display-title-rgba-tokens` (low, hygiene) — Migrate raw `rgba(255,255,255,…)` literals in `.hero-outline`, `.pdp-outline`, `.journal-post-outline`, `.journal-display-outline` to a `--color-stroke-display` token. Cross-cutting; current consistency is fine.
+- `sotd-parser-fix` (already open) — Still failing; the gallery markup change wasn't addressed this run either.
+
+**Periodic triggers fired.**
+- **Rubric calibration** — fired at `shipped_count=30` (multiple of 10, `last_calibration_at` empty). Verdict `DRIFTING` (mean Δ -1.8 across last 10 ships). Calibration captured at
+  [.claude/improvement/calibrations/2026-05-14.md](.claude/improvement/calibrations/2026-05-14.md).
+  Three rubric clarifications staged for user review (foundation-ship
+  ceiling, L3 "editorial page" qualifier, M ≥ 2 motion-present
+  precondition); not applied autonomously — the cron deliberately
+  declines to refine the scoring rubric mid-run.
+
+---
+
 ## 2026-05-13 — SplitText display titles wrap mid-character at line edges — fix `.split-word` to nowrap
 
 **Area.** Shared CSS for the `<SplitText>` primitive in
