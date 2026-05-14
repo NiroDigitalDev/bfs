@@ -1213,3 +1213,74 @@ items:
     notes: |
       Surfaced by perf-a11y on cart-autoopen-drawer-and-live-region
       ship. UX nuance only — perf-a11y verdict was PASS.
+
+  - id: about-opengraph-image
+    title: /about needs a dedicated opengraph-image.tsx — currently inherits the homepage OG
+    ship: |
+      Add `src/app/about/opengraph-image.tsx` using the same ImageResponse
+      pattern as `/opengraph-image.tsx` and `/journal/[slug]/opengraph-image.tsx`.
+      Subject — display 'About the press.' in italic-serif on the matte ground
+      with a hairline rule under, plus the BFS wordmark at bottom-left. 1200×630.
+      Per-route OG tightens share metadata so /about previews cleanly on
+      X / Slack / iMessage instead of falling through to the generic home OG.
+    severity: low
+    effort: S
+    class: seo
+    status: open
+    files:
+      - src/app/about/page.tsx
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    notes: |
+      Surfaced by the /about ship. Task brief explicitly called for a
+      per-route opengraph-image; ship-as-medium-followup rather than
+      inline so the route lands first.
+
+  - id: about-display-outline-stroke-variant
+    title: about-display could adopt the hero/PDP/journal-post asymmetric outline-stroke vocabulary
+    ship: |
+      The homepage hero ('Dark Matter.'), every /supplies/<id> PDP title, and
+      every /journal/<slug> post title use an asymmetric two-word composition
+      (word 1 solid italic-serif, word 2 outline-stroked via `-webkit-text-stroke`).
+      .about-display currently renders 'About the press.' as solid italic across
+      three words because the asymmetric word-1/word-2 split doesn't fit
+      a 3-word title cleanly. Options: (a) restructure the title to a 2-word
+      composition like 'About BFS.' or 'The press.' so the canonical
+      outline-stroke vocabulary applies; (b) leave as solid italic and document
+      the divergence as intentional (about is a destination, not a poster).
+      Implementer's call.
+    severity: low
+    effort: S
+    class: distinctive
+    status: open
+    files:
+      - src/app/about/page.tsx:153-159
+      - src/app/globals.css:7218-7240
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    notes: |
+      Surfaced by the /about ship. Register-coherence vs. editorial-restraint
+      trade-off; either resolution is defensible.
+
+  - id: about-page-illustration-asset
+    title: /about is type-only — pairs with the generate-distinctive-images task to add a press-stamp / typesetter's tray illustration
+    ship: |
+      The Studio section on /about reads as a colophon dl and an intro
+      paragraph, no imagery. The Notion task `35faf8d3-d3e2-8168-9026-c7ce8590e62b`
+      ('Generate distinctive images via image-gen skill') lists 'a press-stamp /
+      typesetter's tray composition for the manifesto's sticky-rail area' —
+      the same composition would deepen the /about Studio block. Generate via
+      image-gen, save under `public/img/about/`, wire via `<Image>` with
+      width/height to prevent CLS, alt='Studio · press stamp'.
+    severity: low
+    effort: S
+    class: distinctive
+    status: open
+    files:
+      - src/app/about/page.tsx:188-217
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    notes: |
+      Surfaced by the /about ship. Best landed alongside the broader
+      image-gen task rather than in isolation so the visual register
+      stays coherent across routes.

@@ -7202,6 +7202,159 @@ main.pdp ~ .folio {
   opacity: 0.62;
 }
 
+/* ============ ABOUT PAGE ============
+   /about — the press in its own voice. Sits between the homepage
+   hero's commanding clamp-display (72→288px) and the legal pages'
+   restrained clamp(40→96). Reuses .journal container + .journal-prose
+   body + .outro-colophon dl for the Studio block — what's specific
+   here is the display scale, the section rhythm, and a magnetic
+   .about-cta that mirrors the .journal-entry-cta vocabulary without
+   stealing its row-grid layout.
+
+   The page is intentionally NOT in the top nav; it surfaces via
+   the footer colophon and via the breadcrumb only. About is a
+   destination you arrive at, not one you pass through. */
+.about-page {
+  /* extends .journal — same outer container, same padding */
+}
+
+.about-header {
+  /* extends .journal-header — same hairline rhythm */
+}
+
+.about-display {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(56px, 11vw, 168px);
+  line-height: 0.96;
+  letter-spacing: -0.025em;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.96);
+  word-break: keep-all;
+  overflow-wrap: break-word;
+  hyphens: manual;
+}
+
+.about-display em {
+  font-style: italic;
+}
+
+.about-lede {
+  max-width: 56ch;
+}
+
+.about-prose {
+  max-width: 72ch;
+}
+
+.about-section {
+  padding: 56px 0 8px;
+  border-top: 1px solid var(--color-line);
+  margin-top: 24px;
+}
+
+.about-section:first-of-type {
+  border-top: none;
+  margin-top: 12px;
+  padding-top: 32px;
+}
+
+.about-section-coda {
+  padding-bottom: 32px;
+}
+
+.about-section h2 {
+  /* Override .journal-prose h2 — we want italic-serif display at
+     a slightly bigger scale than journal h2 for editorial weight. */
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(28px, 4vw, 44px);
+  line-height: 1.05;
+  letter-spacing: -0.015em;
+  margin: 0 0 20px;
+  color: rgba(255, 255, 255, 0.94);
+}
+
+.about-section h2 em {
+  font-style: italic;
+}
+
+/* Studio dl reuses .outro-colophon — same italic-serif rows,
+   same hairline cadence. Just narrows the max-width so it sits
+   inside the prose column rather than spanning the page. */
+.about-studio-dl {
+  max-width: 64ch;
+  margin: 24px 0 8px;
+}
+
+/* CTA — magnetic-wrapped editorial link. Lives outside .journal-prose's
+   <a> styles because the prose anchor is a hairline-underlined inline
+   link; this is a block-level destination cue. Mirrors the
+   .journal-entry-cta vocabulary (italic-serif smallcaps + arrow) but
+   without the entry's row-grid layout. */
+.about-cta-row {
+  margin-top: 24px;
+}
+
+.about-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 17px;
+  letter-spacing: 0.02em;
+  color: rgba(255, 255, 255, 0.92);
+  text-decoration: none;
+  padding: 14px 22px;
+  border: 1px solid var(--color-line);
+  border-radius: 999px;
+  transition: color var(--dur-2, 0.32s) var(--ease-out-quart, ease),
+    border-color var(--dur-2, 0.32s) var(--ease-out-quart, ease),
+    background-color var(--dur-2, 0.32s) var(--ease-out-quart, ease);
+}
+
+.about-cta:hover,
+.about-cta:focus-visible {
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.about-cta:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.7);
+  outline-offset: 4px;
+}
+
+.about-cta-arrow {
+  display: inline-block;
+  font-style: normal;
+  transition: transform var(--dur-2, 0.32s) var(--ease-out-quart, ease);
+}
+
+.about-cta:hover .about-cta-arrow,
+.about-cta:focus-visible .about-cta-arrow {
+  transform: translateX(6px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .about-cta,
+  .about-cta-arrow {
+    transition: none;
+  }
+  .about-cta:hover .about-cta-arrow,
+  .about-cta:focus-visible .about-cta-arrow {
+    transform: none;
+  }
+}
+
+.about-page-foot {
+  /* extends .legal-page-foot — same hairline rule + return CTA */
+}
+
 /* ============ COOKIE BANNER ============
    First-visit GDPR consent strip. Reads as "A note on cookies." —
    italic-serif on a soft ink wash, hairline top rule, two

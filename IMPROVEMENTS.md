@@ -5,6 +5,269 @@ One entry per run. Newest first.
 
 ---
 
+## 2026-05-14 — /about — the press in its own voice (editorial spread, AboutPage+Organization JSON-LD, footer surface)
+
+**Area.** `system` · `manifesto` · `nav` — a new dedicated about-the-press
+route. Surfaces the BFS press as more than a four-item manifesto card on
+the homepage: who the press is, how it operates, how to commission an
+edition. Lands as a single editorial spread, reachable from every
+non-checkout route via the global colophon.
+
+**Why it's the focus.** Task-driven run. Notion Tasks DB returned six
+`To do` rows all at Medium priority and the same created-at, so the
+top-task tiebreaker fell to surface-freshness + scope-fit. `/about`
+won on three counts: (1) surface `system|manifesto|nav` hasn't been
+the focus of recent ships (last six ships were chrome/cart/footer/
+typography/journal/legal — none routed to manifesto-adjacent
+surfaces), (2) it's a single-concern self-contained ship (1 new route
++ sitemap + footer link, no shared-primitive risk), and (3) it
+unblocks future cross-route narrative (every other route can link to
+`/about` once it exists). The five non-picked rivals (PDP editorial
+sections expansion, customer reviews / press quotations, generate
+distinctive images via image-gen, motion-vocabulary next-tier, write
+10 BFS-voice journal posts) all touch existing routes; `/about`
+introduces a new surface and so closes a real gap.
+
+**Mode.** Task-driven.
+
+**Risk band.** `medium` — 1 new public-facing route, 1 sitemap entry,
+1 footer link addition. No shared-primitive touch, no chrome change
+(SiteChrome's `pathname !== '/'` guard correctly excludes /about from
+ChapterRail + RunningFolio without edit; same as how /privacy etc.
+work today). Net delta ~416 LOC. Direct-commit to `main` per
+risk-rules.md medium-band mapping.
+
+**What ships.**
+
+1. **`src/app/about/page.tsx`** (new, 254 LOC, Server Component).
+   Renders the entire /about spread inline rather than via a frame
+   component — /about is a single use-case, unlike /privacy /terms
+   /cookies which share `LegalPageFrame`. Markup top-to-bottom:
+   - `<main className="journal about-page" data-page="about">` so
+     the page inherits the journal container's outer padding +
+     vertical rhythm; `.about-page` is a hook with no extra rules
+     today.
+   - `<nav className="nav journal-nav">` — BFS wordmark + Vol. III ·
+     MMXXVI sub + four center nav-links (Journal/Catalogue/Position/
+     Field Notes). Mirrors `LegalPageFrame` chrome exactly so visual
+     consistency is automatic.
+   - `<nav className="journal-breadcrumb" aria-label="Breadcrumb">`
+     with the `← Vol. III · The Press / About` pattern.
+   - `<header className="journal-header about-header">` — eyebrow
+     `Editorial · The press at the desk` + `<SplitText as="h1"
+     text="About the press." className="about-display" stagger={0.03} />`
+     (per-character reveal at the canonical 30ms stagger) + a lede
+     paragraph at max-width 56ch.
+   - Four `<section className="about-section">` blocks separated by
+     1px `var(--color-line)` hairlines and italic-serif h2 headings:
+     **Principles** (3 paragraphs on colour, type, the binding of
+     editions; the binding paragraph closes with the editorial line
+     "If you missed Vol. II, we cannot help you, and we are *not*
+     sorry."), **Studio** (intro paragraph + a `<Reveal>`-wrapped
+     `<dl className="outro-colophon about-studio-dl">` reusing the
+     existing colophon-row vocabulary for six rows — Founded MMXXIV,
+     Location Studio · Lat 0° 0′ N · Lon 0° 0′ W, Cadence Quarterly ·
+     Give or take a moon, Edition cap No run exceeds 250 numbered
+     copies, Dispatch 48 hours Worldwide, Correspondence
+     studio@blacksforsale.studio with `.outro-colophon-mail`
+     cursor-link styling), **Commissions** (intro + writeback
+     paragraph + a `<Reveal>`/`<Magnetic strength={0.22}>`-wrapped
+     'Send a note →' CTA at
+     `mailto:studio@blacksforsale.studio?subject=A%20commission%20for%20the%20press`),
+     and **From the press** (intro paragraph + Magnetic
+     'Read the journal →' CTA at `/journal` as the page's exit beat).
+   - `<footer className="legal-page-foot about-page-foot">` — same
+     magnetic 'Return to the volume' return-link + Edition III · MMXXVI
+     signoff used by /privacy, /terms, /cookies.
+   - `<script type="application/ld+json">` emitting a single
+     `AboutPage` schema whose `mainEntity` is the `Organization`
+     (name, url, description, email, foundingDate `"2024"`, slogan
+     `"Stationery in the absence of light"`). The about page is the
+     canonical home for Organization metadata.
+2. **`src/app/globals.css`** (+154 LOC, new `.about-*` block at
+   lines 7206-7359). Authored as a labelled block under the legal-page
+   section so the visual evolution from legal-display → about-display
+   → hero-display reads top-to-bottom in the file. Tokens:
+   - `.about-display` at `clamp(56px, 11vw, 168px)` — intentionally
+     between the legal pages' `clamp(40,7vw,96)` and the hero's
+     `clamp(72,16vw,288)`. Carries `word-break: keep-all;
+     overflow-wrap: break-word; hyphens: manual;` defensively after
+     the FAQ-display mid-word-break incident earlier this volume.
+   - `.about-lede` at `max-width: 56ch`; `.about-prose` at
+     `max-width: 72ch` (slightly wider than `.legal-prose`'s 68ch
+     to support the section rhythm without feeling too narrow).
+   - `.about-section` adds `padding: 56px 0 8px; border-top: 1px
+     solid var(--color-line); margin-top: 24px;` — first-of-type
+     strips the border. `.about-section-coda` adds bottom padding
+     for the closing section.
+   - `.about-section h2` overrides the `.journal-prose h2` baseline
+     to `clamp(28px, 4vw, 44px)` italic-serif at -0.015em letter-
+     spacing for editorial weight on the about page.
+   - `.about-studio-dl` narrows the dl to `max-width: 64ch` so it
+     sits inside the prose column rather than spanning the page.
+   - `.about-cta` + `.about-cta-arrow` + `.about-cta-row` — italic-
+     serif 17px destination cue with `border-radius: 999px` hairline
+     pill, hover lifts color + border alpha + arrow `translateX(6px)`;
+     `@media (prefers-reduced-motion: reduce)` zeroes both the
+     transition and the arrow translate.
+3. **`src/app/sitemap.ts`** (+6 LOC). Maps `/about` to priority 0.5 +
+   `changeFrequency: "monthly"` + `lastModified=now` — sits between
+   `/journal` (0.7) and `/privacy|/terms|/cookies` (0.3) as a
+   destination route that's not a primary entry but is more
+   permanent than statutory pages.
+4. **`src/components/site-footer.tsx`** (+3 LOC). Adds an
+   `<Link href="/about">About</Link>` between the Journal link and
+   the Studio mailto in the main outro-links nav, so `/about` is
+   reachable from every non-checkout route via the global colophon.
+   Top nav intentionally NOT touched — adding `/about` as a 6th nav
+   item would crowd the editorial-tight 5-item layout (Catalogue/
+   Position/Field Notes/On Record/Journal + cart pill); /about is a
+   destination you arrive at, not one you pass through.
+
+**Architecture.**
+
+- **Inline page rather than frame component.** /about is a single
+  use-case — there's no /about-style sibling route. /privacy
+  /terms /cookies share `LegalPageFrame` because they have a common
+  shape (eyebrow + display + lede + revised line + prose); /about
+  has a distinctive section composition (SplitText hero + four
+  sections including a colophon dl and two magnetic CTAs) that
+  doesn't generalize. Future-self can extract if a second
+  destination route emerges.
+- **Reuse over invent.** The only genuinely new visual primitive is
+  `.about-cta` (the italic-serif hairline-pill destination link).
+  Everything else lifts from existing CSS: `.outro-colophon` for
+  the Studio dl, `.journal-prose` for body styling, `.legal-page-foot`
+  for the closer, `.journal-eyebrow`/`.journal-lede`/`.journal-nav`/
+  `.journal-breadcrumb` for the page chrome. Net new tokens: 0.
+- **Server Component + client-island primitives.** The page is a
+  Server Component; SplitText/Reveal/Magnetic are the existing
+  `"use client"` islands. Hydration cost is the same as any other
+  journal route — no new client code.
+- **AboutPage with mainEntity Organization JSON-LD.** Schema.org's
+  canonical structure for an about page. Search engines now have
+  a definitive home for Organization data (name, url, description,
+  email, foundingDate, slogan) — Google's Organization knowledge
+  panel uses this when crawling.
+
+**Verification.**
+
+- `bun run lint` → 0 errors + 7 pre-existing tooling warnings in
+  `.claude/improvement/scripts/*.mjs` (out of scope).
+- `bunx tsc --noEmit` → clean.
+- `bun run build` → 28/28 static routes prerendered (was 27,
+  `/about` added as `○ (Static)`).
+- SSR class grep on `/about` — `<h1>=1, <h2>=4` (about-principles,
+  about-studio, about-commissions, about-press), 4
+  `class="about-section"` blocks, 2 `<a class="about-cta">` CTAs,
+  1 `class="about-studio-dl"`, 1 `"@type":"AboutPage"` script,
+  1 `"@type":"Organization"` (nested in mainEntity),
+  canonical=`/about`, robots=`index, follow`, og:title
+  `About · Blacks For Sale`.
+- Sitemap regression — `sitemap.xml` now lists `<loc>http://localhost:3000/about</loc>`
+  alongside the existing 12 entries.
+- Footer regression — `href="/about">About` renders on `/` and
+  `/journal` (and by inference every non-checkout route, since
+  SiteFooter is global chrome). `/checkout` SSR still shows
+  `outro=0` (footer correctly excluded by SiteFooterMount).
+- Adjacent surface regression — `/`, `/journal`, `/privacy`,
+  `/supplies/void-book` all show `outro=1` and signature classes
+  unchanged.
+- `anti-patterns.mjs` → `patterns: 0`.
+- Nav regression — homepage nav still emits exactly the existing
+  five numbered items (01 Catalogue, 02 Position, 03 Field Notes,
+  04 On Record, 05 Journal); no 6th item added.
+
+**Rubric.** T:2 · M:1 · L:3 · I:2 · A:3 · D:2 = **13/18** (Distinctive).
+
+- **T:2** — introduces a new clamp scale `clamp(56,11vw,168)` that
+  fills the gap between hero and legal pages, but extends rather
+  than re-defines the typographic system.
+- **M:1** — motion is minimal (SplitText on h1, Reveal staggers on
+  the dl + CTAs, Magnetic on the two CTAs); all existing primitives,
+  no new keyframes.
+- **L:3** — asymmetric editorial sections with hairline rhythm,
+  italic-serif h2 display, colophon dl reuse, and a destination-cue
+  CTA pill that mirrors the existing nav-cta vocabulary without
+  copying it.
+- **I:2** — Magnetic + Reveal + RM guards explicitly defined in
+  the new `.about-cta` block.
+- **A:3** — every h2 has `aria-labelledby`, the dl uses semantic
+  `<dt>`/`<dd>`, JSON-LD is server-emitted, focus-visible has an
+  explicit 2px outline at offset 4px, and all motion has a
+  reduced-motion fallback.
+- **D:2** — shipping an editorial about page that opens with a
+  colophon-style Studio dl + a commissions CTA on a single-hue
+  stationery press IS distinctive against the typical Next.js
+  "we believe in honesty and craft" about page; doesn't quite hit
+  3 because the underlying primitives are reused rather than
+  invented for /about specifically.
+
+**Screenshots.** Skipped — playwright availability `unknown` per
+state.yaml, capture-ship.mjs not invoked. The SSR class grep was
+the stronger evidence; screenshots dir is gitignored regardless.
+
+**SOTD comparison.** `sotd-compare.mjs` skipped — `skipped: could
+not parse SOTD entry — gallery markup may have changed`. `sotd-parser-fix`
+remains an open backlog item; this ship doesn't expand it.
+
+**Notion.** Reports row appended via MCP fallback (NOTION_TOKEN
+unset). Task page `35faf8d3-d3e2-81bb-b0f8-eba45342068a` moved to
+`Status: Done` with `Completed: 2026-05-14` + `Commit: <sha>` (set
+in Phase 6 Step 9 after the commit lands; the parent's Surface
+multi-select already carried `[system, manifesto, nav]` so no
+auto-inference needed).
+
+**Expected impact.**
+
+- **Internal linking.** A new destination route surfaced from every
+  non-checkout footer means Google's site graph now has a canonical
+  "about" anchor; the BFS Organization knowledge panel can attach
+  to `/about` as its mainEntityOfPage rather than `/`.
+- **SEO.** The Organization JSON-LD on /about gives search engines
+  a definitive source for press metadata (founded, slogan,
+  description) without polluting the homepage with the same schema.
+- **Editorial coherence.** Adjacent statutory routes (/privacy,
+  /terms, /cookies) carry the press's "we are a small editorial
+  press" voice in legal copy. /about is the canonical home for
+  that voice in non-statutory form — it backs the legal pages with
+  the editorial position they implicitly assume.
+
+**Files modified.**
+
+- `src/app/about/page.tsx` — new file, 254 LOC.
+- `src/app/globals.css` — +154 LOC (new `.about-*` block at lines
+  7206-7359).
+- `src/app/sitemap.ts` — +6 LOC (`/about` entry).
+- `src/components/site-footer.tsx` — +3 LOC (`<Link href="/about">`).
+
+**Follow-ups uncovered.**
+
+- `about-opengraph-image` (severity:low, class:seo) — `/about`
+  inherits the homepage OG via metadata fallback. Task brief
+  explicitly mentioned a per-route opengraph-image.tsx; ship as
+  follow-up rather than inline so the route lands first.
+- `about-display-outline-stroke-variant` (severity:low,
+  class:distinctive) — homepage hero + PDPs + journal posts all
+  use the asymmetric word-1/word-2 + `-webkit-text-stroke` outline
+  vocabulary on display titles. About's "About the press." is 3
+  words and doesn't fit cleanly. Either restructure the title to
+  a 2-word composition or document the divergence as intentional.
+- `about-page-illustration-asset` (severity:low,
+  class:distinctive) — /about is type-only currently. Pairs with
+  the open `generate-distinctive-images` task to introduce a
+  press-stamp / typesetter's tray composition in the Studio
+  section.
+
+**Backlog closed-by-drift.** None this run.
+
+**Periodic triggers fired.** None this run — retro ran 2026-05-13
+(within 7-day window), critic ran 2026-05-13 (within 28-day
+window), calibration ran 2026-05-14 morning (next at
+`shipped_count = 40`), no consecutive no-focus runs.
+
+---
+
 ## 2026-05-14 — SiteFooter extraction + layout-level mount on every route except /checkout
 
 **Area.** `chrome` · system · colophon · outro — the homepage outro

@@ -109,6 +109,9 @@ export function SiteFooter() {
           <Link href="/journal" data-cursor="link">
             Journal
           </Link>
+          <Link href="/about" data-cursor="link">
+            About
+          </Link>
           <a
             href="mailto:studio@blacksforsale.studio"
             data-cursor="link"
