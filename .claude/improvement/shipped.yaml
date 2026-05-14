@@ -406,7 +406,7 @@ items:
 
   - id: homepage-section-divider-inline-svg-image-gen
     title: "Homepage section divider — first decorative inline-SVG asset, image-gen-generated torn-edge composition at Field Notes → From the Journal transition"
-    commit: pending
+    commit: 9bce85e
     date: 2026-05-15
     surface: catalogue
     tags: [catalogue, system, homepage, image-gen, inline-svg, server-component, decorative, aria-hidden, no-motion, no-js, no-new-deps, no-new-tokens, no-new-fonts, no-new-keyframes, awwwards-current, task-driven, split-subtask, image-gen-1-of-3]
