@@ -2017,3 +2017,545 @@ items:
       chapter-numeral-scroll-driven-drift ship 1732445. Non-blocking.
       Trigger: if a second `view()`-timeline animation lands with a
       similar drift range, both should consume the shared token.
+
+  - id: outro-wordmark-settle-token-promotion
+    title: outro-wordmark-settle -0.04em/2px start values should promote to --wordmark-settle-* tokens once a second settle instance lands
+    ship: |
+      `@keyframes outro-wordmark-settle` at globals.css:~3155-3161 uses
+      raw -0.04em letter-spacing + 2px stroke-width as start values.
+      The destination values (-0.08em + 1px) come from the base rule
+      .outro-wordmark, so the "settle" reads as "loosen + thicken on
+      entry, settle to base on cover". One-off literals are fine for
+      a single use site. If another settling instance lands (e.g. on
+      .nf-wordmark / 404 closing, or .outro-display, or per-section
+      "type settles into the page" patterns), promote to
+      --wordmark-settle-start-spacing (-0.04em) + --wordmark-settle-start-stroke (2px).
+    severity: low
+    effort: S
+    class: hygiene
+    status: open
+    files:
+      - src/app/globals.css:3155
+      - src/app/globals.css:3160
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    dq_count: 0
+    notes: |
+      Source — Phase 5 diff-reviewer on outro-wordmark-scroll-driven-settle
+      ship (5170779 pending). Non-blocking.
+
+  - id: folio-numeral-re-typeset-on-chapter-cross
+    title: RunningFolio numeral/label swap is dead-swap today — re-fire SplitText keyed on activeId
+    ship: |
+      The `<RunningFolio/>` (src/components/running-folio.tsx:14,23)
+      renders `<span className="folio-slot" key={'L-${active.id}'}>`
+      with CSS `animation: folio-typeset 540ms … both` at
+      globals.css:4487. The key={active.id} remount strategy should
+      re-fire the typeset clip-path on every chapter cross, but
+      React reuses the surrounding container so the typeset only
+      plays once at mount. Folio is on screen every second of the
+      homepage scroll — the dead-swap undermines the "running folio"
+      conceit. Fix: wrap the active chapter label in
+      `<SplitText key={activeId}>` so each cross fires a fresh
+      char-stagger reveal. M-effort, single-component change. The
+      `chrome` auditor surfaced this as finding #1 (highest leverage)
+      on the outro-wordmark run discovery; the scout's finding #4
+      independently surfaced the same idea via fromanother.love.
+    severity: medium
+    effort: M
+    class: distinctive
+    status: open
+    files:
+      - src/components/running-folio.tsx:14
+      - src/components/running-folio.tsx:23
+      - src/app/globals.css:4487
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    dq_count: 0
+    notes: |
+      Source — chrome+cart auditor finding #1 + reference-scout #4,
+      independent confirmation. Rubric estimate: T2 M3 L1 I2 A2 D3 = 13.
+
+  - id: cart-line-hover-affordance-hairline-draw
+    title: cart-drawer line items have no :hover affordance — add hairline draw + title color shift + figure translate
+    ship: |
+      `.cart-line` (globals.css:3465-3486) has no `:hover` rule;
+      only `.cart-line-step:hover` (button) and `.cart-line-remove:hover`
+      react. The line plate, title, and price stay dead — a premium
+      drawer should reward attention on every line. Add:
+      (a) `.cart-line::before` 1px hairline pseudoelement at left
+      edge, scaleY 0→1 in `var(--ease-out-expo)` on `.cart-line:hover`;
+      (b) `.cart-line:hover .cart-line-title` color shift from
+      `var(--color-text-strong)` → `#fff`;
+      (c) 2px translate on `.cart-line:hover .cart-line-figure-inner`.
+      Reduced-motion guard removes transforms.
+    severity: medium
+    effort: S
+    class: distinctive
+    status: open
+    files:
+      - src/app/globals.css:3465
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    dq_count: 0
+    notes: |
+      Source — chrome+cart auditor finding #2 on outro-wordmark run.
+      Rubric estimate: T1 M2 L2 I3 A2 D2 = 12.
+
+  - id: chapter-rail-label-italic-serif-personality
+    title: chapter-rail-label uses stock fade-and-translate — replace with clip-path text-reveal or scribble-underline
+    ship: |
+      `.chapter-rail-label` (globals.css:4022-4042) uses the canned
+      `opacity:0 → 1; transform: translateX(6px → 0)` reveal on a
+      sticky chrome surface. The rail itself is on-brand (italic
+      numerals + scroll-bound `--rail-fill`); the label is the
+      moment to commit. Replace with one of:
+      (a) clip-path text-reveal: `inset(0 100% 0 0) → inset(0 0 0 0)`
+      with sub-letter stagger via inline `transition-delay` on a
+      `[data-i]` index attribute;
+      (b) italic-serif scribble-underline that draws under the
+      label on `:hover` / `[aria-current]` via stroke-dashoffset.
+    severity: medium
+    effort: M
+    class: distinctive
+    status: open
+    files:
+      - src/app/globals.css:4022
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    dq_count: 0
+    notes: |
+      Source — chrome+cart auditor finding #3 on outro-wordmark run.
+
+  - id: cart-drawer-scrim-fade-out-delay
+    title: Cart-drawer scrim has no fade-out on close — staged exit needs transition-delay on close
+    ship: |
+      `.cart-drawer-scrim` (globals.css:3301-3318) has
+      `transition: opacity var(--dur-3)` but the `data-open` flip on
+      the root causes scrim + panel transitions to start
+      simultaneously; scrim has no exit delay. Staged exit (panel
+      slides first 200ms, scrim fades 300ms behind) is the canonical
+      drawer choreography. Single CSS line:
+      `[data-open="false"] .cart-drawer-scrim { transition-delay: var(--dur-2); }`.
+    severity: low
+    effort: S
+    class: motion
+    status: open
+    files:
+      - src/app/globals.css:3301
+      - src/components/cart-drawer.tsx:164
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    dq_count: 0
+    notes: |
+      Source — chrome+cart auditor finding #4 on outro-wordmark run.
+
+  - id: outro-link-hairline-draw-underline
+    title: outro-links a hover is opacity-only — add hairline scaleX(0→1) draw matching cart-line-remove::after vocabulary
+    ship: |
+      `.outro-links a` (globals.css:3111-3122) has only
+      `transition: color 0.3s ease`. The same surface that the
+      chapter-rail and outro-colophon use hairline-draw on. Mirror
+      the `.cart-line-remove::after` pattern already in the codebase:
+      `.outro-links a::after { content:''; position:absolute;
+      left:0; right:0; bottom:-2px; height:1px;
+      background: currentColor; transform: scaleX(0); transform-origin: left;
+      transition: transform var(--dur-3) var(--ease-out-expo); }`
+      `.outro-links a:hover::after { transform: scaleX(1); }`.
+      Vocabulary-coherent, no new motion mode introduced.
+    severity: low
+    effort: S
+    class: distinctive
+    status: open
+    files:
+      - src/app/globals.css:3111
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    dq_count: 0
+    notes: |
+      Source — chrome+cart auditor finding #5 on outro-wordmark run.
+
+  - id: cart-drawer-empty-state-numeral-typeset
+    title: Cart-drawer empty-state 00 numeral could clip-reveal on drawer open mirroring folio-typeset
+    ship: |
+      The cart-drawer's empty-state `00` numeral
+      (globals.css:3796-3805, cart-drawer.tsx:341-343) is type-only
+      and static. Reveal it on drawer open the same way `.folio-slot`
+      does. Add `@keyframes cart-empty-typeset` mirroring the
+      folio-typeset clip-path reveal, gate on `[data-open="true"]`,
+      reduced-motion bypass.
+    severity: low
+    effort: S
+    class: distinctive
+    status: open
+    files:
+      - src/app/globals.css:3796
+      - src/components/cart-drawer.tsx:341
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    dq_count: 0
+    notes: |
+      Source — chrome+cart auditor finding #7 on outro-wordmark run.
+
+  - id: journal-post-tag-affordance-and-index-filter
+    title: Journal post tags are inert pills — turn into <Link href="/journal?tag={slug}"> with index-page tag filter
+    ship: |
+      `.journal-post-tag` (CSS at globals.css:7010-7021) has no
+      `:hover`, no `:focus`, and the tags aren't links — every post
+      ends with dead chrome. Source: src/components/journal-post-frame.tsx:147
+      renders `<li><em>{tag}</em></li>`. Turn each tag into a
+      `<Link>` (hairline-flip + currentColor underline-grow on
+      hover) targeting `/journal?tag={slug}` or `#tag-{slug}` filter,
+      then surface a tag-rail filter at the top of `/journal` so
+      the filter target lands. S-effort, high-leverage: every post
+      finisher sees this surface; closes a dead-chrome moment and
+      lifts internal-link density (SEO win).
+    severity: high
+    effort: S
+    class: distinctive
+    status: open
+    files:
+      - src/components/journal-post-frame.tsx:147
+      - src/app/globals.css:7010
+      - src/app/journal/page.tsx
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    dq_count: 0
+    notes: |
+      Source — journal auditor finding #1 (highest-leverage) on
+      outro-wordmark run discovery. Rubric estimate T1 M1 L3 I3 A3 D2 = 13.
+      Strong candidate for the next regular-discovery pick.
+
+  - id: journal-index-scroll-bound-piece-folio
+    title: /journal index list is flat — add sticky "Piece N of XI" running-folio + view-timeline numeral parallax
+    ship: |
+      `/journal` index (src/app/journal/page.tsx:131-138) renders
+      a flat stacked `<ol className="journal-entries">` where every
+      entry has the same numeral weight and the same Reveal fade-up
+      (journal-post-card.tsx:14). No scroll-driven type-axis, no
+      folio counter, no in-view register. Bind a sticky left-rail
+      "Piece N of XI" running-folio (mirroring `RunningFolio`) and
+      apply `animation-timeline: view()` to `.journal-entry-numeral`
+      so the Roman drifts/changes optical weight as its piece enters
+      the read band. Reduced-motion fallback: static. Same gate
+      stack as the chapter-numeral + outro-wordmark ships.
+    severity: medium
+    effort: M
+    class: distinctive
+    status: open
+    files:
+      - src/app/journal/page.tsx:131
+      - src/components/journal-post-card.tsx:14
+      - src/app/globals.css
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    dq_count: 0
+    notes: |
+      Source — journal auditor finding #2 on outro-wordmark run.
+      Rubric estimate T2 M3 L2 I1 A2 D3 = 13.
+
+  - id: journal-reading-progress-and-legal-about-dropcap-reach
+    title: Add scroll-progress sub-nav on /journal posts + extend drop-cap to .legal-prose and .about-prose
+    ship: |
+      Journal posts (journal-post-frame.tsx:140-142) have no
+      reading-progress indicator; legal/about lose the drop-cap
+      because globals.css:6882 selector is gated by
+      `:not(.legal-prose):not(.about-prose)`. Add a 2px sub-nav
+      progress bar bound to article scroll (reduced-motion safe)
+      and apply a calmer drop-cap variant (clamp 32→48px) to
+      `.about-prose` and the first body paragraph of each legal
+      section.
+    severity: medium
+    effort: S
+    class: distinctive
+    status: open
+    files:
+      - src/components/journal-post-frame.tsx:140
+      - src/app/globals.css:6882
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    dq_count: 0
+    notes: |
+      Source — journal auditor finding #3 on outro-wordmark run.
+      Rubric estimate T2 M1 L3 I0 A2 D2 = 10.
+
+  - id: article-jsonld-broader-shape-wordcount-articlesection
+    title: Article JSON-LD missing wordCount, articleSection, inLanguage, isPartOf — bigger than the dateModified backlog
+    ship: |
+      src/app/journal/[slug]/page.tsx:75-92 emits Article JSON-LD
+      with `dateModified: post.publishedAt` hard-coded and lacks
+      `inLanguage`, `articleSection`, `wordCount`, `isPartOf`.
+      Loses rich-result eligibility. Bigger than the existing
+      `article-jsonld-datemodified-equals-datepublished` open
+      backlog item. Surface an `updatedAt` field on the post type
+      (fall back to publishedAt), add inLanguage:"en", articleSection:
+      post.tags[0], computed wordCount, isPartOf: { @id: siteUrl +
+      "/journal" }.
+    severity: medium
+    effort: S
+    class: seo
+    status: open
+    files:
+      - src/app/journal/[slug]/page.tsx:75
+      - src/lib/journal.ts
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    dq_count: 0
+    notes: |
+      Source — journal auditor finding #4 on outro-wordmark run.
+      Subsumes/extends backlog item article-jsonld-datemodified-equals-datepublished.
+
+  - id: journal-breadcrumb-primitive-extract
+    title: Extract JournalBreadcrumb primitive — three duplicate blocks across journal-post-frame, legal-page-frame, about/page
+    ship: |
+      Three duplicated breadcrumb blocks:
+      - journal-post-frame.tsx:56-75
+      - legal-page-frame.tsx:56-75
+      - about/page.tsx:137-156
+      .journal-breadcrumb-current is just dimmed text
+      (globals.css:6751) with only `translateX(-4px)` arrow on the
+      arrow. Extract a `<JournalBreadcrumb>` primitive that takes
+      `parent` + `current` props; add a hairline rule that draws
+      between the two crumbs on mount (scaleX 0→1, 320ms, reduced-
+      motion static) and a small-caps oldstyle folio for current.
+    severity: low
+    effort: M
+    class: hygiene-and-distinctive
+    status: open
+    files:
+      - src/components/journal-post-frame.tsx:56
+      - src/components/legal-page-frame.tsx:56
+      - src/app/about/page.tsx:137
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    dq_count: 0
+    notes: |
+      Source — journal auditor finding #5 on outro-wordmark run.
+
+  - id: journal-related-posts-tag-overlap-ranking
+    title: getRelatedPosts is arbitrary — rank by Jaccard tag-overlap, bump to 3, expose tag bridge in aria-label
+    ship: |
+      src/components/related-journal-posts.tsx:7 calls
+      `getRelatedPosts(current, 2)`; src/lib/journal.ts:65 is the
+      arbitrary implementation. With 11 posts seeded, surfacing
+      only 2 unranked siblings under-uses the corpus and hurts
+      internal-link density (SEO). Rank siblings by Jaccard
+      tag-overlap, bump to 3, add `aria-label` revealing the tag
+      bridge ("Shares: paper, ink").
+    severity: low
+    effort: S
+    class: distinctive-and-seo
+    status: open
+    files:
+      - src/components/related-journal-posts.tsx:7
+      - src/lib/journal.ts:65
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    dq_count: 0
+    notes: |
+      Source — journal auditor finding #6 on outro-wordmark run.
+
+  - id: legal-about-display-asymmetric-outline-stroke
+    title: /about, /privacy, /terms, /cookies hero blocks need the two-word filled + outline-stroke asymmetric pattern
+    ship: |
+      globals.css:7301-7310 (.legal-display) and globals.css:
+      7385-7402 (.about-display) render a single italic word + period,
+      no SplitText, no outline-stroke word-2 vocabulary, no asymmetry.
+      About uses SplitText (about/page.tsx:163-168) as one continuous
+      run; legal pages don't use it at all. Apply the homepage / journal-
+      post two-word asymmetric pattern: filled word + outline-stroke
+      word via -webkit-text-stroke. e.g. `<em>Privacy</em>.` →
+      `<em><span class="word-filled">Pri</span><span class="word-stroke">vacy</span></em>.`
+      Reduced-motion fallback. Low-effort sweep across 4 surfaces.
+    severity: medium
+    effort: M
+    class: distinctive
+    status: open
+    files:
+      - src/app/globals.css:7301
+      - src/app/globals.css:7385
+      - src/app/privacy/page.tsx
+      - src/app/terms/page.tsx
+      - src/app/cookies/page.tsx
+      - src/app/about/page.tsx:163
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    dq_count: 0
+    notes: |
+      Source — journal auditor finding #7 on outro-wordmark run.
+      Rubric estimate T3 M0 L3 I0 A2 D2 = 10.
+
+  - id: idle-baseline-jitter-after-splittext-rest
+    title: Idle "still-warm-from-the-press" baseline jitter after SplitText settles — pair with reduced-motion + pointer pause
+    ship: |
+      Reference: watchhouse.com — italic-serif display headline
+      acquires per-glyph baseline-shift as it settles after scroll-
+      rest, reading like a typesetter nudging characters on a galley.
+      After `<SplitText/>` reveal settles, idle for ~600ms then
+      jitter `--char-baseline` by ±0.04em per char on a slow loop
+      until pointer enters. Pause on `prefers-reduced-motion` and
+      on `:hover` / focus. Extends `<SplitText>` per-char machinery
+      already used by hero / PDP / journal display.
+    severity: medium
+    effort: M
+    class: distinctive
+    status: open
+    files:
+      - src/components/split-text.tsx
+      - src/app/globals.css
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    dq_count: 0
+    notes: |
+      Source — reference-scout finding #1 (watchhouse.com).
+      Rubric estimate T3 M3 L2 I1 A2 D3 = 14 — strong S/M slice
+      of the larger hero-type-instrumental L backlog.
+
+  - id: eyebrow-hairline-draw-in-view-timeline
+    title: Apply animation-timeline view() to .chapter-eyebrow-mark and .section-tag::before hairlines
+    ship: |
+      Reference: thekeseysignal.com — section eyebrow hairlines draw
+      via stroke-dashoffset bound to each section's view() timeline.
+      Apply the same gate stack as the chapter-numeral-drift +
+      outro-wordmark-settle ships to `.chapter-eyebrow-mark` /
+      `.section-tag::before` hairlines so they draw 0 → 100% across
+      each chapter's entry band. Single `@supports
+      (animation-timeline: view())` block adjacent to the chapter-
+      numeral block (~globals.css:1380); `@keyframes eyebrow-draw`
+      animating `transform: scaleX(0 → 1)` with `transform-origin:
+      left`. Doubles the surface coverage of the view-timeline
+      vocabulary the site now owns. Pair with eyebrow-mark-rule-
+      collision differentiation to avoid flat hierarchy.
+    severity: low
+    effort: S
+    class: distinctive
+    status: open
+    files:
+      - src/app/globals.css:1242
+      - src/app/globals.css:1376
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    dq_count: 0
+    notes: |
+      Source — reference-scout finding #2 (thekeseysignal.com).
+      Rubric estimate T2 M3 L2 I1 A2 D3 = 13.
+
+  - id: running-drop-cap-every-nth-paragraph
+    title: Extend journal-prose drop-cap with > p:nth-of-type(5n+1)::first-letter at half scale
+    ship: |
+      Reference: floema.com — long-form essay uses a *running*
+      drop-cap that re-fires every nth paragraph so the article
+      reads as a sequence of openings, not one opening + body.
+      Extend the shipped `.journal-prose:not(.legal-prose)::first-
+      letter` rule with a second selector targeting
+      `> p:nth-of-type(5n+1)::first-letter` at half scale
+      (clamp 32→48). Pure additive to globals.css:7038+; zero JSX
+      delta across the 11 shipped posts. Verify float interaction
+      with hanging-punctuation on subsequent paragraphs in Safari +
+      Firefox.
+    severity: low
+    effort: S
+    class: distinctive
+    status: open
+    files:
+      - src/app/globals.css:7038
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    dq_count: 0
+    notes: |
+      Source — reference-scout finding #3 (floema.com).
+      Rubric estimate T3 M0 L2 I0 A2 D2 = 9 — just below distinctive
+      threshold but pairs cleanly with the eyebrow-hairline-draw-in
+      move for a single ship.
+
+  - id: chapter-spread-asymmetry-data-rhythm-precursor
+    title: Add data-rhythm="spread" to every 3rd .chapter — CSS-only precursor to catalogue-spread-asymmetry
+    ship: |
+      Reference: milygroup.com — catalogue alternates 2-up / 1-up /
+      full-bleed-spread cadence. CSS-only precursor for the larger
+      `catalogue-spread-asymmetry` L backlog item: add
+      `data-rhythm="spread"` to every 3rd .chapter element on the
+      homepage, ship a CSS-only override:
+      `.chapter[data-rhythm="spread"] { grid-template-columns: 1fr;
+      max-width: none; }` converting the 3rd / 6th chapter to full-
+      bleed. Specimen-plate hairlines may need re-anchoring at
+      full-bleed; test on /supplies/abyssal-cardstock.
+    severity: low
+    effort: S
+    class: distinctive
+    status: open
+    files:
+      - src/app/page.tsx
+      - src/app/globals.css
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    dq_count: 0
+    notes: |
+      Source — reference-scout finding #5 (milygroup.com).
+      Strengthens catalogue-spread-asymmetry (L) — do not pick as
+      substitute.
+
+  - id: notion-task-image-gen-split-into-surface-subtasks
+    title: Notion image-gen task deferred 3 runs — next run should split into [1/3] homepage [2/3] PDPs [3/3] journal subtasks
+    ship: |
+      Notion task 35faf8d3-d3e2-8168-9026-c7ce8590e62b (image-gen,
+      Medium priority, Surface: hero/catalogue/system) has now been
+      deferred 3 consecutive runs. The brief asks for 6-10 images
+      across homepage + journal index + 6 PDPs — clearly oversized
+      per the split heuristic (> 6 files to modify or create, AND
+      > 1 new public-facing route adjustment, AND bundles multiple
+      surface concerns). Next run should split into:
+      [1/3] homepage section dividers + colophon imagery (S/M)
+      [2/3] PDP cover specimen plates (6 products × 1 image each, M)
+      [3/3] journal index header + per-post hero imagery (M/L)
+      The split itself is a Phase 0 write action; the first subtask
+      to ship is [1/3] homepage as the lowest-risk validation of
+      first-time image-gen integration.
+    severity: medium
+    effort: S
+    class: infra
+    status: open
+    files:
+      - .claude/improvement/scripts/notion-sync.mjs
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    dq_count: 0
+    notes: |
+      DO NOT DEFER A 4TH TIME — splitting unblocks the work. The
+      compound-risk reasoning ("splitting + first-time-use + autonomous-
+      verification within cron window") has been used by 3 successive
+      pickers; the split itself is the remediation.
+
+  - id: notion-task-motion-vocabulary-split-into-single-motion-subtasks
+    title: Notion motion-vocabulary task deferred 3 runs — next run should split into 3 single-motion subtasks
+    ship: |
+      Notion task 35faf8d3-d3e2-816e-9304-f18860d09138 (motion-
+      vocabulary, Medium priority, Surface: hero/system/chrome/
+      manifesto/codex) has now been deferred 3 consecutive runs.
+      The brief explicitly lists 6 candidate moves and says "Likely
+      a *split* candidate — pick 1-2 moves per subtask." The cron's
+      last two ships (chapter-numeral-drift + outro-wordmark-settle)
+      have already landed two scroll-driven slices from this family
+      via regular-discovery, so the parent task's remaining surface
+      has narrowed. Next run should split into:
+      [1/3] Live kerning + stylistic alternates on display titles on hover (S) — single CSS rule with font-feature-settings on hover
+      [2/3] Character-by-character drift on scroll via SplitText variant (M)
+      [3/3] View-transitions API page-turn between homepage chapters (M-L)
+      [1/3] is the safest single-subtask first ship.
+    severity: medium
+    effort: S
+    class: infra
+    status: open
+    files:
+      - .claude/improvement/scripts/notion-sync.mjs
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    dq_count: 0
+    notes: |
+      DO NOT DEFER A 4TH TIME — splitting unblocks the work and
+      removes the "oversized parent task" objection from future
+      pickers' tiebreak logic. Two of the six candidate moves
+      (chapter-numeral view() + outro-wordmark settle) have already
+      shipped via regular discovery; the split should reflect this
+      and surface live-kerning / character-drift / page-turn /
+      magnetic-reveal / optical-axis-scroll as the remaining slice.

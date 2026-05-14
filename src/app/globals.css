@@ -3136,6 +3136,31 @@ html.loading body {
   white-space: nowrap;
   max-height: 35vw;
 }
+/* Scroll-driven settling — the closing BFS wordmark tightens
+   letter-spacing and thins its outline stroke as it enters the
+   viewport, reading like type settling onto the page-foot rather
+   than a static decoration. Per-element view() timeline, same
+   gate stack as .chapter-numeral above. Stroke color stays under
+   the base rule so it doesn't drift; only width + spacing animate. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) and (min-width: 900px) {
+    .outro-wordmark {
+      animation: outro-wordmark-settle linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 90%;
+    }
+    @keyframes outro-wordmark-settle {
+      from {
+        letter-spacing: -0.04em;
+        -webkit-text-stroke-width: 2px;
+      }
+      to {
+        letter-spacing: -0.08em;
+        -webkit-text-stroke-width: 1px;
+      }
+    }
+  }
+}
 
 /* ============ COLOPHON ============
    The credit page of the issue. Replaces the previous dead-link
