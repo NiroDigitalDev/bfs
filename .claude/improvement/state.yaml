@@ -9,8 +9,8 @@
 version: 1
 
 # Last-run telemetry — written at the end of every run.
-last_run_at: 2026-05-13T21:00:00Z
-last_run_commit: fe9e6af
+last_run_at: 2026-05-14T00:00:00Z
+last_run_commit: 7add279
 last_run_mode: shipped   # shipped | no-focus | pr-opened
 
 # Anti-stagnation — incremented on every no-focus run, reset to 0 on ship.
@@ -20,25 +20,25 @@ consecutive_no_focus_runs: 0
 
 # Shipped-count — incremented on every shipped (not no-focus) run.
 # When this becomes a multiple of 10, Phase 0 fires the rubric-calibrator.
-shipped_count: 30   # +1: split-text-word-break-fix direct-to-main (task-driven, medium risk — Notion task Hero display-type breaks mid-word; .split-word lacked white-space: nowrap so inline-block .split-char siblings became wrap opportunities; FAQ display 'Questions, patiently answered.' shredded PATIENTLY → PATIE/NTLY at line edges; one CSS rule addition + 5-line WHY comment to globals.css:311–321; affects every clamp-display title wrapped in <SplitText> sitewide; 6-LOC CSS-only ship; SHIPPED-COUNT IS NOW A MULTIPLE OF 10 — next run's Phase 0 should fire rubric-calibrator if last_calibration_at gap also ≥ 7 days)
+shipped_count: 31   # +1: journal-display-vocabulary-align direct-to-main (task-driven, medium risk — Notion task "Apply hero display-type vocabulary to /journal, /supplies, /checkout"; audit revealed PDP + journal-post already match canonical pattern, checkout deferred per brief intent, only /journal index diverged; promoted .journal-display markup + CSS block from a static italic flex-stack to the canonical word-1/word-2 asymmetric composition with SplitText reveal + -webkit-text-stroke outline on word 2; smaller clamp scale clamp(56,10vw,144) preserved by design — index is chapter heading not cover; net diff: 2 files, +36/-9 LOC, 3 SplitText instances on /journal, 0 new deps, 0 new tokens, 0 new RM logic; calibration-day run — rubric-calibrator fired and returned DRIFTING verdict (mean Δ -1.8 across last 10 ships, picker awarding L/M one band high on foundation/infra work); scoring this ship deliberately conservative in response — T2 M2 L2 I2 A3 D2 = 13/18 Distinctive band)
 
 # Periodic cron triggers — Phase 0 compares against today's date and
 # fires the corresponding agent when the gap exceeds the cadence.
 last_retro_at: 2026-05-13      # weekly cadence (≥ 7 days since last run → fire retro)
 last_critic_at: 2026-05-13     # monthly cadence (≥ 28 days → fire critic)
-last_calibration_at: ""        # event-driven (every 10th ship) — also captured here for telemetry
+last_calibration_at: 2026-05-14   # event-driven (every 10th ship) — fired this run; verdict DRIFTING, captured at .claude/improvement/calibrations/2026-05-14.md
 
 # Optional integrations status — Phase 0 self-checks these on startup
 # and degrades gracefully when they're absent or broken.
 gh_available: true           # `gh auth status` ok this run
-playwright_available: true   # capture-ship.mjs wrote nav-desktop + nav-mobile under 9538882/
-lighthouse_available: unknown  # perf-a11y skipped lighthouse (CSS-only nav-chrome ship, low-impact LCP/CLS surface — poor signal-to-cost)
+playwright_available: true   # capture-ship.mjs wrote journal-display-desktop + journal-display-mobile under 44fdc55/
+lighthouse_available: unknown  # perf-a11y skipped lighthouse (low-risk CSS+SSR ship — only the /journal heading SSR markup changed, rest of the page unchanged; poor signal-to-cost)
 sotd_parser_available: false   # sotd-compare.mjs: "could not parse SOTD entry — gallery markup may have changed" (still broken — sotd-parser-fix backlog item queued)
 
 # Daily improvements.md archival check — Phase 0 reads size and rotates
 # if exceeded. Recorded here so a freshly-archived run doesn't try again.
 last_archival_at: ""
-improvements_md_bytes: 176219
+improvements_md_bytes: 184500
 
 # Notion integration — fixed IDs for the BFS workspace surfaces. The
 # routine reads Tasks at Phase 0 (task-driven mode override) and writes

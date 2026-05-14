@@ -270,7 +270,7 @@ items:
 
   - id: journal-display-vocabulary-align
     title: /journal index display heading — align with hero/PDP/journal-post vocabulary (SplitText + outline-stroke word 2)
-    commit: pending
+    commit: 7add279
     date: 2026-05-14
     surface: system
     tags: [journal, display-title, hero-vocabulary, splittext, webkit-text-stroke, outline-stroke, italic-serif, asymmetric-composition, word-1-word-2, scroll-reveal, prefers-reduced-motion, register-coherence, no-new-deps, no-new-tokens]
