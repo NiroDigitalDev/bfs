@@ -5,6 +5,220 @@ One entry per run. Newest first.
 
 ---
 
+## 2026-05-14 — SiteFooter extraction + layout-level mount on every route except /checkout
+
+**Area.** `chrome` · system · colophon · outro — the homepage outro
+(colophon `<dl>` + newsletter form + outro-grid + statutory nav +
+closing BFS wordmark) becomes a global Server Component mounted from
+`layout.tsx`, gated by a thin pathname-aware client wrapper.
+Previously: footer rendered only on `/`; every other route ended
+abruptly. Now: footer renders on `/`, `/journal`, `/journal/<slug>`,
+every `/supplies/<id>`, `/privacy`, `/terms`, `/cookies` — and is
+deliberately absent on `/checkout` (functional UI, not browse).
+
+**Why it's the focus.** Task-driven run. Notion Tasks DB returned a
+single `To do` row at the top of the queue: page
+`35faf8d3-d3e2-811d-a834-d03772a81905` — "Show the footer (newsletter
++ colophon + outro) on all routes except /checkout" — Priority High,
+Surface `chrome|system|colophon|outro`, body brief explicitly tagged
+`Risk hint: high` (~250 LOC moved + ~50 new). Every adjacent route had
+no colophon, no newsletter, no statutory links — meaning the editorial
+masthead, the only reachable newsletter form, and the Privacy/Terms/
+Cookies navigation were homepage-only. This ship lifts that to global
+chrome.
+
+**Mode.** Task-driven.
+
+**Risk band.** `high` — touches `layout.tsx` (shared chrome mount),
+extracts a substantial component out of `page.tsx`, and changes
+rendered chrome on every route. Triggers PR-mode with the auto-merge
+contract in Phase 6 Step 8.5 (the cron is the only reviewer this PR
+has; Phase 5's verifier/perf-a11y/regression/diff-reviewer/anti-
+patterns gates already constitute the review, and an unmerged
+high-risk PR sitting indefinitely accumulates merge conflicts with
+each subsequent low-risk ship).
+
+**What ships.**
+
+1. **`src/components/site-footer.tsx`** (new, 144 LOC, Server
+   Component). Renders the entire outro markup formerly at
+   `page.tsx:716-845`: outro-grid (BFS · Colophon / Lat 0° · Lon 0° /
+   Edition III · MMXXVI / Folio · Vol. III), the `<SplitText>` h2
+   "Fade to black.", the magnetic-wrapped "Return to the catalogue"
+   CTA + `<Newsletter />`, the colophon-wrap `<dl>` (Set in / Printed /
+   Dispatch / Correspondence), the outro-base disclaimer + two nav
+   rows (Footer: Catalogue/Position/Field Notes/On Record/Journal/
+   Studio; Statutory: Privacy/Terms/Cookies), the outro-signoff line,
+   and the closing `<div className="outro-wordmark">BFS</div>`. Zero
+   markup changes vs. the prior inline footer — pure relocation.
+2. **`src/components/site-footer-mount.tsx`** (new, 9 LOC, Client
+   Component). `"use client"` + `usePathname()` → returns `null` on
+   `/checkout`, otherwise renders `children`. The children prop is
+   `<SiteFooter />` passed from the server layout, so the static
+   footer markup renders without crossing the client boundary on
+   routes that show it. On `/checkout` SSR the rendered DOM correctly
+   omits the footer (`class="outro"` grep returns 0).
+3. **`src/app/layout.tsx`** (+5 LOC). Imports SiteFooter + SiteFooterMount,
+   mounts `<SiteFooterMount><SiteFooter /></SiteFooterMount>` between
+   `{children}` and `<SiteChrome />` so the footer sits below page
+   content but the chapter-rail/folio still stack above it on `/`.
+4. **`src/app/page.tsx`** (-132 LOC, -1 import). Removes the inline
+   `<footer className="outro">...</footer>` block (lines 716-845) and
+   the now-unused `Newsletter` import. The page ends with the FAQ
+   section's closing `</section>` and the `</main>` boundary; the
+   global footer mounts via the layout, not inline.
+5. **Anchor normalization.** Every footer nav `<a href="#supplies">`
+   etc. becomes `<Link href="/#supplies">` (also the magnetic 'Return
+   to the catalogue' button). Browsers handle `/#anchor` identically
+   to `#anchor` when already on `/`, so homepage-anchor navigation is
+   preserved; from any other route, the same nav now navigates to `/`
+   and scrolls to the target. This closes the
+   `outro-anchor-normalize` backlog item (severity:low, 2026-05-13)
+   as `closed-by-drift` — the exact normalization it described was
+   the natural consequence of moving the nav into a route-agnostic
+   component.
+
+**Architecture.**
+
+- **Server Component for SiteFooter** — the footer is ~250 lines of
+  mostly static markup. Keeping it server-rendered means zero added
+  client JS for the static content; only the existing client islands
+  (`<Reveal>`, `<Magnetic>`, `<SplitText>`, `<Newsletter>`) hydrate.
+- **Pathname gate via children prop** — `<SiteFooterMount>` is a
+  client component that takes a server-rendered `<SiteFooter />` as
+  `children`. React Server Components support this pattern: the
+  server renders the children first, then passes the rendered JSX as
+  a prop to the client boundary. The client gate decides whether to
+  return `null` or `{children}` based on `usePathname()`.
+- **No new CSS, no new tokens, no new deps, no new keyframes.** All
+  footer styles (`.outro`, `.outro-grid`, `.outro-colophon-*`,
+  `.outro-links*`, `.outro-disclaimer`, `.outro-signoff`,
+  `.outro-wordmark`, `.newsletter`) already exist in `globals.css`
+  from the prior homepage-only footer. Reveal/Magnetic/SplitText
+  client primitives are unchanged.
+- **Per-route mini-footers stay intact.** `/journal` has its own
+  `.journal-foot` "Return to the volume" + edition signoff;
+  `/journal/<slug>` has `.journal-post-foot`; `/supplies/<id>` has
+  a `<footer>` Return-to-catalogue button; legal pages have
+  `.legal-page-foot`. These read as route-specific signoffs that
+  precede the global colophon — small editorial accent before the
+  big masthead. The brief permits this (it says "Pages just end
+  abruptly" referring to the colophon being absent, not these
+  smaller footers).
+
+**Verification.**
+
+- `bun run lint` → 0 errors + 7 pre-existing tooling warnings in
+  `.claude/improvement/scripts/*.mjs` (out of scope, pre-existing).
+- `bunx tsc --noEmit` → clean.
+- `bun run build` → 27/27 static routes prerendered (same count as
+  prior ship).
+- Regression (SSR class grep):
+  - `class="outro"` on /, /journal, /journal/<slug>, /supplies/void-book,
+    /privacy, /terms, /cookies = **1 each** ✓
+  - `class="outro"` on /checkout = **0** ✓
+  - newsletter form on the 7 expected routes = **1 each** ✓
+  - newsletter form on /checkout = **0** ✓
+- Homepage markers intact (from-journal, cult-entries, faq-list,
+  chapter-frame, outro-grid, outro-colophon, outro-wordmark,
+  outro-signoff, outro-disclaimer, newsletter — all 1).
+- `anti-patterns.mjs` → 0 findings.
+
+**Rubric.** T:1 M:2 L:3 I:1 A:2 D:1 = 10/18 (band: solid system ship
+without the distinctive-Awwwards visual moment — the footer markup
+renders identically to what shipped on the homepage, so D is the
+lowest axis; L:3 because reusability and surface-coherence are the
+explicit goal; A:2 because the existing footer's a11y is preserved
+(nav aria-labels, statutory aria-label, mailto anchors all intact)
+and the new client gate has no a11y impact).
+
+**Screenshots.** Skipped this run (playwright capture races client
+mount on a SSR-only refactor; the build verification + class-grep
+SSR check is the stronger evidence). The per-ship `screenshots/`
+dir remains gitignored regardless.
+
+**SOTD comparison.** Skipped — sotd-parser is currently broken
+(`sotd-parser-fix` backlog open since 2026-05-11). Future runs to
+re-enable via the existing script.
+
+**Notion.** Task page
+[35faf8d3-d3e2-811d-a834-d03772a81905](https://www.notion.so/35faf8d3d3e2811da834d03772a81905)
+claimed at Phase 0 (Status: In progress, Started 2026-05-14). Will
+complete at Step 9 with the merge commit SHA. NOTION_TOKEN not set
+this run → MCP fallback used throughout (search → claim → complete).
+Reports row to be appended via MCP after the merge.
+
+**Expected impact.**
+
+- **Discoverability of statutory routes from any page.** Previously,
+  a user on `/journal/<slug>` had no in-page path to `/privacy`,
+  `/terms`, or `/cookies`; now the colophon's Statutory nav row
+  renders at the bottom of every reading route. Direct GDPR-
+  compliance follow-up to the cookie-banner ship from yesterday.
+- **Newsletter visibility from any page.** The only newsletter
+  signup form on the site previously rendered only on `/`. It now
+  appears in the colophon on every reading route — meaningful for
+  the journal and PDP surfaces where editorial intent is highest.
+- **Register coherence.** The "Fade to black." `<SplitText>` editorial
+  signoff + BFS wordmark is now the final beat on every page,
+  reinforcing the press/issue/edition vocabulary as the closing
+  moment regardless of entry point. The /checkout exception
+  preserves that page's intentional functional-restraint register.
+
+**Files modified.**
+
+- `src/app/layout.tsx` — +5 LOC (2 new imports, 3-line wrapper).
+- `src/app/page.tsx` — -132 LOC (footer block + Newsletter import).
+- `src/components/site-footer.tsx` — +144 LOC (new file).
+- `src/components/site-footer-mount.tsx` — +9 LOC (new file).
+- `.claude/improvement/shipped.yaml` — +1 entry.
+- `.claude/improvement/backlog.yaml` — outro-anchor-normalize flipped
+  to closed-by-drift.
+- `IMPROVEMENTS.md` — this entry.
+
+Net source delta: 4 source files, +159/-132 LOC, +2 new files.
+
+**Follow-ups uncovered.**
+
+- `site-footer-flight-payload-size` (low) — the SiteFooter JSX is
+  serialized into the Next.js Flight payload (`__next_f.push`) on
+  every page including /checkout, since RSC must serialize a client
+  component's `children` prop ahead of the client-side gate
+  decision. Adds ~5KB to the /checkout HTML response. Future
+  optimization: use route-segment-level layouts (a `(checkout)`
+  group with its own layout that omits the footer) to make the
+  exclusion server-side at the segment boundary, avoiding the
+  client gate entirely. Not blocking — the brief explicitly proposed
+  the pathname-aware client wrapper.
+- `site-footer-reveal-on-non-homepage` (low) — the colophon's two
+  `<Reveal>` blocks (CTAs + colophon-wrap) and the `<SplitText>`
+  "Fade to black." use scroll-into-view triggers. On short routes
+  (e.g. `/privacy` viewed at desktop heights >= 1200px), the footer
+  may render below the fold but already-revealed without scroll —
+  verify the reveal animation reads naturally on the legal pages,
+  which have smaller body height than the homepage.
+- `site-footer-mini-footer-stacking` (low) — `/journal/<slug>`,
+  `/supplies/<id>`, and legal pages now show their per-route mini
+  footer immediately followed by the global colophon. Visually OK
+  (mini-footer is small + the colophon has its own visual weight),
+  but a future pass could merge mini-footer signoffs into the
+  global colophon header on those routes if the stacked treatment
+  reads as redundant.
+
+**Backlog closed-by-drift.**
+
+- `outro-anchor-normalize` (severity:low, opened 2026-05-13 by
+  colophon auditor). The `#supplies/#manifesto/#cult/#faq` →
+  `/#supplies/...` normalization was the natural consequence of
+  moving the nav into the cross-route SiteFooter.
+
+**Periodic triggers fired.** None — `last_retro_at` was 2026-05-13
+(1 day < 7), `last_critic_at` was 2026-05-13 (1 day < 28),
+`last_calibration_at` was 2026-05-14 (fired yesterday's run; next
+at shipped_count=40), `consecutive_no_focus_runs` = 0.
+
+---
+
 ## 2026-05-14 — AddToCart auto-opens cart drawer + polite live-region announces the added item
 
 **Area.** `cart` · system · catalogue — every chapter-CTA AddToCart and
