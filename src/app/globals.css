@@ -5554,6 +5554,36 @@ main.pdp ~ .folio {
   }
 }
 
+/* Reader's notes — editorial pull-quotes from the press.
+   Reuses the .pullquote vocabulary from the homepage cult section so the
+   register reads as a continuation, plus the .pdp-press chrome (eyebrow
+   + rule + display h2) so the section sits inside the existing PDP
+   provenance ladder. Stacked vertically (fig centered above each quote)
+   because the PDP content lane is narrower than the homepage cult lane. */
+.pdp-reviews {
+  position: relative;
+  padding: clamp(40px, 6vw, 96px) clamp(20px, 4vw, 56px) 0;
+  max-width: 980px;
+  margin: 0 auto;
+}
+.pdp-reviews-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: clamp(40px, 7vw, 88px);
+}
+.pdp-reviews-entry {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  justify-items: center;
+  text-align: center;
+}
+.pdp-reviews .cult-fig-label::before {
+  display: none;
+}
+
 /* ============ VIEW TRANSITIONS — shared specimen ============
    When the browser supports the View Transitions API, the homepage
    chapter figure and the PDP specimen become a single shared element

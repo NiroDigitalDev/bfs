@@ -1782,3 +1782,100 @@ items:
     last_verified: 2026-05-14
     dq_count: 0
     notes: "Surfaced by journal-4-posts-type-numerals-low-light-folio ship — verification reported h2=5 which initially read as a bug; investigation confirmed 2 in body + 3 in chrome."
+
+  - id: pdp-review-real-quotes-when-available
+    title: "PDP reviews — swap placeholder quotes for real customer correspondence when collected"
+    ship: |
+      pdp-customer-reviews-editorial-pull-quotes shipped 18 internally-
+      authored BFS-voice quotes (3 per product × 6 products) on every
+      /supplies/[id] PDP. Each quote is in BFS voice and reads
+      consistently with the homepage cult section, but they are
+      placeholders. When real customer correspondence accumulates,
+      replace 2-3 quotes per product with real attributed text and
+      emit Schema.org Product.aggregateRating + Review JSON-LD on
+      each PDP. Until then, no aggregateRating is emitted (intentional
+      — emitting fake rating data would mislead crawlers).
+    severity: low
+    effort: M
+    class: content
+    status: open
+    files:
+      - src/data/products.ts
+      - src/app/supplies/[id]/page.tsx
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    dq_count: 0
+    notes: "Filed as a follow-up to the customer-reviews ship — placeholder quotes are the right register and a structural placeholder, but the press has no review-collection mechanism today; building that mechanism (see pdp-review-real-customer-correspondence-collection-flow) is the prerequisite."
+
+  - id: pdp-review-real-customer-correspondence-collection-flow
+    title: "Set up a real customer-correspondence collection flow for PDP reviews"
+    ship: |
+      The press has no mechanism to collect real customer quotes today.
+      Options to consider (cron should NOT autonomously ship any of these
+      — they're product decisions): (a) a dispatch-included paper card
+      inviting a written response to studio@blacksforsale.studio; (b) a
+      72-hour-post-dispatch email with a single open-ended prompt ('In
+      what register did the edition arrive?'); (c) a /correspond route
+      that mirrors the editorial register and accepts a short text
+      submission. Each option has different friction/quality/cost
+      tradeoffs. The right answer probably involves a paper card
+      (lowest friction, highest editorial fit) plus an email follow-up.
+    severity: low
+    effort: L
+    class: editorial-process
+    status: open
+    files: []
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    dq_count: 0
+    notes: "Filed as the upstream dependency of pdp-review-real-quotes-when-available. This is a product/operations decision, not a code change — surfaced here so the cron's next critic pass weights the placeholder-quote situation in context."
+
+  - id: pdp-review-randomize-displayed-quote-per-visit
+    title: "Optional — randomize the 3 displayed PDP review quotes per visit"
+    ship: |
+      The task brief floated 'if feasible, randomize the displayed quote
+      per visit' as an optional detail. The customer-reviews ship landed
+      all 3 quotes per product rendered in stable order (no JS
+      randomization) because: (1) 3 quotes per page is below the
+      threshold where rotation reads as desirable — visitors see the
+      full set on first view; (2) server-rendered stable order is good
+      for SSG / SEO crawlability; (3) adding client-side randomization
+      would require either a 'use client' wrapper or a static rotation
+      seeded by date, which adds complexity without a clear win at this
+      scale. Revisit if/when the per-product review count grows past
+      ~5-6 and presenting all of them at once becomes visually heavy.
+    severity: low
+    effort: S
+    class: hygiene
+    status: open
+    files:
+      - src/components/product-reviews.tsx
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    dq_count: 0
+    notes: "Documented decision to defer; not a defect."
+
+  - id: notion-task-pdp-editorial-sections-stuck-in-progress
+    title: "Notion housekeeping — stuck 'In progress' task 35faf8d3-d3e2-8188-a138-ddf72125fe36 cleared"
+    ship: |
+      Phase 0 of pdp-customer-reviews-editorial-pull-quotes found a
+      Notion task ('PDP — add more editorial sections') in Status:
+      In progress with date:Started:start: 2026-05-14 but no Commit
+      and no Completed date. The corresponding work had actually
+      shipped earlier today as commit a635f7c (pdp-editorial-sections-
+      press-notes-and-dispatch-care), but the Notion task's Status
+      was never flipped. This run cleaned the orphan via MCP update:
+      Status: Done, Commit: a635f7c, Completed: 2026-05-14, Surface:
+      [catalogue, system]. Filed here as a backlog item to note the
+      housekeeping action, not as a defect to fix (the underlying
+      ship was fine — only the Notion record drifted).
+    severity: hygiene
+    effort: S
+    class: hygiene
+    status: shipped
+    files:
+      - .claude/improvement/state.yaml
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    dq_count: 0
+    notes: "Cleaned up in Phase 0 of the customer-reviews run. If this happens again, consider whether the cron should periodically scan for In progress + no Commit + Started > 1 day ago, and either release them back to To do or flag them for human review."

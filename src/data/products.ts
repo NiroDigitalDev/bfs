@@ -15,6 +15,14 @@ export type PlateSpec = {
   azimuth: number;
 };
 
+export type Review = {
+  fig: string;
+  quote: string;
+  name: string;
+  role: string;
+  place: string;
+};
+
 export type Product = {
   id: ProductId;
   chapter: string;
@@ -29,6 +37,7 @@ export type Product = {
   plate: PlateSpec;
   pressNotes: string[];
   careNote: string;
+  reviews: Review[];
 };
 
 export const products: Product[] = [
@@ -51,6 +60,32 @@ export const products: Product[] = [
       "We bind these books in runs of 250. The first twelve copies are kept in the studio against the day the press needs to remember what it once made.",
     ],
     careNote: "Keep dry · Avoid open sun · Open at room temperature",
+    reviews: [
+      {
+        fig: "Fig. I",
+        quote:
+          "Bought it as a gift. Kept it. Bought another. Kept that one too. I am shopping for a third on the grounds that the first two refuse to be written in by anyone but me.",
+        name: "Tomás R.",
+        role: "Editor",
+        place: "Lisbon",
+      },
+      {
+        fig: "Fig. II",
+        quote:
+          "Wrote a manuscript in silver pencil on the Void Book. It looked, by the end, like a celestial map. The publisher asked for a typed copy. I have not yet complied.",
+        name: "Helena B.",
+        role: "Novelist",
+        place: "Trieste",
+      },
+      {
+        fig: "Fig. III",
+        quote:
+          "Tested it under three different lamps. It refused all of them. I now keep it on the desk as a kind of correction.",
+        name: "Yusuf M.",
+        role: "Conservator",
+        place: "Istanbul",
+      },
+    ],
   },
   {
     id: "abyssal-cardstock",
@@ -71,6 +106,32 @@ export const products: Product[] = [
       "Cut to A4 and stacked in fifty-sheet bundles. The studio uses these for trial spreads and edition prototypes; you may, too.",
     ],
     careNote: "Avoid moisture · Stack flat · Cut with a fresh blade",
+    reviews: [
+      {
+        fig: "Fig. I",
+        quote:
+          "Sent one card unprinted to a client. They thanked me for the gesture. I had merely run out of ink.",
+        name: "Camille D.",
+        role: "Studio principal",
+        place: "Lyon",
+      },
+      {
+        fig: "Fig. II",
+        quote:
+          "Cut Abyssal at thirty degrees with a fresh blade. The edge stays black. The corner stays sharp. I have not yet found a use that does either justice.",
+        name: "Lukas P.",
+        role: "Bookbinder",
+        place: "Vienna",
+      },
+      {
+        fig: "Fig. III",
+        quote:
+          "Fed twelve sheets to a Risograph and three to a guillotine. The Riso refused; the guillotine consented. The remaining thirty-five are kept for a purpose I have not invented.",
+        name: "Anya V.",
+        role: "Print correspondent",
+        place: "Reykjavík",
+      },
+    ],
   },
   {
     id: "event-horizon-pad",
@@ -91,6 +152,32 @@ export const products: Product[] = [
       "Forty leaves is enough for a series. The cover stock at 350 grams carries the pad in a flat case without complaint.",
     ],
     careNote: "Store flat · Avoid humidity · Spray fixative for charcoal",
+    reviews: [
+      {
+        fig: "Fig. I",
+        quote:
+          "Drew the same room for forty leaves. Each came out different. The pad outlasted the room.",
+        name: "Mira S.",
+        role: "Painter",
+        place: "Porto",
+      },
+      {
+        fig: "Fig. II",
+        quote:
+          "The tooth holds charcoal the way silence holds an argument. Sparingly, and on its own terms.",
+        name: "Isaac R.",
+        role: "Studio resident",
+        place: "Marfa",
+      },
+      {
+        fig: "Fig. III",
+        quote:
+          "Bought it expecting a sketchpad. Received what I now call my morning correspondence. The distinction is real to me.",
+        name: "Beatrice Q.",
+        role: "Architect",
+        place: "Antwerp",
+      },
+    ],
   },
   {
     id: "sticky-voids",
@@ -111,6 +198,32 @@ export const products: Product[] = [
       "Loaded with a seventy-gram stock that takes pigment ink, ballpoint, and graphite without bleed-through — the press tested it on its own paper first.",
     ],
     careNote: "Stack flat · Avoid direct heat · Use within twelve months for best tack",
+    reviews: [
+      {
+        fig: "Fig. I",
+        quote:
+          "Used them to mark the books I cannot lend out. The marks have not lifted. Neither have the books.",
+        name: "Saoirse N.",
+        role: "Librarian",
+        place: "Galway",
+      },
+      {
+        fig: "Fig. II",
+        quote:
+          "Stuck one to a varnished oak desk for six months. Removed it cleanly. Left a small ghost of attention behind.",
+        name: "Olivier T.",
+        role: "Joiner",
+        place: "Brittany",
+      },
+      {
+        fig: "Fig. III",
+        quote:
+          "Stickered a postcard to a fellow page. It held through the post and an inspection. The customs officer said nothing.",
+        name: "Min-Jae L.",
+        role: "Correspondent",
+        place: "Seoul",
+      },
+    ],
   },
   {
     id: "savior-pen",
@@ -131,6 +244,32 @@ export const products: Product[] = [
       "Refills are forthcoming. Until then, each pen carries enough ink to last a long argument with the page.",
     ],
     careNote: "Cap firmly between strokes · Store horizontal in a closed drawer",
+    reviews: [
+      {
+        fig: "Fig. I",
+        quote:
+          "The pen survived a flight, a desert, and a graduate thesis. I survived two of these. The pen made the difference.",
+        name: "Iris H.",
+        role: "Doctoral candidate",
+        place: "Tartu",
+      },
+      {
+        fig: "Fig. II",
+        quote:
+          "Wrote my address inside the cover of every book I own. The address is silver. The cover is matte. The arrangement is improving.",
+        name: "Per A.",
+        role: "Translator",
+        place: "Bergen",
+      },
+      {
+        fig: "Fig. III",
+        quote:
+          "Reviewed against a Pilot Choose and a Muji 0.38. The Savior is heavier. It also takes itself less seriously.",
+        name: "Diego F.",
+        role: "Stationer",
+        place: "Buenos Aires",
+      },
+    ],
   },
   {
     id: "executive-despair",
@@ -151,5 +290,31 @@ export const products: Product[] = [
       "Bordeaux foil along the spine — the only colour we permit. Plans persist on faith; the foil makes that visible.",
     ],
     careNote: "Keep dry · Avoid open sun · Foil does not require buffing",
+    reviews: [
+      {
+        fig: "Fig. I",
+        quote:
+          "Filled it through March. Stopped. Resumed in October. The undated logic permits this kind of behaviour without apology.",
+        name: "Hester V.",
+        role: "Studio manager",
+        place: "Utrecht",
+      },
+      {
+        fig: "Fig. II",
+        quote:
+          "The foil on the spine reads as a small private permission. The plans, less so. The pages absorb both.",
+        name: "Nicolas A.",
+        role: "Architect",
+        place: "Geneva",
+      },
+      {
+        fig: "Fig. III",
+        quote:
+          "Showed it to a colleague who keeps a Hobonichi. She was civil. We have not discussed it since.",
+        name: "Adriana K.",
+        role: "Editor",
+        place: "Trieste",
+      },
+    ],
   },
 ];

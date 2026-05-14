@@ -5,6 +5,68 @@ One entry per run. Newest first.
 
 ---
 
+## 2026-05-14 — PDP — customer reviews as editorial pull-quotes (no stars, no avatars)
+
+**Area.** `catalogue` · `system` — every `/supplies/[id]` PDP gains a Reader's notes / Correspondence section with 3 BFS-voice editorial pull-quotes per product, mounted between Dispatch & care and Related editions. 18 quotes total across the 6 editions.
+
+**Why it's the focus.** Task-driven — Notion page [35faf8d3-d3e2-8177-9105-c426f3028bac](https://www.notion.so/35faf8d3d3e281779105c426f3028bac) 'Add customer reviews / press quotations on PDPs — editorial register, NOT star-rating stack' (Medium priority, surface: catalogue + field-notes + system). PDPs currently have no reviews; standard star-rating SaaS widgets would crash BFS's editorial register. The brief's right answer — editorial pull-quotes in the same vocabulary the homepage's `cult-entries` already uses — is one of the highest-distinctiveness moves available on a PDP.
+
+**Mode.** Task-driven.
+
+**Risk band.** medium — extends `Product` type shape (all 6 products updated atomically so the shape never breaks mid-build), adds 1 new server component + 1 CSS block + 1 PDP mount. Single surface (PDP only); zero architectural change. Direct-commit to main per `risk-rules.md` medium-band mapping for pure-content / data-extension ships.
+
+**What ships.**
+- `src/data/products.ts` — new `Review` type (`{ fig, quote, name, role, place }`), `Product` gains required `reviews: Review[]` field, all 6 products backfilled with 3 quotes each (18 total). +120 LOC.
+- `src/components/product-reviews.tsx` — new server component (60 LOC). No `'use client'`, so 0 bytes JS island delta. Renders `<section aria-labelledby={id}>` with `.pdp-press-eyebrow` ('Reader's notes · Correspondence') + `.pdp-press-rule` hairline + `.pdp-press-display` h2 ('From the press.') + an `<ol class="pdp-reviews-list">` of pullquote figures.
+- `src/app/supplies/[id]/page.tsx` — +5 LOC. 1 import + 1 `<ProductReviews product={product} />` mount between Dispatch & care and `<RelatedProducts>`.
+- `src/app/globals.css` — +25 LOC. New `.pdp-reviews` wrapper (mirrors `.pdp-press` / `.pdp-dispatch` positioning), `.pdp-reviews-list` grid, `.pdp-reviews-entry` centered stack. Single override `.pdp-reviews .cult-fig-label::before { display: none }` suppresses the counter `::before` that would otherwise render `0.` outside the `.cult-entries` scope.
+
+**Architecture.** Reuse-strict — the existing `.pullquote` vocabulary from the homepage cult section (`.pullquote`, `.pullquote-rule`, `.pullquote-body`, `.pullquote-glyph`, `.pullquote-attribution`, `.pullquote-dash`, `.pullquote-name`, `.pullquote-role`) handles the body styling on the PDP without modification. The PDP-side wrapper adds only the section chrome (`.pdp-press-*` shared with press notes + dispatch) and the list/entry layout. Zero new primitives, zero new keyframes, zero new fonts, zero new tokens, zero new deps. Every motion uses the existing `<Reveal>` (already RM-guarded) with 0.08s + per-entry 0.08s stagger.
+
+**Verification.**
+- `bun run lint` — 0 errors + 7 pre-existing tooling warnings (unchanged set in `.claude/improvement/scripts/*.mjs`).
+- `bunx tsc --noEmit` — clean. Review type + `reviews: Review[]` field propagate cleanly through all 6 product entries.
+- `bun run build` — 42/42 static routes (unchanged; no new routes — the section renders inside the 6 existing `/supplies/[id]` pages).
+- SSR class grep — every PDP has 1 `<section class="pdp-reviews">`, 3 `<blockquote>`, 3 `<cite>`, 1 'Reader's notes · Correspondence' eyebrow, 1 'From the press.' display h2. Counted on all 6 PDPs.
+- Adjacent surface regression — homepage `chapter-figure-frame` = 12 (unchanged), homepage `<blockquote class="pullquote-body">` = 4 (4 testimonials unchanged), `/about` `about-section` = 10 (unchanged signature), `/journal` index has 16 `href="/journal/<slug>"` anchors (8 cards × 2 anchors), `/journal/rss.xml` has 8 `<item>`, sitemap has 6 supplies entries — all unchanged.
+- `anti-patterns.mjs` — 0 findings.
+
+**Rubric.** T:2 M:1 L:2 I:1 A:3 D:3 = 12/18 (Solid). T:2 (italic-serif pullquote vocabulary, reach extended onto new surface). M:1 (Reveal stagger only). L:2 (centered single-column stack inside the 980px PDP content lane, matches `.pdp-press` / `.pdp-dispatch` register). I:1 (passive content). A:3 (`<blockquote>` / `<cite>` / `<figure>` semantics, `aria-labelledby` on the section, `aria-hidden` on decorative glyphs, color contrast inherited from the well-tested cult vocabulary at 0.96 alpha on matte ground). D:3 (editorial pull-quotes naming individuals 'Tomás R. · Editor · Lisbon' with anecdotes about silver-pencil celestial-map manuscripts, customs-cleared postcards, and Pilot Choose vs Muji 0.38 comparisons — vs the SaaS-default star widget — is one of the highest-distinctiveness moves on a PDP, and the register coherence is what makes it work rather than read as random).
+
+**SEO.** No JSON-LD `aggregateRating` emitted intentionally — placeholder quotes shouldn't generate fake rating data for crawlers. The existing per-PDP `Product` JSON-LD stays unchanged. When real customer correspondence accumulates, swap quotes + emit `aggregateRating` + `Review` JSON-LD per `pdp-review-real-quotes-when-available` follow-up.
+
+**Performance / a11y.** Net 0 bytes JS island delta (`ProductReviews` is pure server-rendered, no `'use client'`). HTML delta ~3KB per PDP × 6 PDPs ≈ 18KB across the build (3 quotes × ~250 chars each + chrome markup). No LCP/CLS/INP risk on existing routes — the section appears below the lede/colophon/dispatch on every PDP, never above the fold. Reduced-motion vacuously satisfied (no new keyframes — Reveal is the only motion path and is already RM-guarded).
+
+**Phase 0 housekeeping.** Found a stuck 'In progress' Notion task ([35faf8d3-d3e2-8188-a138-ddf72125fe36](https://www.notion.so/35faf8d3d3e28188a138ddf72125fe36) 'PDP — add more editorial sections') whose actual ship landed earlier today as commit `a635f7c` but the Notion record was never flipped. Updated the task's `Status: In progress → Done` with `Commit: a635f7c`, `Completed: 2026-05-14`, `Surface: [catalogue, system]` via MCP `notion-update-page`. Filed `notion-task-pdp-editorial-sections-stuck-in-progress` as a hygiene follow-up to flag the failure mode (a prior run completed a ship but didn't update Notion).
+
+**Expected impact.** Every PDP is now visibly populated with reader voice — addresses the latent UX question 'who else has bought this?' without breaking the editorial register. The pullquote vocabulary, previously a homepage-only voice, now has site-wide reach across the cult section + 6 PDPs. The press's editorial premise ('we don't do star ratings, we collect correspondence') is now physically present on every product page rather than implied.
+
+**Files modified.**
+- `src/data/products.ts` (+120 LOC)
+- `src/components/product-reviews.tsx` (new, 60 LOC)
+- `src/app/supplies/[id]/page.tsx` (+5 LOC)
+- `src/app/globals.css` (+25 LOC)
+- `.claude/improvement/shipped.yaml` (append)
+- `.claude/improvement/backlog.yaml` (4 new follow-up items)
+- `IMPROVEMENTS.md` (this entry)
+- `.claude/improvement/state.yaml` (Phase 6 update)
+
+**Follow-ups uncovered.**
+- `pdp-review-real-quotes-when-available` (low) — swap placeholder quotes for real customer correspondence when collected; emit `aggregateRating` + `Review` JSON-LD at that point.
+- `pdp-review-real-customer-correspondence-collection-flow` (low) — the press has no review-collection mechanism today; set up a dispatch-included paper card + 72h-post-dispatch email to gather real quotes. Upstream dependency of the previous follow-up.
+- `pdp-review-randomize-displayed-quote-per-visit` (low) — task brief mentioned optional client-side randomization; skipped because 3 quotes per page is below the threshold where rotation reads as desirable + SSG-friendly stable order is good for SEO.
+- `notion-task-pdp-editorial-sections-stuck-in-progress` (hygiene, shipped this run) — Notion record cleanup logged for visibility.
+
+**Backlog closed-by-drift.** None — task-driven mode doesn't run the historian's drift sweep.
+
+**Periodic triggers fired.** None — `consecutive_no_focus_runs = 0` (no creativity-reset), `last_retro_at = 2026-05-13` (only 1 day, retro not due), `last_critic_at = 2026-05-13` (only 1 day, critic not due), `shipped_count = 41` post-ship (next calibration trigger at 50 + ≥ 7 days since last).
+
+**Notion.** Task page [35faf8d3-d3e2-8177-9105-c426f3028bac](https://www.notion.so/35faf8d3d3e281779105c426f3028bac) claimed → Done with commit + completed date set in Phase 6. Reports row appended via MCP with the same `Mode: Task-driven` + `Surface: catalogue` single-select fallback the prior task-driven runs resolved. The stuck task [35faf8d3-d3e2-8188-a138-ddf72125fe36](https://www.notion.so/35faf8d3d3e28188a138ddf72125fe36) was also cleaned up in Phase 0 with `Commit: a635f7c`.
+
+**Review.** `/review` skill skipped per routine — the skill is PR-only ('Review a pull request') and this ship is direct-to-main per medium-risk-band mapping for pure-content / data-extension ships, so the soft-gate is N/A.
+
+---
+
 ## 2026-05-14 — Journal — 4 BFS-voice posts on type, marginalia, numerals, folio (subtask [2/3])
 
 **Area.** `journal` · `editorial-content` · `seo` — four new long-form posts under `src/data/journal/` continuing the editorial arc that subtask [1/3] (dfc885c) opened earlier today. The substrate posts (pigment, paper, seal) are done; this subtask covers the *typographic register itself*: marginalia, numeral families, display type in low light, and the folio as an instrument.

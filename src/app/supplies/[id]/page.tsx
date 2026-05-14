@@ -7,6 +7,7 @@ import { Magnetic } from "@/components/magnetic";
 import { Tilt } from "@/components/tilt";
 import { SpecimenPlate } from "@/components/specimen-plate";
 import { CartCount, NavCart, PDPAddToCart } from "@/components/cart-island";
+import { ProductReviews } from "@/components/product-reviews";
 import { RelatedProducts } from "@/components/related-products";
 import {
   NotebookVisual,
@@ -370,6 +371,9 @@ export default async function ProductPage({
           ))}
         </dl>
       </section>
+
+      {/* Reader's notes — editorial pull-quotes (not stars / not avatars) */}
+      <ProductReviews product={product} />
 
       {/* Related — siblings */}
       <RelatedProducts current={product.id} />
