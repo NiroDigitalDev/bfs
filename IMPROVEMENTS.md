@@ -64,6 +64,8 @@ Triple gate is load-bearing: `@supports` blocks browsers without scroll-driven-a
 
 **Periodic triggers fired.** None — last retro 2026-05-13 (1d ago, weekly cadence ≥ 7d not yet due), last critic 2026-05-13 (1d, monthly cadence ≥ 28d not yet due), last calibration 2026-05-14 (today; 7-day cooldown active and `shipped_count` not yet at the next multiple of 10), creativity-reset blocked by `consecutive_no_focus_runs=0`.
 
+**Review.** Post-commit `/review` skill pass against `HEAD~1..HEAD` of commit `1732445`. Verdict: **clean ship.** Two low-severity hygiene findings appended to backlog (non-blocking): (1) `chapter-numeral-drift-comment-899-vs-900` — inline comment says "899px" but actual rule uses `min-width: 900px` (cosmetic comment mismatch); (2) `chapter-numeral-drift-80px-token-promotion` — 80px drift literal should promote to a `--chapter-drift` token once a second scroll-parallax site lands (diff-reviewer concurs). No correctness, a11y, security, or register findings.
+
 ---
 
 

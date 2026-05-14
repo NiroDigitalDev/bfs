@@ -1967,3 +1967,53 @@ items:
       observation; the lint/type/build/anti-pattern signal is enough
       for low-risk CSS-only ships, but visual diff coverage on a11y
       moves would tighten the cron's verification.
+
+  - id: chapter-numeral-drift-comment-899-vs-900
+    title: chapter-numeral-drift inline comment says "899px" but rule uses min-width:900px
+    ship: |
+      The inline comment block at globals.css:1366 says "@media min-width
+      899px → matches the desktop layout" but the actual @media query at
+      line 1367 uses `min-width: 900px`. The companion mobile rule at
+      line ~1352 uses `max-width: 899px`. The boundaries align cleanly
+      at the 899↔900 cutoff (no overlap, no gap), but the inline comment
+      is one off. Cosmetic — replace "899px" with "900px" in the comment
+      so the docs match the rule.
+    severity: low
+    effort: S
+    class: hygiene
+    status: open
+    files:
+      - src/app/globals.css:1366
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    dq_count: 0
+    notes: |
+      Source — Step 7.5 /review pass on chapter-numeral-scroll-driven-drift
+      ship 1732445. Non-blocking. Pure comment update, no behavior change.
+
+  - id: chapter-numeral-drift-80px-token-promotion
+    title: chapter-numeral-drift 80px translate literal should promote to a --chapter-drift token if a second scroll-parallax site lands
+    ship: |
+      `@keyframes chapter-numeral-drift` at globals.css:1374-1375 uses a
+      raw 80px translate range (translate3d Y +80 → -80). The rest of
+      globals.css uses var(--dur-*) / var(--ease-*) tokens for motion
+      values. No `--chapter-drift` or `--scroll-parallax-*` token exists.
+      Defensible as a one-off literal today (one use site, easy to grep,
+      magnitude is non-obvious without context anyway). Promote to a
+      token (e.g. `--chapter-drift: 80px;` in :root) once a second
+      scroll-parallax site lands.
+    severity: low
+    effort: S
+    class: hygiene
+    status: open
+    files:
+      - src/app/globals.css:1374
+      - src/app/globals.css:1375
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    dq_count: 0
+    notes: |
+      Source — Step 7.5 /review + Phase 5 diff-reviewer concur on
+      chapter-numeral-scroll-driven-drift ship 1732445. Non-blocking.
+      Trigger: if a second `view()`-timeline animation lands with a
+      similar drift range, both should consume the shared token.

@@ -382,14 +382,7 @@ items:
 
   - id: chapter-numeral-scroll-driven-drift
     title: "Chapter numerals — scroll-driven counter-parallax (per-element animation-timeline: view()) on the 6 homepage chapter spreads"
-    commit: pending
-    date: 2026-05-14
-    surface: catalogue
-    tags: [hero, catalogue, chapter, typography, motion, scroll-driven, animation-timeline, view-timeline, css-only, no-js, no-new-primitives, no-new-deps, reduced-motion, supports-fallback, awwwards-current, regular-pick]
-    summary: "Adds per-element scroll-driven counter-parallax to the six oversized italic-serif chapter numerals on the homepage catalogue spreads (#supplies). Pure CSS — uses native animation-timeline: view() so each numeral binds to its OWN chapters viewport position, not the global --scroll-y. As a chapter enters and exits the viewport, its numeral drifts from translate3d(0, 80px, 0) → translate3d(0, -80px, 0). Previously the numerals were inert until :hover (globals.css:1361) — now they drift counter to the figure on scroll, reading as composition rather than decoration. Net delta — 1 file modified, +22 LOC: one @supports (animation-timeline: view()) block wrapping a @media (prefers-reduced-motion: no-preference) and (min-width: 900px) block, containing the .chapter-numeral { animation: chapter-numeral-drift linear both; animation-timeline: view(); animation-range: entry 0 0.000000e+00xit 100
-  - id: chapter-numeral-scroll-driven-drift
-    title: "Chapter numerals — scroll-driven counter-parallax (per-element animation-timeline: view()) on the 6 homepage chapter spreads"
-    commit: pending
+    commit: 1732445
     date: 2026-05-14
     surface: catalogue
     tags: [hero, catalogue, chapter, typography, motion, scroll-driven, animation-timeline, view-timeline, css-only, no-js, no-new-primitives, no-new-deps, reduced-motion, supports-fallback, awwwards-current, regular-pick]
