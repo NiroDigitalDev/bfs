@@ -4,6 +4,68 @@ A running record of focused changes shipped by the website-improvement routine.
 One entry per run. Newest first.
 
 ---
+## 2026-05-14 — Chapter numerals — scroll-driven counter-parallax (per-element `animation-timeline: view()`) on the 6 homepage chapter spreads
+
+**Area.** `catalogue` · `hero` — six oversized italic-serif chapter numerals on the homepage catalogue spreads (`#supplies`) gain per-element scroll-driven counter-parallax. Pure CSS. Native `animation-timeline: view()` so each numeral binds to *its own* chapter's viewport position, not the global `--scroll-y` written by `<ParallaxRoot/>`.
+
+**Why it's the focus.** Regular-discovery pick. The two open To-do Notion tasks (image-gen `35faf8d3-d3e2-8168-9026-c7ce8590e62b` + motion-vocabulary `35faf8d3-d3e2-816e-9304-f18860d09138`) remain deferred — same compound-risk reasoning the prior two pickers logged (splitting + first-time-use-of-image-gen-skill + autonomous-verification within the cron window). Instead picked the highest-leverage M-effort distinctive move the hero-auditor surfaced this run: `chapter-numeral-static-no-scroll-coupling` (rubric estimate 14, S/M effort). The homepage catalogue chapter cells haven't been touched recently — the last two catalogue ships were PDP customer-reviews (`361d51c`) and PDP editorial sections (`a635f7c`), both `/supplies/[id]` not the homepage `.chapter` spreads — so the surface-freshness tiebreaker also favored this pick. The motion-vocabulary task explicitly lists `view-transitions-page-turn` / `character-by-character-drift-on-scroll` / `optical-axis-scroll` as candidate moves; this ship lands a smaller, more focused single move from the same family without needing the full split.
+
+**Mode.** Shipped.
+
+**Risk band.** `low` — pure additive CSS, triple-gated (@supports + reduced-motion + min-width), no primitive change, no JSX touched, no shared component, no SEO surface, 1 file 22 LOC. Direct-commit to main per `risk-rules.md` low-band default.
+
+**What ships.**
+- `src/app/globals.css` — adds 22 LOC of CSS immediately after the existing `.chapter:hover .chapter-numeral` rule (so hover priority is preserved in source order):
+  - `@supports (animation-timeline: view()) { @media (prefers-reduced-motion: no-preference) and (min-width: 900px) { .chapter-numeral { animation: chapter-numeral-drift linear both; animation-timeline: view(); animation-range: entry 0% exit 100%; } @keyframes chapter-numeral-drift { from { transform: translate3d(0, 80px, 0); } to { transform: translate3d(0, -80px, 0); } } } }`
+
+**Architecture.** Per-element parallax over global parallax. The existing `<ParallaxRoot/>` (`src/components/parallax-root.tsx:6-40`) writes `window.scrollY` to `:root` as `--scroll-y`, consumed today by `.hero-period` opacity, `.hero-title` translate, and a handful of `.hero-edge*` rules (file:line `globals.css:795`, `:836`, `:859`, `:888`). That's a *global* scroll value — if six chapter numerals all consumed it they would translate in lock-step rather than relative to their own chapter's viewport entry, which is not the right semantic. Native CSS `animation-timeline: view()` binds each numeral's animation progress to its own element's viewport position (entry → exit), so the six numerals drift independently as the user scrolls past each chapter spread.
+
+Triple gate is load-bearing: `@supports` blocks browsers without scroll-driven-animations (Chrome <115 / Edge <115 / Safari <18 — fall through to current static numeral, zero regression); `prefers-reduced-motion: no-preference` excludes the entire animation block for users who prefer reduced motion; `min-width: 900px` aligns with the existing mobile-reposition rule at `globals.css:~1352` (the small-viewport `max-width: 899px` cuts in with smaller font-size + different positioning — animating those would feel out-of-character). Transform-only — stroke-color stays under the base + hover rules so `.chapter:hover .chapter-numeral { -webkit-text-stroke-color: rgba(255,255,255,0.16) }` still brightens on hover. The `translate3d()` promotes the numeral to its own compositor layer; the existing `position: absolute; top: -0.22em; z-index: -1; pointer-events: none` is preserved (transform composes with the layout anchor, doesn't replace it).
+
+**Verification.**
+- `bun run lint` — 0 errors + 7 pre-existing tooling warnings (unchanged set in `.claude/improvement/scripts/*.mjs`).
+- `bunx tsc --noEmit` — clean.
+- `bun run build` — 48/48 static routes (unchanged from previous run).
+- SSR HTML for `/` still contains 6 `.chapter-numeral` spans (verifier + regression-spotter both confirmed).
+- `anti-patterns.mjs` — 0 findings.
+- diff-reviewer — PASS; only nit was the 80px literal which is a defensible one-off (no second use site exists yet; filed as a low follow-up to promote to a `--chapter-drift` token if/when a second scroll-driven parallax instance lands).
+- regression-spotter — PASS. `chapter-numeral-drift` keyframe is unique across the file's 12 named keyframes. Adjacent surfaces: `chapter-rail` count 27, `running-folio` count 1, `specimen-plate` count 246, `outro-wordmark` count 2 — all match pre-ship baseline. `chapter-numeral` correctly scoped to `/` only (0 on `/about`, `/journal`, `/checkout`, `/_not-found`).
+- perf-a11y — PASS. 0 bytes JS delta (CSS-only). No LCP risk (decorative absolutely-positioned glyph off critical path, transform is composited). No CLS risk (transform doesn't trigger layout by spec). No INP risk (scroll-driven via native compositor, no JS scroll listeners added).
+- Reduced-motion — coverage complete. Entire `@supports` block excluded by `@media (prefers-reduced-motion: no-preference)`. The base `.chapter-numeral` rule already contains the static fallback (no `transform` declared).
+- Non-supporting browser path: numerals render static as before. Zero regression.
+- Mobile (≤899px) path: numerals render static (gate matches the existing layout cutoff at line 1352).
+- Visual-diff — desktop screenshot captured (`.claude/improvement/screenshots/73af9b8/chapter-numeral-drift-desktop.png`); no prior frame on this surface key to compare against (first ship on `chapter-numeral-drift`).
+
+**Rubric.** T:2 M:3 L:3 I:1 A:2 D:3 = **14/18** (Distinctive). T:2 — italic-serif folio glyph reused at full display scale, drift makes the typography itself read as composition rather than decoration. M:3 — per-element `view()` timeline is the current cutting-edge CSS motion technique; most Next.js sites still hand-roll IntersectionObserver + `setState` for similar effects, this is purely declarative. L:3 — six chapter spreads gain compositional rhythm via the same gesture; the catalogue surface starts to read as one composed page rather than six stacked panels. I:1 — no new interactive affordance; `:hover` stroke change still wins. A:2 — decorative element, transform-only (no contrast change), gated by reduced-motion + `@supports` + min-width fallback. D:3 — scroll-driven animation via native CSS `view()` timeline is an Awwwards-tier 2026 move; competes with hand-rolled GSAP scroll-trigger setups at a fraction of the cost.
+
+**Screenshots.** `.claude/improvement/screenshots/73af9b8/chapter-numeral-drift-desktop.png` + `.claude/improvement/screenshots/73af9b8/chapter-numeral-drift-mobile.png` (informational — the drift only fires on actual scroll, so the captured frames show the static starting state; the mobile frame should match the pre-ship layout because the ≥900px gate excludes mobile).
+
+**SOTD comparison.** Skipped — `sotd-compare.mjs` returned `skipped: could not parse SOTD entry — gallery markup may have changed` (the `sotd-parser-fix` backlog item remains open).
+
+**Notion.** Reports row append via MCP (NOTION_TOKEN unset; MCP path healthy this run). No task to claim — regular-discovery pick. Tasks DB checked: 2 open To-do tasks remain (image-gen + motion-vocabulary), neither claimed this run.
+
+**Expected impact.** The six homepage chapter spreads gain a quiet but legible sitewide-motion-quality lift — as a reader scrolls past a chapter, its oversized italic-serif folio glyph drifts opposite the figure (counter-parallax), and the catalogue as a whole stops reading as "six stacked panels with hairline numerals stamped on top" and starts reading as "one composed page where the typography breathes against the figure." Editorial register holds — the move is silent (transform-only, no stroke or opacity shift), and the existing `:hover` brighten still works on top.
+
+**Files modified.**
+- `src/app/globals.css` (+22 LOC, 1 block inserted at line ~1359).
+
+**Follow-ups uncovered.**
+- `chapter-numeral-drift-token-promotion` (low, hygiene) — the 80px drift literal is a defensible one-off; if a second scroll-driven parallax instance lands, promote to a `--chapter-drift: 80px` var.
+- `hero-aside-rule-static-no-scale-in` (low, distinctive) — auditor flagged `.hero-aside-line` (globals.css:864-870) appears as a finished line under the staggered SplitText chars; could `scale-in` to match the chars stagger so the rule "draws under" the aside rather than popping pre-rendered.
+- `section-tag-eyebrow-mark-rule-collision` (low, T) — auditor flagged `.section-tag::before` (line ~1242-1247) and `.chapter-eyebrow-mark` (line ~1376-1380) are *identical* 24px×1px hairlines at `rgba(255,255,255,0.4)`; flat hierarchy worth differentiating (section eyebrow gets a wider rule + folio glyph; chapter stays at 24px).
+- `hero-spec-counter-no-viewport-gate` (medium, M) — auditor flagged `<Counter to={99.9}/>` (`page.tsx:165`) likely fires on mount rather than being viewport-gated like SplitText/Reveal; the climb settles before the user can read the spec ribbon. Gate behind an IntersectionObserver at 0.5 threshold so the climb syncs with the spec ribbon's `Reveal delay="0.6s"`, plus a `prefers-reduced-motion` snap-to-final.
+- `split-char-uniform-stagger-no-velocity-curve` (low, M) — auditor flagged that `<SplitText/>` (`src/components/split-text.tsx:60`) uses a flat linear stagger `idx * stagger`; Awwwards-tier reveals (Locomotive, Studio Lumio) use an ease on the *stagger* itself so the title arrives like a phrase, not a metronome. Replace with a non-linear easing function on the index.
+- `sotd-compare-parser-fix` (low, infra) — existing backlog item; still relevant; the parser hasn't been updated since the awwwards SOTD gallery markup changed. Not a blocker for shipping.
+- `notion-task-image-gen-split` (medium, infra) — Notion task `35faf8d3-d3e2-8168-9026-c7ce8590e62b` is the natural next pick on a run that's prepared to absorb the first-time-use-of-image-gen-skill risk; split into surface-scoped subtasks before claiming, e.g. `[1/3]` homepage section dividers, `[2/3]` PDP cover specimen plates, `[3/3]` journal index + colophon imagery.
+- `notion-task-motion-vocabulary-split` (medium, infra) — Notion task `35faf8d3-d3e2-816e-9304-f18860d09138` is explicitly tagged a split candidate. Split into 2-3 single-motion subtasks before claiming. *This ship lands one such single move (per-element view() on chapter numerals), so the bigger task's remaining surface is now: view-transitions-page-turn between homepage chapters, optical-axis-scroll, live-kerning-on-hover, magnetic-reveal variants.*
+
+**Backlog closed-by-drift.**
+- `newsletter-id-collision` (high severity, a11y) — historian verified during this run's discovery that `src/components/checkout-form.tsx:196` uses `useId()` exclusively (`id={emailId}`), which React 19 generates as `:R…:` style identifiers that cannot collide with the newsletter's literal `id="email"` (`src/components/newsletter.tsx:20`) regardless of co-mounting. The collision the interactions auditor flagged at the press-clipping-register run on 2026-05-13 is not possible under the current implementation. Flipped to `status: closed-by-drift` with `last_verified: 2026-05-14`.
+
+**Periodic triggers fired.** None — last retro 2026-05-13 (1d ago, weekly cadence ≥ 7d not yet due), last critic 2026-05-13 (1d, monthly cadence ≥ 28d not yet due), last calibration 2026-05-14 (today; 7-day cooldown active and `shipped_count` not yet at the next multiple of 10), creativity-reset blocked by `consecutive_no_focus_runs=0`.
+
+---
+
 
 ## 2026-05-14 — Focus-ring token sweep — remove 6 dim overrides so checkout + journal interactive elements inherit the strong global `:focus-visible`
 

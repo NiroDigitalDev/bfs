@@ -790,13 +790,20 @@ items:
     severity: high
     effort: S
     class: a11y
-    status: open
+    status: closed-by-drift
     files:
       - src/components/newsletter.tsx:20
     opened_on: 2026-05-13
-    last_verified: 2026-05-13
+    last_verified: 2026-05-14
     notes: |
       Source — interactions auditor on press-clipping-register run.
+      Closed-by-drift 2026-05-14 by historian on chapter-numeral-scroll-drift
+      run — checkout-form.tsx now uses `useId()` exclusively
+      (`src/components/checkout-form.tsx:196` → `id={emailId}`), which
+      React 19 generates as `:R…:` style identifiers that can NEVER
+      collide with the newsletter's literal `id="email"` regardless
+      of co-mounting. The collision the auditor flagged is not possible
+      under the current implementation.
 
   - id: display-title-primitive-extract
     title: Extract <DisplayTitle> primitive consolidating hero / PDP / journal-post / journal-index titles

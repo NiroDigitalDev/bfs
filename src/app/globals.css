@@ -1356,6 +1356,28 @@ html.loading body {
 .chapter:hover .chapter-numeral {
   -webkit-text-stroke-color: rgba(255, 255, 255, 0.16);
 }
+/* Scroll-driven counter-parallax — each numeral drifts opposite
+   the figure as its chapter enters and exits the viewport. Per-
+   element view() timeline (not the global --scroll-y), so six
+   spreads drift independently. Gated on @supports → static
+   fallback for older browsers; @media reduced-motion → no
+   animation; @media min-width 899px → matches the desktop
+   layout the numerals are sized for (mobile reposition rule
+   lives above). Transform-only — stroke-color stays under base
+   + hover rules so :hover still brightens. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) and (min-width: 900px) {
+    .chapter-numeral {
+      animation: chapter-numeral-drift linear both;
+      animation-timeline: view();
+      animation-range: entry 0% exit 100%;
+    }
+    @keyframes chapter-numeral-drift {
+      from { transform: translate3d(0, 80px, 0); }
+      to   { transform: translate3d(0, -80px, 0); }
+    }
+  }
+}
 
 /* Head */
 .chapter-head {
