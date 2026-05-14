@@ -826,3 +826,79 @@ items:
     last_verified: 2026-05-14
     notes: |
       Source — diff-reviewer nit on journal-display-vocabulary-align run.
+
+  - id: nav-consistency-supplies-journal
+    title: /supplies and /journal navs diverge from homepage 5-item nav vocabulary
+    ship: |
+      After surface-journal-nav-and-homepage-block, the homepage nav
+      carries 5 numbered items (01-05 inc. Journal). The /supplies/[id]
+      nav at src/app/supplies/[id]/page.tsx:148-162 still carries the
+      original 4 (01-04, no Journal). The /journal index nav at
+      src/app/journal/page.tsx:80-93 and the /journal/[slug] nav at
+      src/components/journal-post-frame.tsx:38-52 carry a different
+      4-item layout (Journal first with a mid-dot, then 01-03 Catalogue/
+      Position/Field Notes, NO On Record). Three different nav layouts
+      across the site reads as inconsistency, not register variation.
+      Decide whether to (a) lift a shared <SiteNav pathname=...> client
+      component into chrome (cleanest — the deferred SiteChrome wrapper
+      task would absorb this), or (b) update each route's nav inline to
+      mirror the homepage's 5-item order with aria-current applied per
+      route.
+    severity: medium
+    effort: M
+    class: hygiene
+    status: open
+    files:
+      - src/app/supplies/[id]/page.tsx:148-162
+      - src/app/journal/page.tsx:80-93
+      - src/components/journal-post-frame.tsx:38-52
+      - src/app/page.tsx:50-66
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    notes: |
+      Source — surface-journal-nav-and-homepage-block ship surfaced this
+      inconsistency. Pairs naturally with the deferred SiteChrome task
+      (35faf8d3-d3e2-81f8-844a-cc87e0326f55).
+
+  - id: from-journal-block-renders-1-item-currently
+    title: "/from-journal homepage block renders 1 entry because only 1 post is seeded"
+    ship: |
+      The `.from-journal` block calls `getAllPosts().slice(0, 2)` but
+      only `voliiiNo1` is in `src/data/journal/index.ts`. The block
+      will automatically render 2 entries once the seeded post count
+      reaches 2+. Direct dependency on the Notion task "Write 10 BFS-
+      voice journal posts with SEO-tuned titles, descriptions, and
+      Article JSON-LD" (Notion page 35faf8d3-d3e2-81e5-8b57-f446e4a5a226).
+      No code fix required — track here so the AC #3 (>= 2 posts) is
+      revisited automatically when that task lands.
+    severity: low
+    effort: S
+    class: hygiene
+    status: open
+    files:
+      - src/data/journal/index.ts
+      - src/app/page.tsx:611-687
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    notes: |
+      Source — surface-journal-nav-and-homepage-block ship.
+
+  - id: from-journal-block-no-fallback-empty-state
+    title: "/from-journal block has no visible empty state if all posts are removed"
+    ship: |
+      Current code renders `null` (no markup at all) when
+      `journalLatest.length === 0` so the homepage layout is fine but
+      the absence is silent. Acceptable for the seeded-content case;
+      reconsider if/when journal posts can be flagged
+      `published: false` and dynamic empty states become a real concern.
+    severity: low
+    effort: S
+    class: hygiene
+    status: open
+    files:
+      - src/app/page.tsx:611-687
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    notes: |
+      Source — surface-journal-nav-and-homepage-block ship. Defensive
+      backlog entry — not a current bug.

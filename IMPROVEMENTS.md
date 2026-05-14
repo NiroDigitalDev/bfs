@@ -5,6 +5,180 @@ One entry per run. Newest first.
 
 ---
 
+## 2026-05-14 — Surface /journal — 5th nav item + IndexMenu entry + footer link + homepage "from the journal" dispatch block
+
+**Area.** Site chrome + homepage editorial structure. Four touchpoints:
+the homepage desktop nav at [src/app/page.tsx:50–66](src/app/page.tsx:50),
+the mobile IndexMenu data array at
+[src/components/index-menu.tsx:12–18](src/components/index-menu.tsx:12),
+the homepage outro footer nav at
+[src/app/page.tsx:716–741](src/app/page.tsx:716), and a new
+`.from-journal` editorial dispatch interstitial inserted between Field
+Notes (`#cult`) and FAQ (`#faq`) at
+[src/app/page.tsx:611–687](src/app/page.tsx:611). Supporting CSS
+at [src/app/globals.css:2557–2737](src/app/globals.css:2557). Side fix:
+`aria-current="page"` added to the `/journal/<slug>` nav's Journal link
+at [src/components/journal-post-frame.tsx:40](src/components/journal-post-frame.tsx:40)
+(the `/journal` index nav already carried it; the post nav was missing it).
+
+**Why it's the focus.** Notion task
+[Surface /journal in the site nav + homepage "from the journal" block](https://www.notion.so/35faf8d3d3e281c0a72df2d62ca08254) —
+`Priority: High`, `Status: To do`, surface `[nav, system, seo]`. The
+cron entered task-driven mode on this row; it was tied at High with two
+other open tasks ("When AddToCart commits, auto-open cart drawer" and
+"Show footer on all routes except /checkout"). Picked first because
+the `/journal` route already shipped end-to-end (index + `[slug]` + RSS
++ per-post OG images + sitemap entries — see four prior
+`journal-*` entries in `shipped.yaml`) but had no entry path from any
+other surface; every other improvement in journal land was effectively
+orphaned. Surfacing the route also unlocks measurable internal-link
+SEO and gives the deferred "Write 10 journal posts" task a discoverable
+destination to land into.
+
+**Mode.** Task-driven.
+
+**Risk band.** medium — adds a 5th item to the shared `.nav` chrome
+(homepage), grows the IndexMenu client overlay (mobile TOC), and inserts
+a substantial new homepage section between two existing chapters.
+Cross-file edit touches one journal-post nav for an `aria-current`
+consistency fix. No new dependencies, no new components, no new tokens.
+
+**What ships.**
+
+1. **Homepage desktop nav grows a 5th `<Link>`** —
+   `05 Journal → /journal` at [src/app/page.tsx:62–64](src/app/page.tsx:62).
+   Shares the existing `.nav-num` + `.nav-links` italic-serif treatment
+   so the new item reads as the same vocabulary as the four existing
+   in-page anchors. The previously-shipped `nav-cart-overlap-fix` had
+   already added `column-gap: 32px` to `.nav` in anticipation, so the
+   5-item layout fits 1024–1920 without re-tuning the cart pill.
+
+2. **IndexMenu (mobile TOC client overlay) grows a 5th entry** at
+   [src/components/index-menu.tsx:17](src/components/index-menu.tsx:17) —
+   `{ num: "05", title: "Journal", folio: "p.186", href: "/journal" }`.
+   Folio number continues the bibliographic page-numbering convention.
+   Existing focus-trap + Escape handler + body-scroll-lock cover the
+   new item without modification.
+
+3. **Homepage outro footer nav grows a sixth link** — `Journal →
+   /journal` inside the `.outro-links` row. Keeps bottom-of-page
+   navigation parallel to top-of-page.
+
+4. **New `.from-journal` editorial dispatch interstitial** between
+   Field Notes (`#cult`) and FAQ (`#faq`). Calls
+   `getAllPosts().slice(0, 2)` from `@/lib/journal` — currently
+   renders one entry (only `voliiiNo1` is seeded; the block will
+   render two automatically once the journal-posts task lands more).
+   Each entry is a two-column grid: roman numeral (italic-serif,
+   `clamp(28,3.4vw,44)`) on the left, then date eyebrow + italic-serif
+   title (`clamp(28,3.8vw,52)`) + subtitle + `Read the piece →` CTA on
+   the right. A magnetic-wrapped `All pieces · The journal ↗` link
+   follows the list as the section's exit pull. `<Reveal delay={\`${i *
+   0.08}s\`}>` staggers the entries; `delay="0.18s"` on the All-pieces
+   CTA reads as the closing beat.
+
+5. **Side fix:** `aria-current="page"` on the `/journal/<slug>` nav's
+   Journal link. The `/journal` index nav already had it; this brings
+   AC #4 to parity across both routes.
+
+**Architecture.** Reuses existing primitives only — `<Reveal>` and
+`<Magnetic>` from the shared library, plus `getAllPosts() /
+romanNumeral / formatJournalDate` helpers from `@/lib/journal`. No new
+components, no new tokens. CSS lives at globals.css:2557–2737 (~180
+LOC): hairline borders between entries, italic-serif vocabulary
+throughout, underline-grow link transitions via background-image
+gradient (`0% → 100%`), explicit `@media (prefers-reduced-motion:
+reduce)` block at the end of the section zeroing all four hover/CTA
+transitions. The `<section>` carries
+`aria-labelledby="from-journal-heading"`; the `<h2>` is
+`visually-hidden` because the italic-serif eyebrow already labels the
+section semantically. Per-CTA `aria-label="Read the piece — <title>"`
+gives AT users the unique post title via the verb.
+
+**Verification.**
+- Lint clean (only pre-existing warnings in `.claude/improvement/scripts/`).
+- `bunx tsc --noEmit` — pass.
+- `bun run build` — pass; 24 static pages generated; build time 970ms compile / 409ms SSG.
+- SSR grep on `.next/server/app/index.html`:
+  - 5 nav items (Catalogue/Position/Field Notes/On Record/Journal).
+  - 6 total `href="/journal"` anchors (nav + IndexMenu + per-post link
+    + per-post CTA + All-pieces CTA + outro link; the IndexMenu and
+    the magnetic-wrapped CTA contribute additional anchors that grep
+    counts).
+  - `.from-journal-list` SSR-present with one
+    `from-journal-num` / `from-journal-title` entry (matches seeded
+    post count; will render two once a second post is seeded).
+  - `aria-current="page"` SSR-present on
+    `.next/server/app/journal.html` AND
+    `.next/server/app/journal/vol-iii-no-1-the-typography-of-black.html`.
+- Anti-patterns scan — 0 findings.
+
+**Rubric.**
+T 2 (the same italic-serif vocabulary the rest of the site already
+uses — coherence over novelty), M 1 (Reveal + scroll-staggered
+entries + underline-grow + magnetic All-pieces CTA — restrained, not
+showy), L 2 (hairline-ruled two-column grid with roman-numeral
+margin is unmistakably this site's voice), I 3 (closes the most
+glaring discoverability gap on the site — `/journal` was orphaned),
+A 3 (visually-hidden h2 paired with labeled eyebrow, per-CTA
+aria-label, reduced-motion block, focus-visible preserved), D 2
+(distinctive in its register but not the strongest typographic
+moment of the run — that's still the hero/PDP cluster).
+**T 2 + M 1 + L 2 + I 3 + A 3 + D 2 = 13/18 — Distinctive band.**
+Calibration-conservative scoring (the calibrator's most recent verdict
+was DRIFTING; this scoring stays in the same range as the last ship's
+13/18.)
+
+**Screenshots.** Captured at Phase 6 (paths in
+`.claude/improvement/screenshots/`).
+
+**SOTD comparison.** Skeleton at
+`.claude/improvement/sotd/<sha>.md` (parser still broken per
+`sotd-parser-fix` backlog item — captured for the next retro).
+
+**Notion.** Task page
+[Surface /journal in the site nav + homepage "from the journal" block](https://www.notion.so/35faf8d3d3e281c0a72df2d62ca08254)
+(flipped Status In progress → Done in Phase 6, Commit + Surface
+auto-derived). Reports row appended at Phase 6 Step 3.5.
+
+**Expected impact.**
+- `/journal` becomes reachable from every entry point on `/`:
+  the desktop nav (5th item), the mobile IndexMenu, the in-page
+  editorial dispatch, and the outro footer.
+- Internal links from homepage → `/journal` and homepage → individual
+  posts increase to 6 (was 0). This materially helps internal-link
+  authority distribution to journal posts for SEO.
+- Foundation for the deferred "Write 10 journal posts" task — when
+  posts seed, the homepage dispatch block automatically picks up the
+  latest two.
+
+**Files modified.**
+- `src/app/page.tsx` (+87 LOC): import journal helpers; add 5th nav
+  item; insert `.from-journal` section; add outro footer Journal link.
+- `src/app/globals.css` (+189 LOC): `.from-journal*` block.
+- `src/components/index-menu.tsx` (+1 LOC): 5th entry in `entries[]`.
+- `src/components/journal-post-frame.tsx` (+0/-1 LOC):
+  `aria-current="page"` on Journal nav link.
+
+**Follow-ups uncovered.**
+- `nav-consistency-supplies-journal` — the `/supplies/[id]`,
+  `/journal`, and `/journal/<slug>` navs now diverge from the
+  homepage's 5-item layout in three different ways. Pairs naturally
+  with the deferred `SiteChrome` task (Notion 35faf8d3-d3e2-81f8-844a-cc87e0326f55).
+- `from-journal-block-renders-1-item-currently` — the `.from-journal`
+  block calls `slice(0, 2)` but only one post is seeded. Will
+  auto-fix when the "Write 10 BFS-voice journal posts" Notion task
+  lands.
+- `from-journal-block-no-fallback-empty-state` — the section renders
+  `null` when no posts exist; acceptable today, reconsider when
+  per-post publish flags exist.
+
+**Backlog closed-by-drift.** None this run.
+
+**Periodic triggers fired.** None.
+
+---
+
 ## 2026-05-14 — /journal index display heading — align with the hero/PDP/journal-post typographic vocabulary
 
 **Area.** Journal index display heading at

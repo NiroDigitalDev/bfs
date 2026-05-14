@@ -22,6 +22,11 @@ import {
 import { products as productData, type ProductId } from "@/data/products";
 import { faqs } from "@/data/faqs";
 import { testimonials } from "@/data/testimonials";
+import {
+  getAllPosts,
+  formatJournalDate,
+  romanNumeral,
+} from "@/lib/journal";
 
 const productVisuals: Record<ProductId, React.ComponentType> = {
   "void-book": NotebookVisual,
@@ -35,6 +40,8 @@ const productVisuals: Record<ProductId, React.ComponentType> = {
 const products = productData.map((p) => ({ ...p, Visual: productVisuals[p.id] }));
 
 export default function Home() {
+  const journalLatest = getAllPosts().slice(0, 2);
+
   return (
     <main className="relative">
       {/* Nav */}
@@ -60,6 +67,9 @@ export default function Home() {
             <a href="#faq" data-cursor="link">
               <span className="nav-num">04</span> On Record
             </a>
+            <Link href="/journal" data-cursor="link">
+              <span className="nav-num">05</span> Journal
+            </Link>
           </div>
           <IndexMenu />
         </div>
@@ -609,6 +619,80 @@ export default function Home() {
         </ol>
       </section>
 
+      {/* From the Journal — editorial dispatch interstitial, links into /journal */}
+      {journalLatest.length > 0 ? (
+        <section
+          id="from-journal"
+          className="from-journal"
+          aria-labelledby="from-journal-heading"
+        >
+          <div className="from-journal-head">
+            <span className="from-journal-eyebrow">
+              <span className="from-journal-eyebrow-rule" aria-hidden />
+              <em>From the journal · Editorial dispatches</em>
+            </span>
+            <h2 id="from-journal-heading" className="visually-hidden">
+              From the journal
+            </h2>
+          </div>
+          <ol className="from-journal-list">
+            {journalLatest.map((p, i) => (
+              <Reveal key={p.slug} delay={`${i * 0.08}s`}>
+                <li className="from-journal-item">
+                  <span className="from-journal-num" aria-hidden>
+                    <em>{romanNumeral(i + 1)}</em>
+                  </span>
+                  <span className="from-journal-date">
+                    <em>{formatJournalDate(p.publishedAt)}</em>
+                  </span>
+                  <h3 className="from-journal-title">
+                    <Link
+                      href={`/journal/${p.slug}`}
+                      className="from-journal-link"
+                      data-cursor="link"
+                      data-cursor-label="Read"
+                    >
+                      {p.title}
+                    </Link>
+                  </h3>
+                  <p className="from-journal-sub">
+                    <em>{p.subtitle}</em>
+                  </p>
+                  <Link
+                    href={`/journal/${p.slug}`}
+                    className="from-journal-cta"
+                    data-cursor="link"
+                    data-cursor-label="Open"
+                    aria-label={`Read the piece — ${p.title}`}
+                  >
+                    <em>Read the piece</em>
+                    <span className="from-journal-cta-arrow" aria-hidden>
+                      →
+                    </span>
+                  </Link>
+                </li>
+              </Reveal>
+            ))}
+          </ol>
+          <Reveal delay="0.18s">
+            <Magnetic strength={0.2}>
+              <Link
+                href="/journal"
+                className="from-journal-all"
+                data-cursor="link"
+                data-cursor-label="Open"
+              >
+                <span className="from-journal-all-rule" aria-hidden />
+                <em>All pieces · The journal</em>
+                <span className="from-journal-all-arrow" aria-hidden>
+                  ↗
+                </span>
+              </Link>
+            </Magnetic>
+          </Reveal>
+        </section>
+      ) : null}
+
       {/* FAQ */}
       <section id="faq" className="faq">
         <div className="section-head">
@@ -725,6 +809,9 @@ export default function Home() {
             <a href="#faq" data-cursor="link">
               On Record
             </a>
+            <Link href="/journal" data-cursor="link">
+              Journal
+            </Link>
             <a
               href="mailto:studio@blacksforsale.studio"
               data-cursor="link"

@@ -14,6 +14,7 @@ const entries: Entry[] = [
   { num: "02", title: "Position", folio: "p.064", href: "#manifesto" },
   { num: "03", title: "Field Notes", folio: "p.108", href: "#cult" },
   { num: "04", title: "On Record", folio: "p.142", href: "#faq" },
+  { num: "05", title: "Journal", folio: "p.186", href: "/journal" },
 ];
 
 export function IndexMenu() {

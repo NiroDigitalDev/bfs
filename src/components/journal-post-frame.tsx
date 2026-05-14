@@ -37,7 +37,7 @@ export function JournalPostFrame({
         </Link>
         <div className="nav-center">
           <div className="nav-links">
-            <Link href="/journal" data-cursor="link">
+            <Link href="/journal" data-cursor="link" aria-current="page">
               <span className="nav-num">·</span> Journal
             </Link>
             <Link href="/#supplies" data-cursor="link">
