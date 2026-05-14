@@ -342,7 +342,7 @@ items:
 
   - id: journal-4-posts-type-numerals-low-light-folio
     title: "Journal — 4 BFS-voice posts on type, marginalia, numerals, and the folio (subtask [2/3] of 10-post task)"
-    commit: pending
+    commit: 5ecfacf
     date: 2026-05-14
     surface: seo
     tags: [journal, editorial-content, prose-jsx, bfs-voice, typography-vocabulary, marginalia, oldstyle-numerals, lining-numerals, halation, dim-accent, chapter-rail, running-folio, article-jsonld, sitemap, rss, opengraph-image, instrument-serif, italic-serif, curly-quotes, em-emphasis, blockquote, no-new-primitives, no-new-deps, no-new-tokens, no-new-fonts, task-driven, split-subtask]
