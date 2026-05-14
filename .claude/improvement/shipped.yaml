@@ -398,7 +398,7 @@ items:
 
   - id: hero-title-scroll-driven-char-drift
     title: "Hero title — scroll-driven per-character drift (animation-timeline: view()) on the Dark Matter. h1 via SplitText .split-char descendants"
-    commit: pending
+    commit: 8708f51
     date: 2026-05-14
     surface: hero
     tags: [hero, system, h1, splittext, split-char, motion, scroll-driven, animation-timeline, view-timeline, view-timeline-name, named-timeline, standalone-rotate, nth-child, per-character, breathing-typography, css-only, no-js, no-new-primitives, no-new-deps, no-new-tokens, no-new-fonts, reduced-motion, supports-fallback, awwwards-current, task-driven, split-subtask, motion-vocabulary-1-of-3]
