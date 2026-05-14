@@ -1663,14 +1663,15 @@ items:
     severity: medium
     effort: M
     class: distinctive
-    status: open
+    status: shipped
     files:
       - src/data/journal/
       - src/data/journal/index.ts
     opened_on: 2026-05-14
     last_verified: 2026-05-14
+    shipped_on: 2026-05-14
     dq_count: 0
-    notes: "Notion subtask 360af8d3-d3e2-8104-add9-eabcfda776bf; parent 35faf8d3-d3e2-81e5-8b57-f446e4a5a226 ([1/3] shipped this run)."
+    notes: "Shipped this run. Notion subtask 360af8d3-d3e2-8104-add9-eabcfda776bf, parent 35faf8d3-d3e2-81e5-8b57-f446e4a5a226. Subtasks [1/3] (dfc885c) and [2/3] (this commit) are both done; [3/3] remains queued."
 
   - id: journal-subtask-3-of-3
     title: "Journal — 3 BFS-voice posts on the edition, the manifesto, and the noindex page (subtask [3/3])"
@@ -1689,7 +1690,7 @@ items:
     opened_on: 2026-05-14
     last_verified: 2026-05-14
     dq_count: 0
-    notes: "Notion subtask 360af8d3-d3e2-810a-8282-c1e54dde1343; parent 35faf8d3-d3e2-81e5-8b57-f446e4a5a226 ([1/3] shipped this run, [2/3] queued)."
+    notes: "Notion subtask 360af8d3-d3e2-810a-8282-c1e54dde1343; parent 35faf8d3-d3e2-81e5-8b57-f446e4a5a226. [1/3] shipped dfc885c, [2/3] shipped this run; only [3/3] remains."
 
   - id: journal-post-curly-quote-codemod
     title: "Enforce typographic curly quotes (’ “ ”) across .tsx prose surfaces"
@@ -1737,4 +1738,47 @@ items:
     opened_on: 2026-05-14
     last_verified: 2026-05-14
     dq_count: 0
-    notes: "Surfaced by journal-3-posts-pigment-paper-seal ship. With 11 posts after subtasks [2/3] and [3/3] land, related-posts becomes high-leverage navigation."
+    notes: "Surfaced by journal-3-posts-pigment-paper-seal ship; reinforced by journal-4-posts-type-numerals-low-light-folio ship (subtask [2/3] this run lands 4 more, bringing the index to 8 posts — related-posts is now strongly justified)."
+
+  - id: journal-index-author-mention-redundancy
+    title: "Hide 'BFS Editorial' byline on journal index cards when every post is BFS Editorial"
+    ship: |
+      All 8 journal posts are authored by 'BFS Editorial'. The author byline
+      on each card therefore reads as visual noise — every card says the same
+      thing. Hide the byline when post.author === 'BFS Editorial' and the
+      index is BFS-only, OR drop it entirely from the card and reserve it for
+      the post page. Cheaper register: a single colophon line at the top of
+      the journal index 'All editorial · BFS' replacing 7+ identical bylines.
+    severity: low
+    effort: S
+    class: hygiene
+    status: open
+    files:
+      - src/app/journal/page.tsx
+      - src/components/journal-post-card.tsx
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    dq_count: 0
+    notes: "Surfaced by journal-4-posts-type-numerals-low-light-folio ship — index now lists 8 posts, all BFS Editorial."
+
+  - id: journal-ssr-h2-grep-scope-to-article
+    title: "Scope journal SSR verification h2-grep to the <article> block only"
+    ship: |
+      The current Phase 5 SSR class-grep on /journal/[slug] counts <h2>=5
+      per page because it includes chapter-header + related-posts-header
+      chrome. In-body content has 2 <h2>s. Future verification scripts
+      should pass --html .next/server/app/journal/<slug>.html through a
+      DOM-scope grep that only walks <article>...</article>. Update the
+      verifier agent's instructions or add a small helper script under
+      .claude/improvement/scripts/.
+    severity: low
+    effort: S
+    class: hygiene
+    status: open
+    files:
+      - .claude/agents/verifier.md
+      - .claude/improvement/scripts/
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    dq_count: 0
+    notes: "Surfaced by journal-4-posts-type-numerals-low-light-folio ship — verification reported h2=5 which initially read as a bug; investigation confirmed 2 in body + 3 in chrome."

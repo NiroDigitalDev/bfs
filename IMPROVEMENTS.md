@@ -5,6 +5,72 @@ One entry per run. Newest first.
 
 ---
 
+## 2026-05-14 — Journal — 4 BFS-voice posts on type, marginalia, numerals, folio (subtask [2/3])
+
+**Area.** `journal` · `editorial-content` · `seo` — four new long-form posts under `src/data/journal/` continuing the editorial arc that subtask [1/3] (dfc885c) opened earlier today. The substrate posts (pigment, paper, seal) are done; this subtask covers the *typographic register itself*: marginalia, numeral families, display type in low light, and the folio as an instrument.
+
+**Why it's the focus.** Task-driven — picked from the Notion Tasks DB as the top non-disqualified To-do (`results[0]` of the priority-desc + added-asc sort returned [2/3] of the journal split). The parent arc is mid-flow: [1/3] shipped earlier today, [3/3] remains queued. Continuing the arc keeps the journal index growing on the per-post register the drop-cap + hanging-punctuation + small-caps lede ship landed, and unlocks the related-posts follow-up (8 posts is the structural threshold where cross-linking earns its keep).
+
+**Mode.** Task-driven.
+
+**Risk band.** medium — pure content, ~1200 LOC of new prose JSX, 4 new SSG routes. Each post is self-contained and no shared primitive is touched. Direct-commit to main per `risk-rules.md` medium-band mapping (pure content + data, not architectural).
+
+**What ships.**
+- `src/data/journal/the-margin-as-a-gesture.tsx` — On marginalia, hairlines, and the `§ corr.` mark. Covers the 0.25pt opening hairline, the 8pt oldstyle-small-cap marginalia register, the corrigendum mark in the outer margin only, and the 22mm Edition III gutter as an editorial argument made physical.
+- `src/data/journal/oldstyle-numerals-versus-lining.tsx` — On numeric register. Covers oldstyle figures for running prose vs lining figures for tabular data, the font-feature-level switch in Instrument Serif at 17.25pt, the small-cap register at 72% cap height that pairs with each, and the colophon as the only page where both registers appear adjacently.
+- `src/data/journal/letterforms-in-low-light.tsx` — On halation and the dim accent. Covers the 21:1 contrast halation problem on pure-white-on-pure-black, the paper-warm `#ece9df` body white that drops to 17.4:1 without crossing accessibility floors, the dim accent `#c7c4b7` reserved for chapter numerals + corrigenda + cursor + cart total, and the rule that display gets body white while metadata gets accent white and the two never cross.
+- `src/data/journal/the-folio-as-an-instrument.tsx` — On the chrome's structural vocabulary. Covers the chapter rail as a spine at 3.5% viewport width (silent and unclickable), the running folio as a horizon at 9pt oldstyle in the bottom-right (chosen against centred-running-header convention), and the scroll-as-page-turn metaphor that the folio's discrete-step snapping refuses against the otherwise-continuous scroll.
+- `src/data/journal/index.ts` — re-sorted imports alphabetically + 4 new named imports + 4 new entries in `journalPosts`. Net delta on this file: import block reshape + 4 lines in the array.
+
+publishedAt dates 2026-05-06 / 2026-05-09 / 2026-05-11 / 2026-05-14 all land after subtask [1/3]'s most-recent (on-the-seal-of-a-dispatch, 2026-05-03) and at-or-before today, so the journal index sorts these 4 newest-first ahead of [1/3]'s 3 posts ahead of the original seed.
+
+**Architecture.** Zero new components, zero new routes, zero new tokens, zero new fonts, zero new keyframes, zero new deps. Pure server-component data files that auto-wire through the existing `getAllPosts()` in [src/lib/journal.ts](src/lib/journal.ts) → journal index page, `[slug]` route, Article JSON-LD, RSS feed, sitemap, per-post `opengraph-image`. Curly quotes (’ “ ”) used from the start — no straight quotes anywhere — validating the journal-post-curly-quote learning from subtask [1/3]'s follow-ups.
+
+**Verification.**
+- `bun run lint` — 0 errors, 7 pre-existing tooling warnings in `.claude/improvement/scripts/*.mjs`. No `react/no-unescaped-entities` this pass (curly quotes used from the start).
+- `bunx tsc --noEmit` — clean.
+- `bun run build` — 42/42 static routes (was 34; +8 = 4 new posts × post page + opengraph-image route).
+- SSR class grep on all 4 new post pages — each has `<article>=1`, `<h1>=1`, `<h2>=5` (2 in-body + 3 chrome: chapter header, related-posts header, etc.), `<blockquote>=1`, Article JSON-LD=1, canonical=1.
+- Journal index SSR — 8 unique `href=/journal/<slug>` cards present (was 4), `<h1>=1`, Blog JSON-LD=1.
+- RSS feed — 8 `<item>` entries (was 4).
+- `sitemap.xml` — 8 post URLs + `/journal` index.
+- Adjacent surface regression — homepage 12 `chapter-figure-frame` (unchanged), `/about` `about-section` greps unchanged, `/supplies/void-book` `pdp-press-display` unchanged.
+- Anti-patterns: 0 findings.
+
+**Rubric.** T:1 M:0 L:1 I:0 A:2 D:2 = **6/18** (Solid). Same band as subtask [1/3] — the editorial voice is distinctive but no new system or primitive ships. The move is the prose, not the type system.
+
+**Screenshots.** Skipped (no playwright; SSR class-grep is the stronger evidence and `screenshots/` is gitignored).
+
+**SOTD comparison.** Skipped (`sotd-parser-fix` backlog item open; the parser is broken).
+
+**Notion.** Task page [`[2/3] Journal — 4 BFS-voice posts on type, marginalia, numerals, and the folio`](https://www.notion.so/360af8d3d3e28104add9eabcfda776bf) will be marked Done with this commit's SHA. Reports row appended to the Reports DB.
+
+**Expected impact.** Journal index doubles in size (4 → 8 posts). RSS feed doubles (4 → 8 items). Sitemap gains 4 new URLs. SEO surface area expands by ~4400 words of distinctive editorial prose on hard typographic specifics (figures, ratios, mm/pt measurements, French inflections), which is the kind of content that ranks for long-tail typography queries. Cross-linking between posts via `getRelatedPosts()` is now structurally useful — 8 posts is the threshold where related-posts earns its keep, and the follow-up is escalated.
+
+**Files modified.**
+- `src/data/journal/the-margin-as-a-gesture.tsx` (new, 67 LOC)
+- `src/data/journal/oldstyle-numerals-versus-lining.tsx` (new, 75 LOC)
+- `src/data/journal/letterforms-in-low-light.tsx` (new, 84 LOC)
+- `src/data/journal/the-folio-as-an-instrument.tsx` (new, 76 LOC)
+- `src/data/journal/index.ts` (modified, import block reshape + 4 imports + 4 array entries)
+- `.claude/improvement/shipped.yaml` (append)
+- `.claude/improvement/backlog.yaml` (flip [2/3] to shipped, update [3/3] notes, update related-posts notes, add 2 new follow-ups)
+- `IMPROVEMENTS.md` (this entry)
+
+**Follow-ups uncovered.**
+- `journal-subtask-3-of-3` (medium, queued) — 3 posts on edition physics, the SaaS-template manifesto, and the noindex page. Notion `360af8d3-d3e2-810a-8282-c1e54dde1343`. Will complete the parent arc.
+- `journal-post-related-posts-component` (low, escalated from subtask [1/3]) — with 8 posts now, related-posts is strongly justified. `getRelatedPosts` is wired in [src/lib/journal.ts:65](src/lib/journal.ts:65) but no component renders it under post body yet.
+- `journal-index-author-mention-redundancy` (low, new) — all 8 posts are 'BFS Editorial' so the per-card byline is visual noise. Hide or replace with a single colophon line on the index.
+- `journal-ssr-h2-grep-scope-to-article` (low, new) — the Phase 5 SSR class-grep reports `<h2>=5` per page because it includes chapter-header + related-posts-header chrome; in-body content has 2 `<h2>`s. Future verification should scope to the `<article>` block.
+
+**Backlog closed-by-drift.** None — historian pass would confirm [2/3] is now closed (status: shipped) but no other items are affected by this ship.
+
+**Periodic triggers fired.** None this run. `last_retro_at`: 2026-05-13 (next due 2026-05-20). `last_critic_at`: 2026-05-13 (next due 2026-06-10). `last_calibration_at`: 2026-05-14 (next event-trigger at shipped_count=50, ~10 ships out). `consecutive_no_focus_runs`: 0 (resets on ship).
+
+**Review.** Skipped — `/review` skill is PR-only and this ship is direct-commit to main per medium-band routing. The Phase 5 verifier + perf-a11y + regression-spotter + diff-reviewer + anti-patterns gates constitute the soft-gate for direct-commit ships.
+
+---
+
 ## 2026-05-14 — Journal — 3 BFS-voice posts (subtask [1/3] of 10-post split)
 
 **Area.** `journal` · `editorial-content` · `seo` — three new long-form
