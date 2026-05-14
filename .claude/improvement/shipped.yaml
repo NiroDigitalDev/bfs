@@ -366,7 +366,7 @@ items:
 
   - id: journal-3-posts-edition-manifesto-noindex
     title: "Journal — 3 BFS-voice posts on the edition, the manifesto, and the noindex page (subtask [3/3] — completes the arc)"
-    commit: pending
+    commit: 3c6b8d1
     date: 2026-05-14
     surface: seo
     tags: [journal, editorial-content, prose-jsx, bfs-voice, manifesto, edition, dispatch-commitment, noindex, robots, intent, register, article-jsonld, sitemap, rss, opengraph-image, curly-quotes, em-emphasis, blockquote, no-new-primitives, no-new-deps, no-new-tokens, no-new-fonts, task-driven, split-subtask, arc-completion]
