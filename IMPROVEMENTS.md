@@ -5,6 +5,64 @@ One entry per run. Newest first.
 
 ---
 
+## 2026-05-14 — Focus-ring token sweep — remove 6 dim overrides so checkout + journal interactive elements inherit the strong global `:focus-visible`
+
+**Area.** `chrome` · `system` — six `:focus-visible` overrides in `src/app/globals.css` deleted so the affected interactive elements (one on `/checkout`, five on `/journal/[slug]` and `/journal`) inherit the site's global `:focus-visible` rule (`outline: 2px solid var(--color-ring)` + `outline-offset: 4px` + `box-shadow: 0 0 0 6px rgba(0,0,0,0.5)` halo + a `var(--dur-1)` transition).
+
+**Why it's the focus.** Regular-discovery pick. The two open To-do Notion tasks (image-gen + motion-vocabulary) are both still flagged as split candidates by the prior run's documented follow-ups, and the same compound-risk reasoning the previous picker logged (splitting + first-time-use of image-gen + autonomous verification within the cron window) still applies — deferred again with a follow-up logged. Instead picked a high-rubric a11y/hygiene S-effort move from the open backlog: `checkout-input-focus-ring-token-drift` (medium, a11y) plus a wider sweep that surfaced 5 sibling drift sites on the journal surface. The site's strong global `:focus-visible` rule was already correct — these 6 sites quietly opted out of it with a much weaker pattern (`outline: 1px solid var(--color-line-2)` — half the ring weight, no halo, no transition, and `--color-line-2` `#2a2a2a` vs `--color-ring` `#ffffff` on a matte ground). WCAG 2.4.7 fail on each.
+
+**Mode.** Shipped.
+
+**Risk band.** `low` — pure CSS deletion (~24 LOC removed, 0 LOC added) in the body of `globals.css` (not the design-token block at the top), no JSX touched, no shared primitive, no SEO surface, no config files, 1 file touched. Direct-commit to main per `risk-rules.md` low-band default.
+
+**What ships.**
+- `src/app/globals.css` — delete 6 `:focus-visible` override rules so the global cascade applies:
+  1. `.checkout-input:focus-visible` (line ~5827 — checkout email / first name / last name / address / city / postcode / country text inputs).
+  2. `.journal-foot-return:focus-visible` (line ~6675 — 'Return to the catalogue' link in the journal index foot).
+  3. `.journal-breadcrumb-link:focus-visible` (line ~6730 — 'Journal' breadcrumb link on `/journal/[slug]`).
+  4. `.journal-prose a:focus-visible` (line ~6982 — every inline link inside long-form journal post body prose).
+  5. `.journal-post-return:focus-visible` (line ~7038 — 'Return to the journal' link at the bottom of each post).
+  6. `.journal-related-link:focus-visible` (line ~7117 — large related-post card links at the bottom of each post).
+
+**Architecture.** The fix is a deletion, not a replacement — the global `:focus-visible` rule at `globals.css:80-86` already provides exactly the focus styling these elements should have, only better. The companion `.<x>:hover, .<x>:focus-visible { color: #fff }` rules that lived alongside each override are preserved, so the per-element color tracking on focus still works. The `.journal-prose a` background-size underline reveal still triggers on focus too — `background-size: 100% 1px` is set on `.journal-prose a:hover, .journal-prose a:focus-visible { ... }`, untouched. Three of the deleted overrides used `outline-offset: 6px` instead of the global default 4px; that surface-level variance is dropped here as a non-issue (4px is the site's standard, and the halo provides additional separation). If a future ship needs surface-specific offset, file it as a focused outline-offset variant rather than reintroducing the weaker pattern.
+
+**Verification.**
+- `bun run lint` — 0 errors + 7 pre-existing tooling warnings (unchanged set in `.claude/improvement/scripts/*.mjs`).
+- `bunx tsc --noEmit` — clean.
+- `bun run build` — 48/48 static routes (unchanged from previous run).
+- Compiled-CSS grep — `outline:1px solid var(--color-line-2)` returns 0 matches in `.next/static/chunks/*.css` (was 6 pre-ship). Affected class names (`.checkout-input`, `.journal-foot-return`, `.journal-breadcrumb-link`, `.journal-prose`, `.journal-post-return`, `.journal-related-link`) still present in compiled CSS chunks — none of the deletion accidentally tore down a class.
+- `anti-patterns.mjs` — 0 findings.
+- perf-a11y — 0 bytes JS delta (pure CSS deletion), CSS net reduction ~700 bytes pre-minification, no LCP/CLS/INP impact (focus rings only paint on keyboard interaction).
+- a11y — net win: WCAG 2.4.7 Focus Visible now passes on 6 cross-cutting elements with the proper 2px white + 6px halo + 4px offset + transition. The `transition: outline-offset var(--dur-1) var(--ease-out-quart)` means the ring animates into place on focus rather than hard-snapping.
+
+**Rubric.** T:2 M:0 L:2 I:2 A:3 D:1 = **10/18** (Solid; clears the >8 abort threshold). T:2 for trust-the-global-system token discipline (a deletion that lets the existing design system do its job, rather than per-surface re-invention). M:0 (no motion change; the focus-ring transition that's now applied is part of the inherited global rule, not new motion). L:2 for the consolidation around a single global rule — reduces drift surface for future ships and removes 6 sites where a future a11y audit could quietly regress again. I:2 because every keyboard-tab on `/checkout` text inputs, every link in `/journal` long-form prose, every breadcrumb / return / related-card on journal post pages now shows a clear strong focus ring — 6 distinct interaction sites worth of impact, even if invisible to mouse users. A:3 closes a real WCAG hole on 6 elements simultaneously. D:1 acknowledges the move is clean but not register-defining — it's letting the existing system do its job.
+
+**Screenshots.** `.claude/improvement/screenshots/b2f7c64/focus-ring-token-sweep-desktop.png` + `.claude/improvement/screenshots/b2f7c64/focus-ring-token-sweep-mobile.png` (informational — focus rings only paint on keyboard interaction, so the captured frames don't show the win; filed `focus-ring-token-sweep-screenshot-evidence` as a follow-up to extend `capture-ship.mjs` with a `--focus-element` flag).
+
+**SOTD comparison.** Skipped — `sotd-compare.mjs` still returns `skipped: could not parse SOTD entry — gallery markup may have changed` (sotd-parser-fix backlog item open).
+
+**Notion.** Reports row append attempted via MCP (NOTION_TOKEN unset). No task to claim — regular-discovery pick. Tasks DB checked: 2 open To-do tasks remain (image-gen + motion-vocabulary), neither claimed this run, both deferred per the prior picker's documented exception. `notion-sync.mjs append-report` skipped due to no NOTION_TOKEN; MCP `notion-create-pages` used directly for the Reports row.
+
+**Expected impact.** Keyboard users on `/checkout` and `/journal` immediately see a strong focus ring on every focused interactive element instead of a barely-visible 1px dim outline. Six cross-cutting WCAG 2.4.7 violations close. Future a11y audits have one less drift pattern to flag because the override surface is reduced — sites that want to differ from the global rule now have to do so explicitly.
+
+**Files modified.**
+- `src/app/globals.css` (~24 LOC deleted across 6 rule blocks)
+
+**Follow-ups uncovered.**
+- `focus-ring-token-sweep-extended-audit` (low, a11y) — audit `src/app/globals.css` for other `:focus-visible` overrides that diverge from the global rule (different/weaker tokens, `outline: none`, dim outline-color); decide per-site whether each override is intentional.
+- `focus-ring-token-sweep-screenshot-evidence` (low, hygiene) — extend `capture-ship.mjs` with a `--focus-element=<selector>` flag so future a11y-focus ships can capture visual evidence of focus-ring fixes.
+- `checkout-form-floating-label-dead-selector-cleanup` (low, hygiene) — the dead `.checkout-input:focus ~ .checkout-label` rule at `globals.css:5847` remains but is genuinely dead (the JSX renders label before input, so `~` from input cannot match); the companion `.checkout-field:focus-within .checkout-label` rule one line down at 5848 already does the work via descendant combinator. Item already in backlog; severity downgraded medium → low, class changed distinctive → hygiene, line reference corrected to 5847 (was 5346-5350).
+
+**Backlog closed-by-drift.**
+- `index-menu-focus-ring` (low, a11y) — verified during this ship that the IndexMenu link rules at `globals.css:622-624 / 635-636 / 677-678` only set color on `:focus-visible` and do NOT override the global rule at line 80-86. The strong 2px ring + 6px halo + 4px offset + transition cascades through correctly on top of the color change. The original auditor finding that the links "rely on color-only `:focus-visible`" was a misread of the cascade — the global rule still applies.
+
+**Backlog closed-by-ship.**
+- `checkout-input-focus-ring-token-drift` (medium, a11y) — handled together with five sibling overrides on the journal surface by deleting the dim rule entirely, letting the global `:focus-visible` cascade apply. Simpler than the originally proposed "align to `--color-ring` / 2px" path because the global rule already provides exactly that, only better.
+
+**Periodic triggers fired.** None — last retro 2026-05-13 (1d ago, weekly cadence ≥ 7d not yet due), last critic 2026-05-13 (1d, monthly cadence ≥ 28d not yet due), last calibration 2026-05-14 (today, 7-day cooldown active and `shipped_count=43` not a multiple of 10), creativity-reset blocked by `consecutive_no_focus_runs=0`.
+
+---
+
 ## 2026-05-14 — Journal — 3 BFS-voice posts on the edition, the manifesto, and the noindex page (subtask [3/3] — completes the arc)
 
 **Area.** `seo` · `system` — 3 new journal posts added under `src/data/journal/`. Subtask [3/3] of parent task 'Write 10 BFS-voice journal posts' — completes the 11-post arc (seed + 10). Posts: `the-physics-of-an-edition` (capped editions, 48-hour dispatch as commitment, the reprint we will not make), `against-the-saas-template` (the three-card stage cue, the hero-features-pricing reflex, BFS as one alternative), `why-we-noindex-the-checkout` (robots as editorial intent, the back-room register of the checkout, the 404 as the only page that acknowledges absence).

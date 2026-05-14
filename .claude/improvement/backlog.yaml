@@ -97,11 +97,23 @@ items:
     severity: low
     effort: S
     class: a11y
-    status: open
+    status: closed-by-drift
     files:
       - src/app/globals.css:417-712
     opened_on: 2026-05-13
-    last_verified: 2026-05-13
+    last_verified: 2026-05-14
+    notes: |
+      Closed by drift 2026-05-14 — verified during the focus-ring-token-
+      sweep-checkout-and-journal ship that the IndexMenu link rules at
+      globals.css:622-624 / 635-636 / 677-678 only set color on
+      :focus-visible and do NOT override the global :focus-visible rule
+      at globals.css:80-86. The strong 2px var(--color-ring) outline +
+      6px halo box-shadow + 4px outline-offset + transition therefore
+      cascades through to IndexMenu links correctly on top of the color
+      change. The original auditor finding that the rules "rely on
+      color-only :focus-visible" was a misread of the cascade — the
+      global rule still applies. No code change needed; sibling drift
+      shipped this run on six other surfaces.
 
   - id: newsletter-reset-path
     title: Newsletter form locks forever after submit
@@ -626,21 +638,22 @@ items:
       Source — interactions auditor on press-clipping-register run.
 
   - id: checkout-form-floating-label-dead-selector
-    title: Checkout floating-label sibling combinator silently never matches
+    title: Checkout floating-label dead `~` sibling selector — cleanup
     ship: |
       The `.checkout-input:focus ~ .checkout-label` rule
-      (globals.css:5346-5350) targets a next-sibling label, but the
+      (currently at globals.css:5847) targets a next-sibling label, but the
       JSX (`checkout-form.tsx:188-205`) renders the label BEFORE the
-      input — `~` from input to label cannot match. Seven dead
-      micro-interactions today. Either flip DOM order (label after
-      input + flex `order: -1`) or switch the selector to
-      `:focus-within > .checkout-label`.
-    severity: medium
+      input — `~` from input to label cannot match. Delete the rule;
+      the companion `.checkout-field:focus-within .checkout-label`
+      rule on the next line already does the work correctly via
+      descendant combinator. Dead-code cleanup only — micro-interaction
+      is currently working.
+    severity: low
     effort: S
-    class: distinctive
+    class: hygiene
     status: open
     files:
-      - src/app/globals.css:5346-5350
+      - src/app/globals.css:5847
       - src/components/checkout-form.tsx:188-205
     opened_on: 2026-05-13
     last_verified: 2026-05-13
@@ -680,13 +693,24 @@ items:
     severity: medium
     effort: S
     class: a11y
-    status: open
+    status: shipped
     files:
       - src/app/globals.css:5326-5329
     opened_on: 2026-05-13
-    last_verified: 2026-05-13
+    last_verified: 2026-05-14
     notes: |
       Source — interactions auditor on press-clipping-register run.
+      Shipped 2026-05-14 (commit pending) — handled together with five
+      sibling overrides on the journal surface (journal-foot-return,
+      journal-breadcrumb-link, journal-prose a, journal-post-return,
+      journal-related-link) by deleting the dim override entirely so the
+      site's global :focus-visible rule at globals.css:80-86 (2px solid
+      var(--color-ring) + 6px halo box-shadow + 4px offset + transition)
+      cascades correctly. Single-rule deletion was simpler than the
+      originally proposed "align to --color-ring / 2px" path because the
+      global rule already provides exactly that — only better, with the
+      halo and the transition. See ship focus-ring-token-sweep-checkout-
+      and-journal for full delta.
 
   - id: nav-cart-magnetic-class
     title: Replace `.nav > .magnetic` descendant selector with an explicit class
@@ -1881,3 +1905,58 @@ items:
     last_verified: 2026-05-14
     dq_count: 0
     notes: "Cleaned up in Phase 0 of the customer-reviews run. If this happens again, consider whether the cron should periodically scan for In progress + no Commit + Started > 1 day ago, and either release them back to To do or flag them for human review."
+
+  - id: focus-ring-token-sweep-extended-audit
+    title: Audit other rare :focus-visible overrides that diverge from the global rule
+    ship: |
+      The focus-ring-token-sweep ship deleted 6 dim overrides
+      (outline: 1px solid var(--color-line-2)) but only audited that
+      one pattern. Sweep src/app/globals.css for any other
+      :focus-visible rules that override the global rule at
+      globals.css:80-86 with different/weaker tokens — e.g.
+      `outline: 1px solid <other>`, `outline: none`, `outline-color:
+      <dim>` — and decide per-site whether the override is intentional
+      (rare) or should be removed so the global cascade applies.
+    severity: low
+    effort: S
+    class: a11y
+    status: open
+    files:
+      - src/app/globals.css
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    dq_count: 0
+    notes: |
+      Source — focus-ring-token-sweep ship 2026-05-14. The sweep
+      targeted the specific 'outline: 1px solid var(--color-line-2)'
+      drift pattern but the file has ~25 :focus-visible rules; a
+      future pass can catch any other quiet weakenings.
+
+  - id: focus-ring-token-sweep-screenshot-evidence
+    title: Visual diff for focus-ring-token-sweep — focus rings are paint-on-keyboard so the capture-ship desktop/mobile screenshots don't show the win
+    ship: |
+      The focus-ring-token-sweep ship captured the standard desktop
+      and mobile screenshots via capture-ship.mjs, but focus rings
+      only paint when the user keyboard-tabs. The screenshots show
+      the page without any element focused, so the visual evidence
+      of the fix is absent. Either (a) extend capture-ship.mjs with
+      a --focus-element=<selector> flag that programmatically focuses
+      an element before screenshotting, or (b) add a one-off
+      visual-diff comparison script that fires Tab N times on a
+      known path and screenshots the result. Useful for any future
+      a11y-focus ship that needs visual evidence.
+    severity: low
+    effort: M
+    class: hygiene
+    status: open
+    files:
+      - .claude/improvement/scripts/capture-ship.mjs
+      - .claude/improvement/scripts/visual-diff.mjs
+    opened_on: 2026-05-14
+    last_verified: 2026-05-14
+    dq_count: 0
+    notes: |
+      Source — focus-ring-token-sweep ship 2026-05-14. Non-blocking
+      observation; the lint/type/build/anti-pattern signal is enough
+      for low-risk CSS-only ships, but visual diff coverage on a11y
+      moves would tighten the cron's verification.

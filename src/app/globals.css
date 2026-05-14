@@ -5824,10 +5824,6 @@ main.pdp ~ .folio {
   outline: none;
   border-bottom-color: rgba(255, 255, 255, 0.6);
 }
-.checkout-input:focus-visible {
-  outline: 1px solid var(--color-line-2);
-  outline-offset: 4px;
-}
 .checkout-textarea {
   resize: vertical;
   min-height: 72px;
@@ -6672,10 +6668,6 @@ main.pdp ~ .folio {
 .journal-foot-return:focus-visible {
   color: #fff;
 }
-.journal-foot-return:focus-visible {
-  outline: 1px solid var(--color-line-2);
-  outline-offset: 6px;
-}
 .journal-foot-return-arrow {
   display: inline-block;
   transition: transform var(--dur-3) var(--ease-out-quart);
@@ -6726,10 +6718,6 @@ main.pdp ~ .folio {
 .journal-breadcrumb-link:hover,
 .journal-breadcrumb-link:focus-visible {
   color: #fff;
-}
-.journal-breadcrumb-link:focus-visible {
-  outline: 1px solid var(--color-line-2);
-  outline-offset: 4px;
 }
 .journal-breadcrumb-arrow {
   display: inline-block;
@@ -6979,10 +6967,6 @@ main.pdp ~ .folio {
 .journal-prose a:focus-visible {
   background-size: 100% 1px;
 }
-.journal-prose a:focus-visible {
-  outline: 1px solid var(--color-line-2);
-  outline-offset: 4px;
-}
 
 /* ============ POST FOOTER ============ */
 .journal-post-foot {
@@ -7034,10 +7018,6 @@ main.pdp ~ .folio {
 .journal-post-return:hover,
 .journal-post-return:focus-visible {
   color: #fff;
-}
-.journal-post-return:focus-visible {
-  outline: 1px solid var(--color-line-2);
-  outline-offset: 6px;
 }
 .journal-post-return-arrow {
   display: inline-block;
@@ -7113,10 +7093,6 @@ main.pdp ~ .folio {
   gap: 22px;
   color: inherit;
   text-decoration: none;
-}
-.journal-related-link:focus-visible {
-  outline: 1px solid var(--color-line-2);
-  outline-offset: 6px;
 }
 .journal-related-frame {
   position: relative;
