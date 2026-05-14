@@ -390,7 +390,7 @@ items:
 
   - id: outro-wordmark-scroll-driven-settle
     title: "Outro wordmark — scroll-driven settling (animation-timeline: view()) on the closing BFS at the page foot"
-    commit: pending
+    commit: 6a5a8e9
     date: 2026-05-14
     surface: outro
     tags: [outro, chrome, footer, wordmark, motion, scroll-driven, animation-timeline, view-timeline, letter-spacing, text-stroke, css-only, no-js, no-new-primitives, no-new-deps, reduced-motion, supports-fallback, awwwards-current, regular-pick, cold-surface]
