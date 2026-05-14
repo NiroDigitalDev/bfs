@@ -342,7 +342,7 @@ items:
 
   - id: journal-3-posts-pigment-paper-seal
     title: "Journal — 3 BFS-voice posts on pigment, paper, and the seal (subtask [1/3] of 10-post task)"
-    commit: pending
+    commit: dfc885c
     date: 2026-05-14
     surface: seo
     tags: [journal, editorial-content, prose-jsx, bfs-voice, article-jsonld, sitemap, rss, opengraph-image, instrument-serif, italic-serif, curly-quotes, em-emphasis, blockquote, no-new-primitives, no-new-deps, no-new-tokens, no-new-fonts, task-driven, split-subtask]

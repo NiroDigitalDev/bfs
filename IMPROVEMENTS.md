@@ -140,7 +140,7 @@ sotd-parser-fix backlog item still open).
 flipped to Status: Split with Subtasks column populated with the 3
 new subtask URLs. Subtask [1/3]
 `360af8d3-d3e2-81c5-b589-c8125c18504e` claimed → In progress →
-Done (Completed: 2026-05-14, Commit: `<sha>`, Surface auto-derived
+Done (Completed: 2026-05-14, Commit: `dfc885c`, Surface auto-derived
 as `seo` from the diff). Subtasks [2/3] `360af8d3-d3e2-8104-add9-eabcfda776bf`
 and [3/3] `360af8d3-d3e2-810a-8282-c1e54dde1343` remain at Status:
 To do for future runs. Reports row appended via MCP fallback
