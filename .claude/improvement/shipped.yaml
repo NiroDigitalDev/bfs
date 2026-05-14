@@ -278,7 +278,7 @@ items:
 
   - id: surface-journal-nav-and-homepage-block
     title: Surface /journal — 5th nav item + IndexMenu entry + footer link + homepage "from the journal" dispatch block
-    commit: pending
+    commit: 3a54460
     date: 2026-05-14
     surface: nav
     tags: [journal, nav, chrome, index-menu, mobile-toc, outro-links, from-journal, internal-linking, aria-current, italic-serif, hairline-rule, reveal, magnetic, prefers-reduced-motion, no-new-deps, content-discovery, seo-internal-links]

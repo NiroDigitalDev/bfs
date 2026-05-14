@@ -9,8 +9,8 @@
 version: 1
 
 # Last-run telemetry — written at the end of every run.
-last_run_at: 2026-05-14T00:00:00Z
-last_run_commit: 7add279
+last_run_at: 2026-05-14T01:00:00Z
+last_run_commit: 3a54460
 last_run_mode: shipped   # shipped | no-focus | pr-opened
 
 # Anti-stagnation — incremented on every no-focus run, reset to 0 on ship.
@@ -20,7 +20,7 @@ consecutive_no_focus_runs: 0
 
 # Shipped-count — incremented on every shipped (not no-focus) run.
 # When this becomes a multiple of 10, Phase 0 fires the rubric-calibrator.
-shipped_count: 31   # +1: journal-display-vocabulary-align direct-to-main (task-driven, medium risk — Notion task "Apply hero display-type vocabulary to /journal, /supplies, /checkout"; audit revealed PDP + journal-post already match canonical pattern, checkout deferred per brief intent, only /journal index diverged; promoted .journal-display markup + CSS block from a static italic flex-stack to the canonical word-1/word-2 asymmetric composition with SplitText reveal + -webkit-text-stroke outline on word 2; smaller clamp scale clamp(56,10vw,144) preserved by design — index is chapter heading not cover; net diff: 2 files, +36/-9 LOC, 3 SplitText instances on /journal, 0 new deps, 0 new tokens, 0 new RM logic; calibration-day run — rubric-calibrator fired and returned DRIFTING verdict (mean Δ -1.8 across last 10 ships, picker awarding L/M one band high on foundation/infra work); scoring this ship deliberately conservative in response — T2 M2 L2 I2 A3 D2 = 13/18 Distinctive band)
+shipped_count: 32   # +1: surface-journal-nav-and-homepage-block direct-to-main (task-driven, medium risk — Notion task "Surface /journal in the site nav + homepage 'from the journal' block"; /journal was orphaned after four prior journal-* ships built the route end-to-end with no entry path on the site; this run lands four touchpoints — homepage desktop nav 5th item, mobile IndexMenu 5th entry, outro footer Journal link, and a new .from-journal editorial dispatch interstitial between Field Notes and FAQ; reuses <Reveal>/<Magnetic>/getAllPosts/romanNumeral/formatJournalDate only, zero new components/deps/tokens; side fix adds aria-current="page" to /journal/<slug> nav; net diff: 4 src files +278/-1 LOC; build clean, 0 anti-patterns, SSR confirms 5 nav items + 6 href="/journal" anchors + aria-current on both /journal and /journal/<slug>; rubric T2 M1 L2 I3 A3 D2 = 13/18 Distinctive — calibration-conservative score paralleling last run's 13/18 per DRIFTING verdict)
 
 # Periodic cron triggers — Phase 0 compares against today's date and
 # fires the corresponding agent when the gap exceeds the cadence.
