@@ -173,6 +173,28 @@ export function SpecimenPlate({ plate }: { plate: PlateSpec }) {
             className="spec-plate-line spec-plate-rule"
           />
         </g>
+
+        {/* Edition tag — bottom-right printer's bug, revealed on
+            chapter-figure hover / focus-within (CSS-driven). */}
+        {plate.edition !== undefined && (
+          <g className="spec-plate-edition">
+            <line
+              x1="342"
+              y1="464"
+              x2="378"
+              y2="464"
+              className="spec-plate-line spec-plate-edition-rule"
+            />
+            <text
+              x="378"
+              y="472"
+              textAnchor="end"
+              className="spec-plate-edition-text"
+            >
+              ED.&#8202;{plate.edition}
+            </text>
+          </g>
+        )}
       </svg>
     </div>
   );

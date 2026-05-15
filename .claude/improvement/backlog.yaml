@@ -2981,3 +2981,98 @@ items:
     dq_count: 0
     notes: |
       Source — perf-a11y audit on manifesto-item-as-sans-card ship.
+
+  - id: catalogue-spc-edition-hover-scribble
+    title: "Catalogue specimen-plate gains a hover/focus-revealed ED. <run> printer's bug"
+    ship: |
+      Extend SpecimenPlate with a fifth corner mark — italic-serif
+      "ED. <edition>" smallcaps + 36-unit hairline rule drawing in
+      via stroke-dashoffset on .chapter-figure:hover OR
+      .chapter:focus-within (parent <article> trigger so keyboard
+      focus on .chapter-spec-link reveals it too).
+    severity: high
+    effort: S
+    class: distinctive
+    status: shipped
+    files:
+      - src/data/products.ts
+      - src/components/specimen-plate.tsx
+      - src/app/globals.css
+    opened_on: 2026-05-15
+    last_verified: 2026-05-15
+    dq_count: 0
+    notes: |
+      Reference-scout-grounded (outfit.hellohello.is observed via
+      WebFetch). Picked over journal-index-as-contents-spread (tied
+      at 15/18) on tiebreaker #1 lower-effort (S vs L). Rubric:
+      T3 M2 L2 I2 A3 D3 = 15/18.
+
+  - id: plate-edition-counts-editorial-validation
+    title: Validate 5 of 6 PlateSpec edition counts (only void-book's 250 is grounded in prose)
+    ship: |
+      Five of six edition counts seeded by catalogue-spc-edition-hover-scribble
+      (abyssal-cardstock:400, event-horizon-pad:360, sticky-voids:1000,
+      savior-pen:180, executive-despair:220) are plausible editorial
+      guesses. Only void-book:250 is grounded in pressNotes prose at
+      products.ts:60 ("We bind these books in runs of 250"). Either
+      validate the others against editorial intent or align by mirroring
+      the void-book pattern: cite the run-size in each product's
+      pressNotes prose so PlateSpec.edition has a textual anchor.
+    severity: low
+    effort: S
+    class: content
+    status: open
+    files:
+      - src/data/products.ts
+    opened_on: 2026-05-15
+    last_verified: 2026-05-15
+    dq_count: 0
+    notes: |
+      Source — diff-reviewer audit on catalogue-spc-edition-hover-scribble ship.
+
+  - id: spec-plate-ink-token-promotion
+    title: Promote .spec-plate-* inline rgba(255,255,255,<alpha>) literals to --plate-ink-<n> token series
+    ship: |
+      The entire `.spec-plate-*` block at globals.css:4762-4986 uses
+      inline `rgba(255,255,255,<alpha>)` literals across ~10 alpha
+      stops (0.18 / 0.28 / 0.32 / 0.34 / 0.38 / 0.42 / 0.46 / 0.55 /
+      0.78 / 0.92). Promote to `--plate-ink-1` … `--plate-ink-N`
+      token series in the `@theme inline` block and migrate every
+      `.spec-plate-*` rule in one sweep so the convention is
+      consistent.
+    severity: low
+    effort: M
+    class: hygiene
+    status: open
+    files:
+      - src/app/globals.css
+    opened_on: 2026-05-15
+    last_verified: 2026-05-15
+    dq_count: 0
+    notes: |
+      Source — diff-reviewer audit on catalogue-spc-edition-hover-scribble ship.
+
+  - id: chapter-figure-hover-edition-reveal-on-pdp
+    title: Add .pdp-specimen-frame:hover/:focus-within reveal selectors for the new spec-plate-edition <g>
+    ship: |
+      The PDP cover plates render the new `<g class="spec-plate-edition">`
+      (one per PDP × 6) at idle opacity:0 / stroke-dashoffset:36 but
+      no reveal selector fires there — PDPs use `.pdp-specimen-frame`
+      not `.chapter` / `.chapter-figure`. The edition info on PDPs
+      is already disclosed in the `dl` colophon block, so the markup
+      is a decorative-only payload today. If we want PDP visitors to
+      see the same hover-reveal beat the homepage gets, add
+      `.pdp-specimen-frame:hover .spec-plate-edition-text,
+       .pdp-specimen-frame:focus-within .spec-plate-edition-text { opacity: 1 }`
+      + sibling pair for `.spec-plate-edition-rule`. Two CSS lines.
+    severity: low
+    effort: S
+    class: distinctive
+    status: open
+    files:
+      - src/app/globals.css
+    opened_on: 2026-05-15
+    last_verified: 2026-05-15
+    dq_count: 0
+    notes: |
+      Source — perf-a11y audit on catalogue-spc-edition-hover-scribble ship.

@@ -13,6 +13,7 @@ export type PlateSpec = {
   unit: "mm" | "in";
   gauge: string;
   azimuth: number;
+  edition?: number;
 };
 
 export type Review = {
@@ -53,7 +54,7 @@ export const products: Product[] = [
     copy:
       "Hardbound A5. One hundred and ninety-two pages of matte coated black, calibrated to refuse reflectance. Unlined, unmargined, unsentimental.",
     tags: ["core series", "48h dispatch"],
-    plate: { fig: "I", w: "148", h: "210", unit: "mm", gauge: "120 g/m²", azimuth: 6 },
+    plate: { fig: "I", w: "148", h: "210", unit: "mm", gauge: "120 g/m²", azimuth: 6, edition: 250 },
     pressNotes: [
       "We tested seven stocks before settling on this one. The matte coat is calibrated to absorb the room, not to mirror it; the page reads as a held breath, not a polished surface.",
       "Smyth-sewn signatures lay flat under the hand. The spine resists fanning; the cover refuses fingerprints with a soft varnish that reads as nothing at all.",
@@ -99,7 +100,7 @@ export const products: Product[] = [
     copy:
       "Fifty sheets, dyed through the core. Heavy enough to register as material. Feed it by hand or feed it to the laser. Either is permitted.",
     tags: ["heavy stock"],
-    plate: { fig: "II", w: "210", h: "297", unit: "mm", gauge: "500 g/m²", azimuth: 32 },
+    plate: { fig: "II", w: "210", h: "297", unit: "mm", gauge: "500 g/m²", azimuth: 32, edition: 400 },
     pressNotes: [
       "Dyed through the core, not surface-coated. The black does not fail under a knife edge, a laser cut, or a steady hand with a folding bone.",
       "Five hundred grams per square metre is the threshold at which paper begins to register as material. Below it, you are pressing against air; above it, you have entered the territory of board.",
@@ -145,7 +146,7 @@ export const products: Product[] = [
     copy:
       "Top-bound forty-leaf pad with a tooth ground for pastel, charcoal, and gouache. Twin-loop wire. Quietly demanding of the hand holding it.",
     tags: ["studio"],
-    plate: { fig: "III", w: "190", h: "260", unit: "mm", gauge: "160 g/m²", azimuth: 348 },
+    plate: { fig: "III", w: "190", h: "260", unit: "mm", gauge: "160 g/m²", azimuth: 348, edition: 360 },
     pressNotes: [
       "The tooth was ground over four passes, then sealed against the breath of the room. Pastel anchors. Charcoal lifts cleanly. Gouache stays where it is set.",
       "Top-bound on twin-loop wire. The leaves tear at a single perforation line; the pad survives the studio season without the cover collapsing under its own habit.",
@@ -191,7 +192,7 @@ export const products: Product[] = [
     copy:
       "Three pads, one hundred leaves each, three inches square. High-tack adhesive, low-residue release. Instruction for those who already understood.",
     tags: ["low-volume"],
-    plate: { fig: "IV", w: "76", h: "76", unit: "mm", gauge: "70 g/m²", azimuth: 90 },
+    plate: { fig: "IV", w: "76", h: "76", unit: "mm", gauge: "70 g/m²", azimuth: 90, edition: 1000 },
     pressNotes: [
       "High-tack adhesive, low-residue release. Applied to glass, varnished wood, or a fellow page, they hold without leaving permanence behind.",
       "Three pads at three inches square. The number is arbitrary; the proportions are not.",
@@ -237,7 +238,7 @@ export const products: Product[] = [
     copy:
       "A 0.5 mm rollerball loaded with opaque silver-pigment gel. Acid-free, archival, calibrated for our paper and tolerant of yours.",
     tags: ["pairs with 001"],
-    plate: { fig: "V", w: "140", h: "11", unit: "mm", gauge: "0.5 mm", azimuth: 305 },
+    plate: { fig: "V", w: "140", h: "11", unit: "mm", gauge: "0.5 mm", azimuth: 305, edition: 180 },
     pressNotes: [
       "Silver-pigment gel in a half-millimetre rolling ball. Acid-free, archival, calibrated against the paper we make and patient with the paper you have on hand.",
       "The barrel is matte enamel over brushed aluminium; the clip is removable. The pen does not pretend to be a fountain pen, and we will not lie about it.",
@@ -283,7 +284,7 @@ export const products: Product[] = [
     copy:
       "Undated weekly. Fifty-two spreads deboss-struck at ninety percent K on one hundred gsm black. Bordeaux foil along the spine. Plans persist on faith.",
     tags: ["limited"],
-    plate: { fig: "VI", w: "165", h: "240", unit: "mm", gauge: "100 g/m²", azimuth: 175 },
+    plate: { fig: "VI", w: "165", h: "240", unit: "mm", gauge: "100 g/m²", azimuth: 175, edition: 220 },
     pressNotes: [
       "Undated weekly. We do not number the years; the year arrives with whatever conviction it has.",
       "Each spread is deboss-struck at ninety percent K on hundred-gram black stock. The press leaves a visible impression you can read with the fingertips.",
