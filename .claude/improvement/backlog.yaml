@@ -2588,18 +2588,21 @@ items:
     severity: medium
     effort: S
     class: distinctive
-    status: open
+    status: shipped
     files:
       - src/app/globals.css
     opened_on: 2026-05-14
-    last_verified: 2026-05-14
+    last_verified: 2026-05-15
     dq_count: 0
     notes: |
-      Notion-managed task — pick via task-driven mode by claiming
-      via MCP update-page rather than via backlog-driven pick.
-      The body brief lives in the Notion page (canonical) — this
-      backlog mirror is for reference-scout's don't-resuggest pass
-      and surface-freshness tracking; the spec is the Notion body.
+      Shipped 2026-05-15 (commit pending — backfilled in Step 9).
+      Implemented as 2 selectors (capped from brief's 4-5):
+      .btn-primary (0.16em → 0.18em, 5 mounts) and
+      .chapter:hover .chapter-eyebrow (0.3em → 0.32em, 6 instances,
+      parent-driven mirroring the existing .chapter:hover
+      .chapter-numeral rule at globals.css:1390). 20 LOC additive
+      in src/app/globals.css. Reduced-motion gate wraps the entire
+      block so RM users keep the rest state on hover.
 
   - id: motion-vocabulary-subtask-3-of-3-magnetic-reveal
     title: "[3/3] Motion — magnetic reveal extension on shared Magnetic primitive"
