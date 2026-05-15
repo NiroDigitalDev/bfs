@@ -499,7 +499,7 @@ items:
 
   - id: newsletter-editorial-register-pass
     title: "Footer newsletter form recast in italic-serif editorial register — placeholder + submit typeset in Instrument Serif italic, :focus-within hairline draw, post-submit role=status aria-live announcement with scaleX hairline rule"
-    commit: pending
+    commit: 8659092
     date: 2026-05-15
     surface: chrome
     tags: [chrome, footer, newsletter, form, editorial-register, italic-serif, instrument-serif, hairline, focus-within, aria-live, role-status, output-element, sitewide-chrome, cold-surface, auditor-pick, register-coherence, no-new-client-boundary]
