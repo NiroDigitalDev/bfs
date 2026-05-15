@@ -470,7 +470,7 @@ items:
 
   - id: cart-drawer-cta-editorial-register
     title: "Cart-drawer foot CTA rebuilt as a 2-row editorial composition — hairline-mark eyebrow '006 · Bind' + italic-serif 'Proceed' + sans 'to checkout' tail + ↗ glyph; pill → editorial rectangle"
-    commit: pending
+    commit: 8771e67
     date: 2026-05-15
     surface: cart
     tags: [cart, drawer, typography, italic-serif, instrument-serif, eyebrow-vocabulary, register-parity, manifest-ordinal, editorial-rectangle, hover-fill-preserved, dead-code-removal, no-new-tokens, no-new-fonts, no-new-keyframes, cold-surface, auditor-pick]
