@@ -3268,16 +3268,15 @@ items:
     severity: low
     effort: S
     class: distinctive
-    status: open
+    status: shipped
     files:
-      - src/components/journal-folio.tsx
-      - src/app/privacy/page.tsx
-      - src/app/terms/page.tsx
-      - src/app/cookies/page.tsx
+      - src/components/legal-folio.tsx
+      - src/components/legal-page-frame.tsx
+      - src/app/globals.css
     opened_on: 2026-05-15
     last_verified: 2026-05-15
     dq_count: 0
-    notes: Explicit out-of-scope in journal-folio-on-journal-routes spec. Less editorial than journal but completes the masthead spine coverage. Legal routes use legal-page-frame.tsx — likely a folio insertion there for all three at once.
+    notes: Shipped 2026-05-15 as legal-folio-on-legal-routes (commit pending) via a new server component <LegalFolio> mounted in legal-page-frame.tsx, with lowercase Roman (i/ii/iii) instead of uppercase to typeset the legal routes as appendices to Vol. III rather than chapters of it. The naming evolved from '§ III · Statutory' (this backlog item's hint) to '§ · Statutory · <Slug>' with italic-serif slug — the slug name reads better than a static 'Statutory' label since the three routes are visually distinct.
 
   - id: journal-folio-scroll-bound-piece-swap-on-index
     title: "Floema-style scroll-driven piece-index swap on /journal index — folio reads change as the reader scrolls through the entries"
@@ -3291,3 +3290,44 @@ items:
     last_verified: 2026-05-15
     dq_count: 0
     notes: Deferred reference-scout move (Floema running-folio). The /journal index currently shows static 'pp. I–XI' — could become 'Piece <roman>' as each entry enters the viewport, matching the chapter-driven RunningFolio's scroll-bound active state on /. Single-surface, ~80 LOC; needs an IntersectionObserver on .journal-entries-item.
+
+  - id: legal-folio-slug-type-canonicalisation
+    title: "Canonicalise LegalSlug union — promote `'privacy' | 'terms' | 'cookies'` to @/lib/site or a shared @/lib/legal"
+    severity: low
+    effort: S
+    class: hygiene
+    status: open
+    files:
+      - src/components/legal-folio.tsx
+      - src/components/legal-page-frame.tsx
+      - src/lib/site.ts
+    opened_on: 2026-05-15
+    last_verified: 2026-05-15
+    dq_count: 0
+    notes: Flagged by diff-reviewer on legal-folio-on-legal-routes. The `Slug` type is currently redeclared inside both legal-folio.tsx (line 1) and legal-page-frame.tsx (LegalPageFrameProps:7) — minor drift risk if a fourth statutory page is ever added (e.g. /accessibility, /shop-terms). One canonical export in @/lib/site (e.g. `export type LegalSlug = 'privacy' | 'terms' | 'cookies'`) or a new @/lib/legal would dedupe + give the ordinal map a single source of truth. Defer until a fourth statutory page is actually planned — the current duplication is bounded.
+
+  - id: legal-folio-fraction-sep-hardcoded-colors
+    title: "Tokenise .folio[data-variant='legal'] .folio-sep-fraction colors (14px + rgba(255,255,255,0.7))"
+    severity: low
+    effort: S
+    class: hygiene
+    status: open
+    files:
+      - src/app/globals.css
+    opened_on: 2026-05-15
+    last_verified: 2026-05-15
+    dq_count: 0
+    notes: Flagged by diff-reviewer on legal-folio-on-legal-routes. Matches the established .folio block convention (the journal-variant counterpart at globals.css:4800-4810 uses the same literals); rolls into the existing folio-color-token-promotion sweep rather than a one-off fix. Tokenise both legal + journal `.folio-sep-fraction` blocks together in the same sweep.
+
+  - id: capture-ship-stale-server-on-3000
+    title: "capture-ship.mjs blocked by stale next-server holding port 3000 — promote from shipped-notes carry-over to proper backlog item"
+    severity: high
+    effort: M
+    class: infra
+    status: open
+    files:
+      - .claude/improvement/scripts/capture-ship.mjs
+    opened_on: 2026-05-15
+    last_verified: 2026-05-15
+    dq_count: 0
+    notes: This blocker has been carrying as shipped.yaml notes only for 9 consecutive ships, all of which exited with the identical 'server did not become ready within 30s' error. The documentation gap from never opening a proper backlog item is itself the systemic issue — promoted to backlog this run (legal-folio-on-legal-routes) so the picker can finally consider it. Likely fixes - (a) capture-ship.mjs detects an existing listener on :3000 and reuses it instead of spawning a fresh `bun run start`, (b) the script kills any pre-existing :3000 listener before its own spawn, (c) the wait-for-ready timeout extends past 30s. Option (a) is the cleanest — if a dev server is already running, the screenshot run should piggyback on it. The infra fix probably costs an hour of work and unblocks visual-diff for every subsequent ship.

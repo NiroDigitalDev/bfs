@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
+import { LegalFolio } from "@/components/legal-folio";
 import { Magnetic } from "@/components/magnetic";
 import { site } from "@/lib/site";
 
@@ -111,6 +112,8 @@ export function LegalPageFrame({
           <em>{site.edition}</em>
         </span>
       </footer>
+
+      <LegalFolio slug={slug} />
     </main>
   );
 }

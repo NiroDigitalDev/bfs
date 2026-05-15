@@ -4809,6 +4809,27 @@ html.loading body {
   color: rgba(255, 255, 255, 0.7);
 }
 
+/* Legal variant — the same folio aside rendered on /privacy /terms
+   /cookies. Lowercase Roman (i / ii / iii) per the book convention
+   for front-matter / appendix / statutory pages, in distinction from
+   the journal variant's uppercase Roman. The slug name typesets in
+   italic-serif as the right-hand label after "§ Statutory · ", and
+   the "/" fraction separator matches the journal variant register so
+   "p. i / iii" reads as proper folio pagination rather than mid-dot. */
+.folio[data-variant="legal"] .folio-legal-slug {
+  font-style: italic;
+}
+.folio[data-variant="legal"] .folio-sep-fraction {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 14px;
+  letter-spacing: 0;
+  text-transform: none;
+  opacity: 0.6;
+  color: rgba(255, 255, 255, 0.7);
+}
+
 /* ============ SPECIMEN PLATE ============
    A technical-drawing overlay laid over each product portrait. Hairline
    dimension lines, italic-numeral measurements, FIG. label, and a small
