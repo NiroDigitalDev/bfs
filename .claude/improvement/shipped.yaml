@@ -415,7 +415,7 @@ items:
 
   - id: motion-vocabulary-subtask-2-of-3-hover-letter-spacing
     title: "Motion [2/3] — hover-bound letter-spacing on .btn-primary + .chapter:hover .chapter-eyebrow (typographic micro-interaction, RM-gated, single-property transition)"
-    commit: pending
+    commit: d618203
     date: 2026-05-15
     surface: system
     tags: [system, catalogue, chrome, hover, letter-spacing, micro-interaction, typographic, css-only, no-js, no-new-primitives, no-new-deps, no-new-tokens, no-new-fonts, no-new-keyframes, reduced-motion, awwwards-current, task-driven, split-subtask, motion-vocabulary-2-of-3, resumed-in-progress]
