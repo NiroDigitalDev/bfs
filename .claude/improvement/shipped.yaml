@@ -518,7 +518,7 @@ items:
 
   - id: pdp-related-grid-symmetric-tombstone
     title: "PDP 'Two further specimens' recomposed as dictionary cross-reference — asymmetric prev/next spread with oversized italic-serif plate numerals in opposite margins and between-column hairline rule (scroll-driven scaleY draw via view-timeline)"
-    commit: pending
+    commit: f107f1b
     date: 2026-05-15
     surface: catalogue
     tags: [pdp, catalogue, related-products, recirculation, asymmetric-layout, dictionary-cross-reference, italic-serif, oversized-numeral, between-column-hairline, view-timeline, scroll-driven, plate-numeral, prev-next-folio-framing, mirror-text-align, server-component, cold-surface, auditor-pick]
