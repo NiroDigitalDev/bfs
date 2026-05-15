@@ -499,7 +499,7 @@ items:
 
   - id: legal-folio-on-legal-routes
     title: "Legal routes /privacy /terms /cookies gain LegalFolio masthead — § Statutory · <Slug> · p. <i|ii|iii> / iii · MMXXVI"
-    commit: pending
+    commit: a055974
     date: 2026-05-15
     surface: chrome
     tags: [legal, folio, running-folio, chrome, masthead, register-parity, editorial-spine, server-component, lowercase-roman, italic-serif, mix-blend-difference, aria-hidden, no-js, cold-surface, auditor-pick, reference-scout-convergence]
