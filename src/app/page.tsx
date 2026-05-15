@@ -12,6 +12,7 @@ import { IndexMenu } from "@/components/index-menu";
 import { SpecimenPlate } from "@/components/specimen-plate";
 import { SectionDivider } from "@/components/section-divider";
 import { PressStampTray } from "@/components/press-stamp-tray";
+import { ManifestoList } from "@/components/manifesto-list";
 import {
   NotebookVisual,
   CardstockVisual,
@@ -494,8 +495,8 @@ export default function Home() {
             </p>
             <PressStampTray />
           </aside>
-          <ol className="manifesto-list">
-            {[
+          <ManifestoList
+            items={[
               {
                 t: "On privacy as default",
                 d: "A notebook nobody can read incidentally is a notebook you can actually use. The medium enforces what every diary asks for and few honour: room.",
@@ -512,20 +513,8 @@ export default function Home() {
                 t: "On refusal as feature",
                 d: "Other stationers optimise for legibility. We optimise for atmosphere. The mood is the product. The product is the position. The position holds.",
               },
-            ].map((m, i) => (
-              <Reveal key={m.t} delay={`${i * 0.08}s`}>
-                <li className="manifesto-item">
-                  <span className="manifesto-num">
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  <div>
-                    <h3>{m.t}</h3>
-                    <p>{m.d}</p>
-                  </div>
-                </li>
-              </Reveal>
-            ))}
-          </ol>
+            ]}
+          />
         </div>
       </section>
 

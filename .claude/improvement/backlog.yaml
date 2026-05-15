@@ -561,17 +561,27 @@ items:
     severity: high
     effort: M
     class: distinctive
-    status: open
+    status: shipped
     files:
-      - src/app/page.tsx:464-484
-      - src/app/globals.css:2148-2200
+      - src/app/page.tsx:497-518
+      - src/app/globals.css:2281-2340
+      - src/components/manifesto-list.tsx
     opened_on: 2026-05-13
-    last_verified: 2026-05-13
+    last_verified: 2026-05-15
     notes: |
       Source — cold-surfaces auditor on press-clipping-register run.
-      The manifesto is the last "agency three-card pattern" left on the
-      cold half (CH. 03 — load-bearing narrative arc). Rubric T3 M2 L3
-      I2 A3 D3 = 16/18, picked-second in this run on tied-D-lower-effort.
+      Shipped 2026-05-15 per rubric T3 M2 L3 I2 A3 D3 = 16/18 Awwwards-
+      grade, manifesto cold-surface bonus from retro #2, distinctive
+      class, M effort. Risk band medium (new client component + new
+      transition affects glyph metrics — letter-spacing on h3 active
+      state). Replaced inline 4-item map (page.tsx:497-528) with new
+      <ManifestoList items={[...]} /> client component owning an
+      IntersectionObserver. h3 recast to italic-serif clamp(34,4vw,56)px;
+      .manifesto-num recast to italic-serif oldstyle numerals
+      clamp(22,2vw,28)px font-feature-settings:"onum" 1. Active state
+      lifts opacity + letter-spacing + translateX 2px; reduced-motion
+      pins glyph metrics and downgrades transitions to color-only 240ms
+      linear.
 
   - id: codex-row-active-microstate
     title: Codex rows reward only :hover — no scroll-band active state
@@ -629,13 +639,20 @@ items:
     severity: high
     effort: S
     class: a11y
-    status: open
+    status: closed-by-drift
     files:
       - src/components/cart-island.tsx:51-56
     opened_on: 2026-05-13
-    last_verified: 2026-05-13
+    last_verified: 2026-05-15
     notes: |
       Source — interactions auditor on press-clipping-register run.
+      Closed-by-drift 2026-05-15: cart-drawer.tsx:80-88 + 152-161 now
+      ships a sitewide sr-only role="status" aria-live="polite"
+      aria-atomic="true" region that announces "Added ${title} to cart."
+      on every cart.ADD_EVT, with a 4s clear timer. The drawer also
+      auto-opens on add. Announce region lives in the drawer (sitewide
+      mount) rather than adjacent to the button, but the AT outcome is
+      materially fixed.
 
   - id: checkout-form-floating-label-dead-selector
     title: Checkout floating-label dead `~` sibling selector — cleanup
@@ -911,14 +928,17 @@ items:
     severity: low
     effort: S
     class: hygiene
-    status: open
+    status: closed-by-drift
     files:
       - src/data/journal/index.ts
       - src/app/page.tsx:611-687
     opened_on: 2026-05-14
-    last_verified: 2026-05-14
+    last_verified: 2026-05-15
     notes: |
       Source — surface-journal-nav-and-homepage-block ship.
+      Closed-by-drift 2026-05-15: src/data/journal/index.ts now exports
+      11 posts (seed + 3 + 4 + 3 from journal subtasks [1/3], [2/3],
+      [3/3]). The slice(0, 2) renders correctly. AC #3 satisfied.
 
   - id: from-journal-block-no-fallback-empty-state
     title: "/from-journal block has no visible empty state if all posts are removed"
@@ -2872,3 +2892,92 @@ items:
       The [1/3] image-gen ship is the first successful invocation;
       the [2/3] and [3/3] subtasks will use the same recipe.
       Codifying it in CLAUDE.md is a small but real time-saver.
+
+  - id: manifesto-credo-active-correspondence
+    title: Sticky `.manifesto-credo` mirrors active manifesto item as marginalia <sup>
+    ship: |
+      The new `ManifestoList` IO already tracks `data-active` on each
+      item. Extend the contract so the sticky `.manifesto-credo` block
+      (page.tsx:483 inside `<aside class="manifesto-sticky">`) carries
+      a small italic-serif marginalia `<sup>` that mirrors the active
+      item's numeral (I/II/III/IV in oldstyle italic). Update on the
+      same IO callback. Pure paint — no new keyframe. Reduced-motion
+      pins the marginalia to `· — ·`.
+    severity: medium
+    effort: S
+    class: distinctive
+    status: open
+    files:
+      - src/app/page.tsx:475-494
+      - src/components/manifesto-list.tsx
+      - src/app/globals.css:2254-2263
+    opened_on: 2026-05-15
+    last_verified: 2026-05-15
+    dq_count: 0
+    notes: |
+      Source — out-of-scope from manifesto-item-as-sans-card ship
+      (added DOM coordination across columns; ship after the baseline
+      lands).
+
+  - id: manifesto-num-resting-contrast-policy
+    title: `.manifesto-num` resting alpha 0.35 ≈ 3.3:1 — document or bump
+    ship: |
+      Resting `.manifesto-num` is `rgba(244,244,244,0.35)` ≈ 3.3:1 on
+      `#050505`. Passes WCAG 3:1 for large display text (clamp 22-28px
+      serif italic, ordinal/decorative) but BFS body-floor convention
+      is not formally documented. Either bump to 0.45 (≈ 4.5:1) or
+      document the decorative-ordinal exception in a design-tokens
+      note. Active state lifts to 1.0 (≈ 20.1:1).
+    severity: low
+    effort: S
+    class: a11y
+    status: open
+    files:
+      - src/app/globals.css:2281-2292
+    opened_on: 2026-05-15
+    last_verified: 2026-05-15
+    dq_count: 0
+    notes: |
+      Source — perf-a11y audit on manifesto-item-as-sans-card ship.
+
+  - id: manifesto-p-body-alpha-drop-documentation
+    title: `.manifesto-item p` body resting alpha dropped 0.65 → 0.55 — document the intent
+    ship: |
+      Manifesto body copy resting alpha dropped from the prior 0.65
+      (≈ 7.8:1) to 0.55 (≈ 6.5:1) so the resting→active arc has more
+      room. Still well above 4.5:1 AA, but the rest of the site's body
+      copy tends to floor at 0.65. Either document the manifesto's
+      reading-state-arc-needs-more-headroom rationale near the rule
+      OR raise the floor back to 0.6+ if the visual delta still reads.
+    severity: low
+    effort: S
+    class: hygiene
+    status: open
+    files:
+      - src/app/globals.css:2305-2311
+    opened_on: 2026-05-15
+    last_verified: 2026-05-15
+    dq_count: 0
+    notes: |
+      Source — perf-a11y audit on manifesto-item-as-sans-card ship.
+
+  - id: lighthouse-baseline-seed
+    title: Seed `.claude/improvement/lighthouse.csv` with a baseline row
+    ship: |
+      `.claude/improvement/lighthouse.csv` is header-only. First
+      perf-touching ship after this should run `lighthouse.mjs` on
+      `/` (desktop + mobile) and `supplies/<one>` so future runs have
+      a baseline to delta against. perf-a11y currently skips lighthouse
+      on most CSS-only ships, but at least one anchor row matters.
+    severity: low
+    effort: S
+    class: infra
+    status: open
+    files:
+      - .claude/improvement/lighthouse.csv
+      - .claude/improvement/scripts/lighthouse.mjs
+    opened_on: 2026-05-15
+    last_verified: 2026-05-15
+    dq_count: 0
+    notes: |
+      Source — perf-a11y audit on manifesto-item-as-sans-card ship.

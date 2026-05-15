@@ -2279,24 +2279,63 @@ html.loading body {
   border-bottom: 1px solid var(--color-line);
 }
 .manifesto-num {
-  font-size: 14px;
-  font-weight: 800;
-  letter-spacing: 0.2em;
-  color: var(--color-fog);
-  padding-top: 6px;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(22px, 2vw, 28px);
+  letter-spacing: 0;
+  font-feature-settings: "onum" 1;
+  color: rgba(244, 244, 244, 0.35);
+  padding-top: clamp(10px, 1vw, 14px);
+  transition:
+    color 480ms var(--ease-out-quart),
+    transform 480ms var(--ease-out-quart);
 }
 .manifesto-item h3 {
-  font-size: clamp(22px, 2vw, 30px);
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  text-transform: uppercase;
-  margin-bottom: 10px;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(34px, 4vw, 56px);
+  letter-spacing: -0.01em;
+  line-height: 1.05;
+  text-transform: none;
+  color: rgba(244, 244, 244, 0.7);
+  margin-bottom: clamp(10px, 1.4vw, 16px);
+  transition:
+    color 480ms var(--ease-out-quart),
+    letter-spacing 480ms var(--ease-out-quart),
+    transform 480ms var(--ease-out-quart);
 }
 .manifesto-item p {
-  color: rgba(244, 244, 244, 0.65);
+  color: rgba(244, 244, 244, 0.55);
   line-height: 1.6;
   font-size: 15px;
   max-width: 48ch;
+  transition: color 480ms var(--ease-out-quart);
+}
+.manifesto-item[data-active="true"] h3 {
+  color: rgba(244, 244, 244, 1);
+  letter-spacing: -0.025em;
+  transform: translateX(2px);
+}
+.manifesto-item[data-active="true"] p {
+  color: rgba(244, 244, 244, 0.85);
+}
+.manifesto-item[data-active="true"] .manifesto-num {
+  color: rgba(244, 244, 244, 1);
+  transform: translateX(-2px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .manifesto-item h3,
+  .manifesto-item p,
+  .manifesto-item .manifesto-num {
+    transition: color 240ms linear;
+  }
+  .manifesto-item[data-active="true"] h3,
+  .manifesto-item[data-active="true"] .manifesto-num {
+    letter-spacing: -0.01em;
+    transform: none;
+  }
 }
 
 /* Press-stamp typesetter's tray — sits beneath the manifesto credo in the
