@@ -3181,10 +3181,14 @@ html.loading body {
   flex: 1 1 320px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.2);
   padding-bottom: 10px;
   max-width: 460px;
+  transition: border-bottom-color var(--dur-1) var(--ease-out-quart);
+}
+.newsletter:focus-within {
+  border-bottom-color: rgba(255, 255, 255, 0.55);
 }
 .newsletter input {
   flex: 1;
@@ -3197,29 +3201,73 @@ html.loading body {
   padding: 8px 0;
 }
 .newsletter input::placeholder {
-  color: rgba(255, 255, 255, 0.35);
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.55);
 }
 .newsletter button {
   background: transparent;
   border: none;
-  color: #fff;
-  font: inherit;
+  color: rgba(255, 255, 255, 0.75);
+  font-family: var(--font-serif);
+  font-style: italic;
   font-size: 12px;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  font-weight: 800;
   cursor: pointer;
   display: inline-flex;
-  align-items: center;
+  align-items: baseline;
   gap: 6px;
+  transition: color var(--dur-1) var(--ease-out-quart);
+}
+.newsletter button:hover,
+.newsletter button:focus-visible {
+  color: rgba(255, 255, 255, 1);
 }
 .newsletter button::after {
   content: "→";
   display: inline-block;
-  transition: transform 0.3s ease;
+  font-style: normal;
+  transition: transform var(--dur-2) var(--ease-out-quart);
 }
-.newsletter button:hover::after {
+.newsletter button:hover::after,
+.newsletter button:focus-visible::after {
   transform: translateX(3px);
+}
+.newsletter-status {
+  flex: 1;
+  display: block;
+  padding: 4px 0 6px;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 14px;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.78);
+  position: relative;
+}
+.newsletter-status::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -10px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.55);
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+  animation: newsletter-rule-draw var(--dur-3) var(--ease-out-quart) forwards;
+}
+@keyframes newsletter-rule-draw {
+  to {
+    transform: scaleX(1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .newsletter-status::after {
+    animation: none;
+    transform: scaleX(1);
+  }
 }
 .outro-base {
   max-width: 1480px;

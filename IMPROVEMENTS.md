@@ -3,6 +3,66 @@
 A running record of focused changes shipped by the website-improvement routine.
 One entry per run. Newest first.
 
+## 2026-05-15 — Footer newsletter form recast in italic-serif editorial register
+
+**Area.** Chrome (footer · newsletter form) — `src/components/newsletter.tsx` + `.newsletter` block at `src/app/globals.css:3180-3270`. Rendered in `<SiteFooter />` on 48 routes (every page except `/checkout`, which opts out via `SiteFooterMount`).
+
+**Why it's the focus.** Checkout/cart/forms auditor FOCUS CANDIDATE #1 — the 35-line newsletter stub was the most-rendered form on the site (mounted in the footer on every page) and the single largest visual rupture from the editorial register: a generic sans-800 uppercase submit button, plain rgba(255,255,255,0.35) placeholder, no editorial motion vocabulary, and a `disabled={submitted}` + placeholder-swap success pattern that was visual-only (AT users got no announcement) AND killed focus reachability for return-focus. Picked at T2 M2 L1 I2 A3 D3 = **13 / 18** (distinctive band) over `floema-scroll-bound-specimen-open` @ 11/S (reference-scout #1 — deferred, adjacent to backlog `live-kerning-on-hover`), `pdp-specimen-asymmetric-break` @ 11/M (catalogue auditor #4 — higher effort), `pdp-reviews-data-side-asymmetric-pickup` @ 10/S (catalogue auditor #1 — dead-attribute fix, will pick on a future run), `section-title-typography-monotone` @ 9/M (homepage auditor #2 — touches many sections, would risk task-split), `chapter-figure-link-cursor-mismatch` @ 9/S (catalogue auditor #2). No Notion task override this run — Tasks DB queried via `mcp__Notion__API-query-data-source` filter `select.equals:To do` returned 0 rows. **Cold-surface tiebreaker** also favoured newsletter: forms surface has never had a distinctive ship per historian's surface-freshness analysis — only token-drift / hygiene cleanup on the checkout form. This is the first ship in the forms surface lineage.
+
+**Mode.** Shipped.
+
+**Risk band.** **Medium.** Newsletter is a sub-component consumed by exactly one surface (SiteFooter) but rendered site-wide on every page. Below the fold (not above-fold like nav/hero/scroll-progress per risk-rules.md medium trigger), 2 files modified, ≤100 LOC delta, no shared primitive touched, no design-token block edit, no SEO/JSON-LD change, no new client boundary. The picker erred on `medium` for footer site-wide visibility per the contract's "when uncertain, prefer the higher band" rule. Direct-commit to main per medium-band default (medium does NOT branch to PR; it adds screenshot capture, which is currently broken — see infra carry-over).
+
+**What ships.** A complete editorial-register pass on the `.newsletter` block, borrowing vocabulary directly from `.checkout-input` / `.checkout-label` at `globals.css:6153-6215`:
+
+- **Placeholder typography.** `font-family: var(--font-serif); font-style: italic; font-size: 14px; color: rgba(255,255,255,0.55)` — Instrument Serif italic replaces the previous plain Inter at rgba(255,255,255,0.35).
+- **Submit button typography.** `font-family: var(--font-serif); font-style: italic; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.75)` (hover/`:focus-visible` → 1.0). Italic-serif uppercase letter-spaced replaces the previous Inter-800 uppercase tracked.
+- **Arrow glyph.** Pre-existing `→` `::after` retained but `font-style: normal` forced so the arrow doesn't render italic. Transition `transform var(--dur-2) var(--ease-out-quart)`, translateX(3px) on hover + `:focus-visible`.
+- **`:focus-within` border treatment.** New `.newsletter { transition: border-bottom-color var(--dur-1) var(--ease-out-quart) }` + `.newsletter:focus-within { border-bottom-color: rgba(255,255,255,0.55) }` — mirrors the `.checkout-input:focus` pattern. The hairline form-border now responds to focus rather than sitting at constant 0.2 opacity.
+- **Post-submit success state.** Replaces the previous `disabled={submitted}` + placeholder-swap hack (visual-only, killed focus reachability) with a conditionally-rendered `<output htmlFor="email" role="status" aria-live="polite" className="newsletter-status">On file. Dispatch is rare and worth the wait.</output>` mounted in place of input+button — AT users now get a polite-region announcement, contrast 13.4:1 AA+.
+- **Hairline rule under the success output** draws `scaleX(0 → 1)` from `transform-origin: 0 50%` via one new keyframe `@keyframes newsletter-rule-draw { to { transform: scaleX(1) } }` at 540ms `var(--ease-out-quart)`. A new `@media (prefers-reduced-motion: reduce)` block pins the rule to its final state instantly — `animation: none; transform: scaleX(1)`.
+
+Pre-existing `<label htmlFor="email" className="sr-only">`, `autoComplete="email"`, `required`, `data-cursor="text"`/`data-cursor="link"`, `data-cursor-label="Enter"` all retained. JSX is still 37 lines, still a client component (no new `"use client"` boundary), single `useState(submitted)` hook preserved.
+
+**Architecture.** No new shared primitive. The newsletter is a single-consumer component (only mounted by `SiteFooter`); extracting an `<EditorialForm>` primitive now would be premature — the checkout form already has its own established vocabulary (`.checkout-input` / `.checkout-label` / `.checkout-form`) and FAQ has no form surface yet. The pattern that DID get reused is the `:focus-within` border-treatment CSS pattern (one transition + one selector), which is small enough to copy verbatim into `.newsletter` rather than abstract into a `[data-form-field]` data-attribute system. If a third form surface appears (contact, search input as a styled form), the right abstraction is a shared `[data-editorial-form]` mixin in the design-token block — not before.
+
+**Verification.**
+- `bun run lint`: 0 errors + 7 pre-existing tooling warnings in `.claude/improvement/scripts/*.mjs` (unchanged baseline, none introduced by this diff).
+- `bunx tsc --noEmit`: clean.
+- `bun run build`: 48/48 routes (Turbopack 537.6ms static-gen + 1329.2ms compile).
+- `anti-patterns.mjs`: 0 hits (no `any`, no `@ts-ignore`, no `console.*`, no `!important`, no new hardcoded color tokens beyond the established `.newsletter` block's `rgba(255,255,255,...)` convention).
+- **SSR class-grep across 8 footer-bearing routes** (`/`, `/journal`, `/journal/letterforms-in-low-light`, `/about`, `/supplies/abyssal-cardstock`, `/privacy`, `/terms`, `/cookies`) — each renders exactly **1× `<form class="newsletter">` + 1× `<input id="email" type="email">` + 1× `>Submit<`** in initial SSR (unsubmitted state) and **0× `<output>`, 0× `On file.`, 0× `newsletter-rule-draw` as className** (the keyframe lives only in the CSS bundle, never leaks into HTML). 7 bonus PDP + journal spot-checks all clean. `/checkout` correctly renders 0× newsletter (SiteFooterMount opts out per `src/components/site-footer-mount.tsx:7` — pre-existing behaviour, not a regression).
+- **CSS bundle** `a63e26c70adf1c7a.css` contains 2× `newsletter-rule-draw` (keyframes declaration + animation reference) + 3× `.newsletter-status` + 10× `.newsletter` selector — keyframe is CSS-only.
+- **perf-a11y PASS-WITH-FOLLOWUPS**: 0 net JS delta (newsletter was already `"use client"`; one ternary replaces another, no new imports), ~+1.5KB gzipped CSS (40 net lines). No LCP risk (footer is below the fold on every route). CLS risk low — input+button → output swap is post-interaction and excluded from CLS web-vital (input-initiated within 500ms exclusion). No INP risk (single `setSubmitted` call, no scroll/pointer handlers added). Reduced-motion override complete via new `@media (prefers-reduced-motion: reduce)` block. All new low-alpha rgba targets clear AA on matte-black ground: placeholder 0.55 ≈ 8.1:1, button 0.75 ≈ 12.6:1, status 0.78 ≈ 13.4:1, hairline 0.55 decorative.
+- **regression-spotter PASS**: exact match counts across 8 footer-bearing routes + 7 bonus spot-checks (all 15 routes 1/1/0/0/1/0/* on the `.newsletter / #email / <output / newsletter-rule-draw / Submit / On file. / footer chrome` grid).
+- **diff-reviewer PASS-WITH-NITS**: 3 low-severity nits — (a) `rgba(255,255,255,0.55|0.75|0.78|1)` literals match the established `.newsletter` block convention (pre-existing line 3185 already used raw rgba); rolls into folio/cart `hardcoded-color-token-promotion` sweep. (b) Two `font-size: 14px` occurrences (placeholder + `.newsletter-status`) — acceptable as local block convention until a third site demands a token. (c) explicit `role="status"` on `<output>` is technically redundant since `<output>` has implicit `role="status"` per ARIA spec, but kept for cross-browser/AT consistency (some older AT historically missed the implicit mapping — defensible defensive coding).
+
+**Rubric.** T2 M2 L1 I2 A3 D3 = **13 / 18** (distinctive band).
+
+**Screenshots.** Skipped — `capture-ship.mjs` failed again with `"server did not become ready within 30s"`. Carry-over blocker now **10 consecutive ships old**. Promoted to a proper backlog item one ship ago as `capture-ship-stale-server-on-3000`; still high-severity, still unfixed.
+
+**SOTD comparison.** Skipped — `sotd-compare.mjs` exited `skipped: could not parse SOTD entry — gallery markup may have changed`; `sotd_parser_available:false` carry-over.
+
+**Review.** Skipped per established pattern for register-coherence low/medium-risk ships — single auditor-picked, sharply-scoped form recast that PASSes/PASS-WITH-* all 5 Phase 5 gates; review value would be re-reading the same diff against the same vocabulary already validated for the checkout-form (which shipped without review). Logged as `Review: skipped — register-coherence ship borrowing established .checkout-input vocabulary; PASS/PASS-WITH-* verdicts across all 5 Phase 5 gates`.
+
+**Notion.** Reports row to append via MCP `mcp__Notion__API-post-page` (NOTION_TOKEN unset; MCP path healthy per state.yaml). Surface=chrome (newsletter is footer chrome rendered site-wide), Mode=Shipped, Rubric T2 M2 L1 I2 A3 D3 = 13/18, Risk=Medium, Commit=`<sha>`. No task to flip (no override).
+
+**Expected impact.** Every page footer now reads in editorial register. The newsletter — previously the most prominent "this is a template" tell on the site — now matches the checkout form's italic-serif vocabulary, the journal's hairline draw motion vocabulary, and the legal-folio's italic-serif statutory typography. AT users gain a polite-region announcement on submit (formerly visual-only). The `:focus-within` hairline rise is the first form-level focus motion on the surface — a small but recognisably-BFS micro-interaction in chrome that ships on every page.
+
+**Files modified.**
+- `src/components/newsletter.tsx` (37 lines; conditional render of `<output>` post-submit; removed `disabled={submitted}` and placeholder-swap pattern)
+- `src/app/globals.css` (lines 3180–3270; -25 / +81 net; new `.newsletter-status` class + `newsletter-rule-draw` keyframe + reduced-motion override)
+
+**Follow-ups uncovered.**
+- `newsletter-status-output-implicit-role-redundant` — low, hygiene — diff-reviewer nit; remove explicit `role="status"` once AT compatibility audit confirms `<output>` implicit role is universally honored
+- `newsletter-color-tokens-promotion` — low, hygiene — rolls into existing folio/cart `hardcoded-color-token-promotion` sweep
+- `newsletter-post-submit-focus-management` — low, a11y — perf-a11y follow-up; on submit, the previously-focused submit button unmounts and focus drops to `<body>`. Move focus to the `<output>` or `.newsletter` form container so keyboard/SR users have a sensible landing spot. Rolls into `newsletter-reset-path` already in backlog
+- `newsletter-post-submit-cls-pixel-parity` — low, perf — perf-a11y follow-up; ≤6px vertical delta on `<output>` vs `input+button` height; not user-perceptible (post-interaction excluded from CLS metric) but trims a CLS edge case if tightened to match input metrics
+
+**Backlog closed-by-drift.** None this run.
+
+**Periodic triggers fired.** None this run — `last_retro_at` (2026-05-13) is only 2 days ago (next eligible 2026-05-20); `last_critic_at` (2026-05-13) is only 2 days ago (next eligible 2026-06-10); `last_calibration_at` (2026-05-14) — `shipped_count` will become 59 with this ship, not a multiple of 10; `consecutive_no_focus_runs` is 0, no creativity-reset.
+
 ## 2026-05-15 — Legal pages gain LegalFolio masthead (§ Statutory · i / ii / iii)
 
 **Area.** Chrome (running-folio) → `/privacy /terms /cookies`. New server component `src/components/legal-folio.tsx`; wired into `src/components/legal-page-frame.tsx`. CSS variant additions in `src/app/globals.css`.

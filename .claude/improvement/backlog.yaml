@@ -3330,4 +3330,56 @@ items:
     opened_on: 2026-05-15
     last_verified: 2026-05-15
     dq_count: 0
-    notes: This blocker has been carrying as shipped.yaml notes only for 9 consecutive ships, all of which exited with the identical 'server did not become ready within 30s' error. The documentation gap from never opening a proper backlog item is itself the systemic issue — promoted to backlog this run (legal-folio-on-legal-routes) so the picker can finally consider it. Likely fixes - (a) capture-ship.mjs detects an existing listener on :3000 and reuses it instead of spawning a fresh `bun run start`, (b) the script kills any pre-existing :3000 listener before its own spawn, (c) the wait-for-ready timeout extends past 30s. Option (a) is the cleanest — if a dev server is already running, the screenshot run should piggyback on it. The infra fix probably costs an hour of work and unblocks visual-diff for every subsequent ship.
+    notes: "This blocker has been carrying as shipped.yaml notes only for 9 consecutive ships, all of which exited with the identical 'server did not become ready within 30s' error. The documentation gap from never opening a proper backlog item is itself the systemic issue — promoted to backlog one ship ago (legal-folio-on-legal-routes) so the picker can finally consider it. Likely fixes - (a) capture-ship.mjs detects an existing listener on :3000 and reuses it instead of spawning a fresh `bun run start`, (b) the script kills any pre-existing :3000 listener before its own spawn, (c) the wait-for-ready timeout extends past 30s. Option (a) is the cleanest — if a dev server is already running, the screenshot run should piggyback on it. The infra fix probably costs an hour of work and unblocks visual-diff for every subsequent ship. Carry-over now 10 ships old as of newsletter-editorial-register-pass (2026-05-15)."
+
+  - id: newsletter-status-output-implicit-role-redundant
+    title: "Drop explicit role='status' on <output> in newsletter once cross-AT audit confirms implicit role"
+    severity: low
+    effort: S
+    class: hygiene
+    status: open
+    files:
+      - src/components/newsletter.tsx
+    opened_on: 2026-05-15
+    last_verified: 2026-05-15
+    dq_count: 0
+    notes: "Flagged by diff-reviewer on newsletter-editorial-register-pass. The <output> element has implicit role='status' per ARIA spec, so the explicit role='status' on the newsletter status node is technically redundant. Kept this run for defensive cross-browser/AT consistency (some older AT historically missed the implicit mapping). Drop once a compatibility audit confirms all target AT honour the implicit role — or leave permanently if the cost of an extra attribute is preferable to verifying every AT release. Defer until adjacent role/aria-live cleanup is needed."
+
+  - id: newsletter-color-tokens-promotion
+    title: "Promote rgba(255,255,255,0.55|0.75|0.78|1) literals in .newsletter block to design tokens"
+    severity: low
+    effort: S
+    class: hygiene
+    status: open
+    files:
+      - src/app/globals.css
+    opened_on: 2026-05-15
+    last_verified: 2026-05-15
+    dq_count: 0
+    notes: "Flagged by diff-reviewer on newsletter-editorial-register-pass. The new .newsletter / .newsletter-status block introduced 5 rgba(255,255,255,...) literals matching the established .newsletter convention (pre-existing line 3185 already used raw rgba). Rolls into the existing folio/cart hardcoded-color-token-promotion sweep — tokenise .newsletter, .newsletter-status, .folio[data-variant='journal'|'legal'], .cart-* blocks together in one pass rather than piecemeal."
+
+  - id: newsletter-post-submit-focus-management
+    title: "Move focus to <output> or .newsletter form after submit (newsletter-reset-path overlap)"
+    severity: low
+    effort: S
+    class: a11y
+    status: open
+    files:
+      - src/components/newsletter.tsx
+    opened_on: 2026-05-15
+    last_verified: 2026-05-15
+    dq_count: 0
+    notes: "Flagged by perf-a11y on newsletter-editorial-register-pass. After submit, the previously-focused submit button unmounts and focus drops to <body>. AT users get the aria-live='polite' announcement so they're not lost, but keyboard users lose their place in the tab order. Move focus to the <output> element (with tabIndex=-1 + ref.current?.focus()) or to the .newsletter form container so there's a sensible landing spot. Overlaps with the newsletter-reset-path backlog item — both should be picked together since the right design is probably a 'sealed' state with a 'reset / send another' affordance that returns focus to a fresh input. Pick newsletter-reset-path first; this item gets folded in."
+
+  - id: newsletter-post-submit-cls-pixel-parity
+    title: "Tighten .newsletter-status vertical metrics to match input+button height (CLS edge case)"
+    severity: low
+    effort: S
+    class: perf
+    status: open
+    files:
+      - src/app/globals.css
+    opened_on: 2026-05-15
+    last_verified: 2026-05-15
+    dq_count: 0
+    notes: "Flagged by perf-a11y on newsletter-editorial-register-pass. Post-submit, the input+button subtree (~42px content+padding box at font-size 14px+12px) swaps to a single <output> element (~30px content+padding box at font-size 14px). ~2-6px vertical delta possible. NOT user-perceptible at footer position AND post-interaction (input-initiated within 500ms) is excluded from the CLS web-vital — but trims a CLS edge case if tightened. Match .newsletter-status to font: inherit + padding: 8px 0 or measure pre-swap input+button height and pin output to match."

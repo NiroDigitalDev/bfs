@@ -16,22 +16,30 @@ export function Newsletter() {
       <label htmlFor="email" className="sr-only">
         Email
       </label>
-      <input
-        id="email"
-        type="email"
-        required
-        placeholder={
-          submitted
-            ? "Received. Dispatch is rare and worth the wait."
-            : "Address. Sent rarely. Mostly never."
-        }
-        autoComplete="email"
-        data-cursor="text"
-        disabled={submitted}
-      />
-      <button type="submit" data-cursor="link" data-cursor-label="Enter">
-        {submitted ? "On file" : "Submit"}
-      </button>
+      {submitted ? (
+        <output
+          htmlFor="email"
+          role="status"
+          aria-live="polite"
+          className="newsletter-status"
+        >
+          On file. Dispatch is rare and worth the wait.
+        </output>
+      ) : (
+        <>
+          <input
+            id="email"
+            type="email"
+            required
+            placeholder="Address. Sent rarely. Mostly never."
+            autoComplete="email"
+            data-cursor="text"
+          />
+          <button type="submit" data-cursor="link" data-cursor-label="Enter">
+            Submit
+          </button>
+        </>
+      )}
     </form>
   );
 }
