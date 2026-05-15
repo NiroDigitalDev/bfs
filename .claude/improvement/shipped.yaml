@@ -443,7 +443,7 @@ items:
 
   - id: image-gen-subtask-3-of-3-journal-manifesto-colophon-imagery
     title: "Image-gen [3/3] — three editorial inline-SVG compositions: wax-seal on /journal header + press-stamp typesetter's tray in homepage manifesto + hand-press silhouette in colophon"
-    commit: pending
+    commit: 9d73ea0
     date: 2026-05-15
     surface: system
     tags: [manifesto, colophon, system, image-gen, image-gen-3-of-3, inline-svg, server-component, no-js, no-cls, decorative, aria-hidden, pointer-events-none, currentcolor, awwwards-current, task-driven, split-subtask, closes-trilogy]
