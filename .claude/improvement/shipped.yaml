@@ -536,7 +536,7 @@ items:
 
   - id: about-coda-dictionary-cross-reference-spread
     title: "/about coda recomposed as cross-domain dictionary cross-reference — single 'Read the journal' magnetic CTA replaced with two-card asymmetric spread (Catalogue I + Journal II) using oversized italic-serif Roman numerals in opposite margins and between-column hairline rule (scroll-driven scaleY draw via view-timeline); third use of the dictionary register but FIRST cross-DOMAIN application (catalogue↔journal handoff, not adjacent recirculation)"
-    commit: pending
+    commit: df006ad
     date: 2026-05-15
     surface: about
     tags: [about, coda, cross-reference, cross-domain-handoff, recirculation, asymmetric-layout, dictionary-cross-reference, italic-serif, oversized-numeral, roman-numeral-uppercase, between-column-hairline, view-timeline, scroll-driven, mirror-text-align, server-component, no-new-client-boundary, register-coherence, surface-extension, vol-i-vol-ii, two-ways-onward, magnetic-removed-from-coda, auditor-pick, fifth-and-sixth-numeral-occurrence]
