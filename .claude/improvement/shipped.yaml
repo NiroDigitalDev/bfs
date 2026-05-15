@@ -479,7 +479,7 @@ items:
 
   - id: about-display-figure-plate-printer-marks
     title: "About display gains two-corner printer's-bug marks — italic-serif 'Fig. —' + caps-sans 'THE PRESS' top-left and 'Ed. III · MMXXVI' bottom-right — recasting the masthead as a specimen plate"
-    commit: pending
+    commit: 5e79950
     date: 2026-05-15
     surface: about
     tags: [about, system, typography, italic-serif, instrument-serif, specimen-plate, printer-bug, four-corner-vocabulary, register-parity, masthead-scale, aria-hidden, decorative, mobile-collapse, no-js, css-only, cold-surface, auditor-pick, awwwards-current]
