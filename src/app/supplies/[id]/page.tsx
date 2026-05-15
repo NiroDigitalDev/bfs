@@ -6,6 +6,7 @@ import { SplitText } from "@/components/split-text";
 import { Magnetic } from "@/components/magnetic";
 import { Tilt } from "@/components/tilt";
 import { SpecimenPlate } from "@/components/specimen-plate";
+import { SpecimenPlateFrame } from "@/components/specimen-plate-frame";
 import { CartCount, NavCart, PDPAddToCart } from "@/components/cart-island";
 import { ProductReviews } from "@/components/product-reviews";
 import { RelatedProducts } from "@/components/related-products";
@@ -264,6 +265,7 @@ export default async function ProductPage({
           <Visual />
           <span className="pdp-specimen-specular" aria-hidden />
           <SpecimenPlate plate={product.plate} />
+          <SpecimenPlateFrame productId={product.id} />
         </Tilt>
         <figcaption className="pdp-specimen-cap">
           <span>Plate · {product.plate.fig}</span>

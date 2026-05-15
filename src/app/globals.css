@@ -5254,6 +5254,46 @@ main.pdp ~ .folio {
   justify-content: center;
 }
 
+/* Specimen-plate decorative frame — corner brackets, registration marks,
+   edition engraving. Sits above the existing SpecimenPlate measurement
+   overlay; both are aria-hidden and pointer-events:none. Hairlines
+   stay crisp via vector-effect=non-scaling-stroke. */
+.pdp-plate-frame {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  color: rgba(255, 255, 255, 0.34);
+  opacity: 0.78;
+  transition: opacity var(--dur-3) var(--ease-out-quart);
+}
+.pdp-plate-frame svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.pdp-specimen-frame:hover .pdp-plate-frame,
+.pdp-specimen-frame:focus-within .pdp-plate-frame {
+  opacity: 1;
+}
+.pdp-plate-frame-engraving {
+  position: absolute;
+  right: 3.2%;
+  bottom: 1.6%;
+  font-family: var(--font-sans);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.42);
+  white-space: nowrap;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pdp-plate-frame {
+    transition: none;
+  }
+}
+
 /* Body — lede + colophon dl + magnetic CTA */
 .pdp-body {
   position: relative;

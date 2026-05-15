@@ -2745,7 +2745,7 @@ items:
     severity: medium
     effort: M
     class: distinctive
-    status: open
+    status: shipped
     files:
       - src/components/specimen-plate-frame.tsx
       - src/app/supplies/[id]/page.tsx

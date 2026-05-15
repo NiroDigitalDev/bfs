@@ -4,6 +4,67 @@ A running record of focused changes shipped by the website-improvement routine.
 One entry per run. Newest first.
 
 ---
+## 2026-05-15 — Image-gen [2/3] — PDP specimen-plate frame on all 6 `/supplies/[id]` routes (corner brackets + registration crosses + per-product central accent + edition engraving)
+
+**Area.** `catalogue` · `system` — adds the second piece of decorative inline-SVG imagery to the site after the [1/3] homepage section divider. A new server component `src/components/specimen-plate-frame.tsx` layers a decorative frame (4 L-corner brackets, 2 vertical-midline registration crosses, 1 product-specific central accent on the top edge, 1 HTML edition engraving at bottom-right) above the existing `.pdp-specimen-frame` Tilt container on every PDP. Each product gets a distinct central accent shape — **grid** for void-book, **dot-row** for abyssal-cardstock, **plus** for event-horizon-pad, **cross** for sticky-voids, **ring** for savior-pen, **triangle** for executive-despair — and a matching FIG reference in the engraving (`ED · III · MMXXVI · FIG. I·v` etc.). Hairlines stay 1px crisp regardless of the container's 4:5 (mobile) vs 3:4 (desktop) aspect via `vector-effect="non-scaling-stroke"` on a single `preserveAspectRatio="none"` SVG. The label is HTML (not SVG `<text>`) so it isn't deformed by the aspect-stretched viewBox.
+
+**Why it's the focus.** **Task-driven** — Notion subtask `360af8d3-d3e2-816e-84c5-d94cdd04faf3` was already `Status: In progress` with `Started: 2026-05-15` but no `Commit` and no `Completed` — a stuck-claim from an earlier-today aborted run, same pattern as the motion-vocabulary `[2/3]` resumption. Working tree clean at session start, no half-finished implementation. Among the 2 still-open `To do` subtasks (image-gen `[3/3]` journal/manifesto/colophon and image-gen `[2/3]` PDP frames), this in-progress claim was the natural focus to resume, and the brief explicitly ordered `[2/3]` before `[3/3]` ("Ship after [1/3] establishes the inline-SVG pattern"). Closes the second leg of the image-gen trilogy.
+
+**Mode.** Task-driven (resumed in-progress claim — no re-claim, no release).
+
+**Risk band.** `medium` per brief — 6 PDP routes touched but identical structure with per-product variant data, no shared primitive modified, no JS, no SEO surface, additive decorative overlay only. Direct-commit to main per risk-rules.md medium-band default (PDP routes are not authoritative copy/schema and the change is purely decorative).
+
+**What ships.**
+
+1. **`src/components/specimen-plate-frame.tsx` — new server component** (~80 LOC). One inline SVG (`viewBox="0 0 1000 1250"`, `preserveAspectRatio="none"`, `vector-effect="non-scaling-stroke"`) containing: 4 L-corner brackets at 32-unit inset with 48-unit legs; 2 small registration crosses on the vertical midline at left/right edges; 1 per-product central accent on the top edge above the existing `SpecimenPlate` FIG label (6 variants via a `CentralAccent` switch on a `Mark` union — grid/dot/plus/cross/ring/tri). 1 HTML `<span class="pdp-plate-frame-engraving">` at bottom-right rendering `ED · III · MMXXVI · FIG. <product-fig>` (e.g. `I·v` for void-book, `V·p` for savior-pen). Root div is `aria-hidden`. No `"use client"` — synchronous server render, zero JS, zero CLS.
+2. **`src/app/supplies/[id]/page.tsx` mount** — 1 import + 1 line `<SpecimenPlateFrame productId={product.id} />` inside the existing `<Tilt className="pdp-specimen-frame" max={4}>` immediately after `<SpecimenPlate plate={product.plate} />`. Render order = stack order, so the new frame sits above the SpecimenPlate measurement marks without z-index management.
+3. **`src/app/globals.css` — one new block** (`+38 LOC` inserted between `.pdp-specimen-cap` and `.pdp-body` at line ~5258): `.pdp-plate-frame` (`position: absolute; inset: 0; pointer-events: none; z-index: 2; color: rgba(255,255,255,0.34); opacity: 0.78; transition: opacity var(--dur-3) var(--ease-out-quart)`), `.pdp-plate-frame svg` (`width: 100%; height: 100%; display: block`), `.pdp-specimen-frame:hover .pdp-plate-frame` + `:focus-within` (`opacity: 1`), `.pdp-plate-frame-engraving` (`position: absolute; right: 3.2%; bottom: 1.6%; var(--font-sans) 9px 0.28em letter-spacing; rgba(255,255,255,0.42)`), `@media (prefers-reduced-motion: reduce) { .pdp-plate-frame { transition: none } }`.
+
+**Architecture.** Pure server component, additive overlay. **`vector-effect="non-scaling-stroke"` is the load-bearing trick** — without it, the 1px stroke renders as ~0.93px on x and ~0.98px on y after the aspect-distortion `preserveAspectRatio="none"` introduces; with it, every line stays exact 1px regardless of the rendered container size. The engraving label is intentionally HTML (not SVG `<text>`) so the same aspect-distortion doesn't horizontally squash the type. Layering — `.pdp-specimen-frame` already has `overflow: hidden` + `isolation: isolate`, and inside it: `.pdp-specimen-specular` (z=0) → `.pdp-specimen-light` (z=1, hover-only) → `Visual` (auto, no z) → `SpecimenPlate` (auto, DOM-order top of stack until now) → new `.pdp-plate-frame` (z=2, now top of stack via explicit z-index + DOM order). Per-product differentiation is data-driven through a small `accents: Record<ProductId, {mark, fig}>` map; adding a 7th product requires one map entry + one switch case (~6 LOC), not a new component.
+
+**Verification.**
+
+- `bun run lint` — 0 errors + 7 pre-existing tooling warnings (unchanged set in `.claude/improvement/scripts/*.mjs`).
+- `bunx tsc --noEmit` — clean.
+- `bun run build` — 48 / 48 static routes generated (count unchanged from prior ship).
+- `node .claude/improvement/scripts/anti-patterns.mjs` — 0 patterns.
+- **SSR verification** — `.next/server/app/supplies/{void-book,savior-pen,executive-despair}.html` each contain `pdp-plate-frame` 1× and `pdp-plate-frame-engraving` 1×; product-specific engraving spot-checked on void-book (`FIG. I·v`) and savior-pen (`FIG. V·p`). HTML sizes per PDP 102–108 KB (delta ~+1.2 KB each).
+- `perf-a11y` — 0 bytes JS delta (server component), CSS delta ~750 bytes pre-minification, HTML delta ~1.2 KB per PDP × 6 PDPs = ~7.2 KB total prerendered growth, no LCP risk (overlay sits inside already-prerendered hero), no CLS risk (only opacity transitions on hover, no layout-property animation), no INP risk (no JS, no listeners), contrast OK (decorative overlay; SpecimenPlate marks remain the AA labeling layer), reduced-motion respected via `@media` gate, keyboard unaffected (aria-hidden + pointer-events: none).
+- `regression-spotter` — SpecimenPlate measurement marks (FIG / compass / H / W / gauge) preserved across all 6 PDPs; `.pdp-specimen-frame` Tilt 3D transform unchanged; nav / breadcrumb / hero / lede / colophon / press / dispatch / reviews / related / outro SSR signatures all unchanged.
+- `diff-reviewer` — PASS. Additive only, no escape hatches, no dead code, no scope creep, no shared primitive modified, 3 files exactly match spec, new component 80 LOC within the stated 80–120 budget.
+
+**Rubric.** T2 M2 L2 I1 A2 D2 = **11 / 18** (Solid; clears the > 8 abort threshold).
+- T:2 — second decorative inline-SVG asset after [1/3] section-divider; establishes the per-product variant pattern that [3/3] will inherit for journal/manifesto/colophon.
+- M:2 — `vector-effect=non-scaling-stroke` + `preserveAspectRatio=none` + HTML labels outside the deforming viewBox is a deliberate combination most sites don't bother with.
+- L:2 — 6 PDP routes touched simultaneously; each gains the per-product frame.
+- I:1 — decorative; hover-strengthen is the only interaction, frame is visible at rest.
+- A:2 — fully aria-hidden + pointer-events: none; no contrast regression on essential content; reduced-motion gated.
+- D:2 — registration marks + per-product central accent + edition engraving on a PDP cover reads as designed plate, not template ornament; the 6 distinct accent shapes give each product a recognizable signature in the frame.
+
+**Screenshots.** Skipped — stale `next start` process (PID 46706) holds port 3000 unresponsive (carried-over blocker from prior 2 ships); `capture-ship.mjs` exited gracefully per design.
+
+**SOTD comparison.** Skipped — gallery markup parser failure (`sotd_parser_available: false` in state.yaml).
+
+**Notion.** Tasks DB subtask `360af8d3-d3e2-816e-84c5-d94cdd04faf3` to flip `In progress → Done` via MCP `notion-update-page` after commit (Commit + Completed); Reports row to append via MCP `notion-create-pages` using documented schema fallbacks. Token absent → MCP path.
+
+**Expected impact.** PDP hero composition gains an editorial-plate vocabulary that reads as a printed reference plate rather than an e-commerce hero. Per-product central accent gives the 6 products a recognizable signature without any per-product art commission. Frame is decorative enough to reward attention but quiet enough (0.34 alpha stroke, 0.78 rest opacity) not to fight the underlying `SpecimenPlate` measurement marks or the product visual.
+
+**Files modified.**
+
+- `src/components/specimen-plate-frame.tsx` — **new** server component (~80 LOC).
+- `src/app/supplies/[id]/page.tsx` — `+2` (1 import + 1 mount line).
+- `src/app/globals.css` — `+38` (one `.pdp-plate-frame` block plus a 3-line comment header).
+
+**Follow-ups uncovered.**
+
+- `image-gen-subtask-3-of-3-journal-manifesto-colophon-imagery` (medium, queued) — Notion `360af8d3-d3e2-81d5-a53d-f21127250381`; closes the image-gen trilogy with journal-index wax-seal + manifesto press-stamp + colophon press composition.
+- `pdp-plate-frame-second-consumer-or-prove-rarity-decision` (low, hygiene) — frame is currently always-visible at 0.78 opacity; if a future audit finds it too noisy alongside the SpecimenPlate measurement overlay, consider opacity 0 rest → 1 hover-only.
+- `pdp-plate-frame-central-accent-token-promotion` (low, hygiene) — 6 variant shapes hardcoded in `CentralAccent` switch; if a 7th product launches, promote the accent to `product.plate.accent` on the product schema.
+- `stale-next-server-on-3000-blocks-capture-ship` (medium, infra) — carried over from prior 2 ships; `capture-ship.mjs --port` or a process-check would unblock screenshot/visual-diff.
+
+**Periodic triggers fired.** None this run (retro fired 2026-05-13, critic fired 2026-05-13, calibration fired 2026-05-14; all within their 7/28/7-day cooldowns despite `shipped_count == 50` hitting the multiple-of-10 mark).
+
+---
 ## 2026-05-15 — Motion vocabulary [3/3] — `<Magnetic reveal>` extension on shared `src/components/magnetic.tsx` primitive + cursor-distance `--magnetic-distance` CSS var + first consumer "All pieces · The journal" link on the homepage
 
 **Area.** `system` · `hero` · `catalogue` — completes the **motion-vocabulary trilogy** with the third orthogonal mode: **cursor-distance-driven micro-motion**. Extends the shared `<Magnetic />` primitive at `src/components/magnetic.tsx` with a new `reveal` boolean prop (default `false` — backwards-compatible with all 15 existing call sites). When `reveal` is set, the wrapper div gains a `magnetic-reveal` class and, on `(pointer: fine)` + `(prefers-reduced-motion: no-preference)` only, the rAF loop publishes a `--magnetic-distance` CSS variable (0 → 1, computed from cursor distance to element center, normalized by half-diagonal of element bounds) which a single CSS rule in `globals.css` reads to interpolate `opacity` from `0.65 → 1.0` and `scale` from `0.96 → 1.0` as the cursor approaches. Reads as the element pulling itself out of the page in response to attention. Together with the scroll-driven [1/3] (hero-char-drift) and hover-driven [2/3] (letter-spacing transitions), BFS now owns three orthogonal motion modes: **scroll** (timeline-bound), **hover** (state-bound), **cursor** (distance-bound).
