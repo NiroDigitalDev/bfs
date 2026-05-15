@@ -434,7 +434,7 @@ items:
 
   - id: image-gen-subtask-2-of-3-pdp-specimen-plates
     title: "Image-gen [2/3] — PDP specimen-plate frame on all 6 /supplies/[id] routes (decorative inline-SVG corner brackets + registration crosses + per-product central accent + edition engraving)"
-    commit: pending
+    commit: df7cd8b
     date: 2026-05-15
     surface: catalogue
     tags: [catalogue, system, pdp, image-gen, image-gen-2-of-3, inline-svg, server-component, no-js, no-cls, decorative, aria-hidden, pointer-events-none, vector-effect-non-scaling-stroke, per-product-variant, awwwards-current, task-driven, split-subtask]
