@@ -3222,3 +3222,72 @@ items:
     last_verified: 2026-05-15
     dq_count: 0
     notes: Found by perf-a11y on about-display-figure-plate-printer-marks.
+
+  - id: journal-folio-piece-num-speculative-selector
+    title: ".folio[data-variant='journal'] .folio-piece-num is a no-op selector (italic inherited, lnum on Roman is null) — drop on next folio touch if no consumer materialises"
+    severity: low
+    effort: S
+    class: hygiene
+    status: open
+    files:
+      - src/app/globals.css
+    opened_on: 2026-05-15
+    last_verified: 2026-05-15
+    dq_count: 0
+    notes: Flagged by diff-reviewer on journal-folio-on-journal-routes. Rule kept for future tuning per spec but is currently a no-op (.folio-label already inherits italic + serif; lnum is meaningless on Roman numerals). Drop next time the folio block is touched if no concrete tuning need has arisen.
+
+  - id: journal-folio-fraction-range-sep-hardcoded-colors
+    title: Inline 14px + rgba(255,255,255,0.7) on the two new .folio-sep-fraction/.folio-sep-range selectors should route through tokens
+    severity: low
+    effort: S
+    class: hygiene
+    status: open
+    files:
+      - src/app/globals.css
+    opened_on: 2026-05-15
+    last_verified: 2026-05-15
+    dq_count: 0
+    notes: Flagged by diff-reviewer on journal-folio-on-journal-routes. Matches established .folio block convention (existing rules also use literal sizes + rgba); rolls into the existing folio-color-token-promotion sweep rather than a one-off fix.
+
+  - id: journal-folio-about-route-variant
+    title: "Extend JournalFolio onto /about — '§ III · About' single-piece variant"
+    severity: low
+    effort: S
+    class: distinctive
+    status: open
+    files:
+      - src/components/journal-folio.tsx
+      - src/app/about/page.tsx
+    opened_on: 2026-05-15
+    last_verified: 2026-05-15
+    dq_count: 0
+    notes: Explicit out-of-scope in journal-folio-on-journal-routes spec. The folio's editorial spine should reach about + legal eventually; this is the about leg. Likely a single 'variant=single' case in JournalFolio (or a renamed RouteFolio component) with custom label.
+
+  - id: journal-folio-legal-route-variants
+    title: "Extend folio onto /privacy /terms /cookies — '§ III · Statutory' or per-route caps-sans label"
+    severity: low
+    effort: S
+    class: distinctive
+    status: open
+    files:
+      - src/components/journal-folio.tsx
+      - src/app/privacy/page.tsx
+      - src/app/terms/page.tsx
+      - src/app/cookies/page.tsx
+    opened_on: 2026-05-15
+    last_verified: 2026-05-15
+    dq_count: 0
+    notes: Explicit out-of-scope in journal-folio-on-journal-routes spec. Less editorial than journal but completes the masthead spine coverage. Legal routes use legal-page-frame.tsx — likely a folio insertion there for all three at once.
+
+  - id: journal-folio-scroll-bound-piece-swap-on-index
+    title: "Floema-style scroll-driven piece-index swap on /journal index — folio reads change as the reader scrolls through the entries"
+    severity: low
+    effort: M
+    class: distinctive
+    status: open
+    files:
+      - src/components/journal-folio.tsx
+    opened_on: 2026-05-15
+    last_verified: 2026-05-15
+    dq_count: 0
+    notes: Deferred reference-scout move (Floema running-folio). The /journal index currently shows static 'pp. I–XI' — could become 'Piece <roman>' as each entry enters the viewport, matching the chapter-driven RunningFolio's scroll-bound active state on /. Single-surface, ~80 LOC; needs an IntersectionObserver on .journal-entries-item.

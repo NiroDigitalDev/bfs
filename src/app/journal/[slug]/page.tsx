@@ -64,6 +64,7 @@ export default async function JournalPostPage({
   if (!post) notFound();
 
   const index = getPostIndex(post.slug);
+  const total = getAllPosts().length;
   const canonical = `${siteUrl}/journal/${post.slug}`;
 
   const articleLd = {
@@ -112,7 +113,7 @@ export default async function JournalPostPage({
 
   return (
     <>
-      <JournalPostFrame post={post} index={index} />
+      <JournalPostFrame post={post} index={index} total={total} />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleLd) }}

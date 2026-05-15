@@ -3,6 +3,57 @@
 A running record of focused changes shipped by the website-improvement routine.
 One entry per run. Newest first.
 
+## 2026-05-15 — Running folio extended onto /journal index + 11 post pages
+
+**Area.** Chrome (running-folio) → /journal (index) + /journal/[slug] (11 posts). New server component `src/components/journal-folio.tsx`; wired into `src/app/journal/page.tsx` and `src/components/journal-post-frame.tsx` (with a new `total: number` prop fed from `getAllPosts().length` in `src/app/journal/[slug]/page.tsx`). CSS variant additions in `src/app/globals.css`.
+
+**Why it's the focus.** Cool-surface auditor (journal/about pass) flagged that the celebrated running-folio is hard-gated to `/` via `src/components/site-chrome.tsx:9` (`if (pathname !== "/") return null`), so the moment a visitor clicks "Journal" the press's signature editorial spine evaporates and the editorial conceit collapses. Picked at T2 M1 L2 I2 A3 D3 = **13 / 18** (M-H band) over chapter-cta-pill-1689 @ 12 (hot-surface auditor finding — register-pairs with cart-drawer CTA but lower I-impact than a 12-page journal sweep), about-from-the-press-card @ 12 (about just shipped this same day — surface-freshness tiebreaker against), press-strip-stock-row-of-five @ 11. No Notion task override this run — `mcp__Notion__API-query-data-source` on the Tasks DB with `Status equals "To do"` returned 0 rows. Cold-surface tiebreaker also favoured journal (11+ ships since the surface's last touch per historian's surface-freshness report).
+
+**Mode.** Shipped.
+
+**Risk band.** **Low.** No shared primitive touched — `running-folio.tsx` and `site-chrome.tsx` are unchanged; JournalFolio is a new surface-local server component. 5 files modified (≤8 threshold), +56 / -1 LOC (≤250 threshold), no new client `"use client"` boundary, no SEO/JSON-LD edit, no design-token block edit. Direct-commit to main per low-band default.
+
+**What ships.** A new `<JournalFolio>` server component (no `"use client"`) rendered directly inside `<main>` on the journal index and each post page. Two variants via discriminated union:
+- **Index** (`/journal`): left edge `§ III · The Journal`, right edge `pp. I – XI · MMXXVI`.
+- **Post** (`/journal/<slug>`): left edge `§ III · Piece <roman>`, right edge `p. <roman> / XI · MMXXVI` — where `<roman>` = `romanNumeral(getPostIndex(slug))` from `src/lib/journal.ts`, so newest post reads as "Piece XI" and oldest as "Piece I".
+
+Reuses every `.folio-*` class (`folio`, `folio-edge`, `folio-mark`, `folio-slot`, `folio-numeral`, `folio-folio`, `folio-label`, `folio-sep`, `folio-page`, `folio-edition`) plus both keyframes (`folio-rise` 700ms, `folio-typeset` 540ms) and the existing `@media (prefers-reduced-motion: reduce)` guard at `globals.css:4781-4787`. Zero new motion vocabulary. The PDP-hide rule at `globals.css:5102-5105` (`main.pdp ~ .folio`) continues to work because no PDP route renders a folio inside its main.
+
+**Architecture.** SiteChrome and the chapter-driven RunningFolio remain owners of the homepage masthead at `/`. JournalFolio is a parallel server component owned by the journal route family. Two-component pattern avoids touching either high-risk shared primitive and keeps the chapter-rail / chapter-driven scroll observer scoped to `/` (it has no semantic match on journal pages — pieces are not chapters). About and legal routes intentionally remain bare this run (logged as follow-ups).
+
+**Verification.** lint 0 errors + 7 pre-existing tooling warnings (all in `.claude/improvement/scripts/*.mjs`, unchanged set). `bunx tsc --noEmit` clean. `bun run build` 48/48 routes (Turbopack 1169.9ms). 0 anti-patterns. SSR class-grep — `/journal` renders 1× `<aside class="folio" data-variant="journal">` + 2× `folio-edge` + "The Journal" label + "I" + "XI" + "pp." + "MMXXVI"; sample `/journal/against-the-saas-template` renders 1× journal-variant folio with 4× "Piece " + 8× "p." + 3× " / " + correct piece roman; homepage `/` unchanged — 1× `<aside class="folio">` with NO `data-variant` attribute (existing chapter-driven RunningFolio intact); `/about` `/privacy` `/terms` `/cookies` render 0× `.folio` (correctly out of scope); all 6 PDPs render 0× `.folio` inside `main.pdp` (no regression to the PDP-hide selector).
+
+**Rubric.** T2 M1 L2 I2 A3 D3 = **13 / 18** (M-H band).
+
+**Screenshots.** Skipped — `capture-ship.mjs` failed with "server did not become ready within 30s"; the stale `next-server` carry-over blocker is now 8 ships old. Severity flagged in shipped.yaml notes (no separate backlog item exists for it — historic gap).
+
+**SOTD comparison.** Skipped — `sotd-compare.mjs` exited `skipped: could not parse SOTD entry — gallery markup may have changed`; `sotd_parser_available:false` carry-over.
+
+**Notion.** No task to flip this run (no override). Reports row to append via MCP API-post-page with Surface=`chrome` (single-select; closest schema option — folio is bottom-edge masthead chrome), Mode=`Shipped`, Rubric T2 M1 L2 I2 A3 D3 = 13/18, Risk=`Low`, Commit=`<sha>`, Files=`src/components/journal-folio.tsx, src/app/journal/page.tsx, src/components/journal-post-frame.tsx, src/app/journal/[slug]/page.tsx, src/app/globals.css`.
+
+**Expected impact.** D=3 because the editorial spine continuity from `/` to `/journal/*` was the single most visible coherence gap in the press — flagged by the cool-surface auditor as the focus candidate. I=2 because the change touches every journal route (1 index + 11 posts = 12 pages). T=2 for the new Roman-numeral piece-pagination vocabulary on press routes (`Piece <roman>`, `<roman> / <total>`). L=2 for the edge-rail composition extending to a new surface family. M=1 for reusing existing folio-rise/typeset keyframes. A=3 (aria-hidden decorative chrome, zero a11y impact). The folio is hidden under 900px viewport (existing media-query gate) so the win is desktop-first; mobile sees no change.
+
+**Files modified.**
+- NEW `src/components/journal-folio.tsx` (~65 LOC)
+- `src/app/journal/page.tsx` (+2 lines — import + render)
+- `src/components/journal-post-frame.tsx` (+3 lines — accept `total` prop + render)
+- `src/app/journal/[slug]/page.tsx` (+1 line — derive `total` + pass to frame)
+- `src/app/globals.css` (+22 lines net at `:~4791` — journal-variant selectors)
+
+**Follow-ups uncovered.**
+- `journal-folio-piece-num-speculative-selector` (low, hygiene — diff-reviewer flagged the `.folio-piece-num` rule as a no-op; drop on next folio touch if no concrete consumer materialises)
+- `journal-folio-fraction-range-sep-hardcoded-colors` (low, hygiene — inline 14px + rgba(255,255,255,0.7); rolls into the existing folio-color-token-promotion sweep)
+- `journal-folio-about-route-variant` (low, distinctive — `§ III · About` single-piece variant on /about; explicit out-of-scope in this run's spec)
+- `journal-folio-legal-route-variants` (low, distinctive — extend to /privacy /terms /cookies via legal-page-frame.tsx; explicit out-of-scope)
+- `journal-folio-scroll-bound-piece-swap-on-index` (low, motion — Floema-style scroll-driven piece-index swap on /journal index; deferred reference-scout move)
+- `stale-next-server-on-3000-blocks-capture-ship` (high, infra — carry-over, 8 ships old; severity promoted; no backlog item exists for it yet — historic gap)
+- `sotd-parser-fix` (low, infra — carry-over)
+- `lighthouse-baseline-seed` (low, infra — carry-over)
+
+**Backlog closed-by-drift.** None this run.
+
+**Periodic triggers fired.** None this run. last_retro_at=2026-05-13 (next eligible 2026-05-20), last_critic_at=2026-05-13 (next eligible 2026-06-10), last_calibration_at=2026-05-14 (shipped_count=57 after this ship, not a multiple of 10; next eligible at 60). consecutive_no_focus_runs=0.
+
 ## 2026-05-15 — About display gains two-corner printer's-bug marks
 
 **Area.** /about — the `<header className="journal-header about-header">` block, specifically the masthead "About the press." SplitText `<h1>`.

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { JournalFolio } from "@/components/journal-folio";
 import { JournalPostCard } from "@/components/journal-post-card";
 import { Magnetic } from "@/components/magnetic";
 import { SplitText } from "@/components/split-text";
@@ -158,6 +159,8 @@ export default function JournalIndexPage() {
           <em>{site.edition}</em>
         </span>
       </footer>
+
+      <JournalFolio variant="index" total={posts.length} />
 
       <script
         type="application/ld+json"

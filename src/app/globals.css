@@ -4787,6 +4787,28 @@ html.loading body {
   }
 }
 
+/* Journal variant — the same folio aside rendered on /journal index and
+   /journal/[slug] post pages. Reuses every .folio rule above; this block
+   only carries the inline italic-serif Roman piece-number selector (which
+   inherits italic + serif from .folio-label, but the explicit selector
+   is here for future tuning) and tightens the fraction/range separators
+   so "p. IV / XI" and "pp. I – XI" don't read as ordinary mid-dots. */
+.folio[data-variant="journal"] .folio-piece-num {
+  font-style: italic;
+  font-feature-settings: "lnum" 1;
+}
+.folio[data-variant="journal"] .folio-sep-fraction,
+.folio[data-variant="journal"] .folio-sep-range {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 14px;
+  letter-spacing: 0;
+  text-transform: none;
+  opacity: 0.6;
+  color: rgba(255, 255, 255, 0.7);
+}
+
 /* ============ SPECIMEN PLATE ============
    A technical-drawing overlay laid over each product portrait. Hairline
    dimension lines, italic-numeral measurements, FIG. label, and a small

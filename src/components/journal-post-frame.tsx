@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { JournalFolio } from "@/components/journal-folio";
 import { SplitText } from "@/components/split-text";
 import { Magnetic } from "@/components/magnetic";
 import { RelatedJournalPosts } from "@/components/related-journal-posts";
@@ -9,9 +10,11 @@ import { site } from "@/lib/site";
 export function JournalPostFrame({
   post,
   index,
+  total,
 }: {
   post: JournalPost;
   index: number;
+  total: number;
 }) {
   const heroWords = post.title.trim().split(/\s+/);
   const titleWord1 =
@@ -170,6 +173,8 @@ export function JournalPostFrame({
       </footer>
 
       <RelatedJournalPosts current={post.slug} />
+
+      <JournalFolio variant="post" piece={index} total={total} />
     </main>
   );
 }
