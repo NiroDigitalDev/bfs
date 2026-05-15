@@ -452,7 +452,7 @@ items:
 
   - id: manifesto-item-as-sans-card
     title: "Re-typeset CH. 03 / Manifesto items off the Inter-800 caps card pattern — italic-serif display titles + italic-serif oldstyle numerals + scroll-bound active state via IntersectionObserver"
-    commit: pending
+    commit: b23cc5a
     date: 2026-05-15
     surface: manifesto
     tags: [manifesto, system, typography, italic-serif, instrument-serif, oldstyle-numerals, onum, intersection-observer, scroll-bound, data-active, reduced-motion, no-new-tokens, no-new-fonts, no-new-keyframes, cold-surface, distinctive, awwwards-current, retro-bias]
