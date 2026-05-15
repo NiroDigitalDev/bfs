@@ -26,7 +26,10 @@ export function RelatedProducts({ current }: { current: ProductId }) {
   const len = products.length;
   const prev = products[(idx - 1 + len) % len];
   const next = products[(idx + 1) % len];
-  const siblings = [prev, next];
+  const siblings = [
+    { product: prev, direction: "prev" as const, label: "Previous" },
+    { product: next, direction: "next" as const, label: "Next" },
+  ] as const;
 
   return (
     <section className="related" aria-labelledby="related-heading">
@@ -40,25 +43,60 @@ export function RelatedProducts({ current }: { current: ProductId }) {
         </h2>
       </header>
       <ol className="related-grid">
-        {siblings.map((p, i) => {
+        {siblings.map(({ product: p, direction, label }, i) => {
           const Visual = visualsById[p.id];
           return (
             <Reveal key={p.id} delay={`${i * 0.08}s`}>
-              <li className="related-item">
+              <li className="related-item" data-direction={direction}>
+                <span className="related-numeral" aria-hidden>
+                  {p.plate.fig}
+                </span>
                 <Link
                   href={`/supplies/${p.id}`}
                   className="related-link"
                   data-cursor="link"
                   data-cursor-label="Open"
-                  aria-label={`${p.title} · Plate ${p.plate.fig}`}
+                  aria-label={`${label} specimen · ${p.title} · Plate ${p.plate.fig}`}
                 >
                   <Tilt className="related-figure" max={4}>
                     <span className="related-figure-light" aria-hidden />
                     <Visual />
                   </Tilt>
                   <div className="related-meta">
-                    <span className="related-plate">
-                      Plate&thinsp;·&thinsp;{p.plate.fig}
+                    <span className="related-eyebrow-pair">
+                      {direction === "prev" ? (
+                        <>
+                          <em className="related-eyebrow-label">
+                            <span aria-hidden>← </span>
+                            {label}
+                          </em>
+                          <span
+                            className="related-eyebrow-sep"
+                            aria-hidden
+                          >
+                            ·
+                          </span>
+                          <span className="related-plate">
+                            Plate&thinsp;·&thinsp;{p.plate.fig}
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="related-plate">
+                            Plate&thinsp;·&thinsp;{p.plate.fig}
+                          </span>
+                          <span
+                            className="related-eyebrow-sep"
+                            aria-hidden
+                          >
+                            ·
+                          </span>
+                          <em className="related-eyebrow-label">
+                            {label}
+                            <span aria-hidden> →</span>
+                          </em>
+                        </>
+                      )}
                     </span>
                     <h3 className="related-name">{p.title}</h3>
                     <span className="related-sub">

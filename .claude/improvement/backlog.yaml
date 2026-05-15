@@ -3383,3 +3383,42 @@ items:
     last_verified: 2026-05-15
     dq_count: 0
     notes: "Flagged by perf-a11y on newsletter-editorial-register-pass. Post-submit, the input+button subtree (~42px content+padding box at font-size 14px+12px) swaps to a single <output> element (~30px content+padding box at font-size 14px). ~2-6px vertical delta possible. NOT user-perceptible at footer position AND post-interaction (input-initiated within 500ms) is excluded from the CLS web-vital — but trims a CLS edge case if tightened. Match .newsletter-status to font: inherit + padding: 8px 0 or measure pre-swap input+button height and pin output to match."
+
+  - id: related-grid-rule-color-token-promotion
+    title: "Promote .related-grid::after + .related-numeral + .related-eyebrow-* rgba literals to var(--color-line-*) tokens"
+    severity: low
+    effort: S
+    class: hygiene
+    status: open
+    files:
+      - src/app/globals.css
+    opened_on: 2026-05-15
+    last_verified: 2026-05-15
+    dq_count: 0
+    notes: "Flagged by diff-reviewer on pdp-related-grid-symmetric-tombstone. The new .related-grid::after between-column hairline uses background: rgba(255,255,255,0.18) and .related-numeral / .related-eyebrow-label / .related-eyebrow-sep introduce rgba(255,255,255,0.32|0.55|0.70|0.78) literals (matching the established .related block convention — pre-existing siblings already use raw rgba). Rolls into the existing folio/cart/newsletter hardcoded-color-token-promotion sweep — tokenise .related, .related-numeral, .related-eyebrow-*, .newsletter, .folio[data-variant='journal'|'legal'], .cart-* blocks together in one --color-line-* / --ink-alpha-* ramp."
+
+  - id: folio-numeral-pattern-extract-utility
+    title: "Hoist italic-serif oversized-margin numeral pattern (.chapter-numeral, .folio-numeral, .related-numeral) into a single utility class or CSS custom-property set"
+    severity: low
+    effort: M
+    class: hygiene
+    status: open
+    files:
+      - src/app/globals.css
+    opened_on: 2026-05-15
+    last_verified: 2026-05-15
+    dq_count: 0
+    notes: "Flagged by diff-reviewer on pdp-related-grid-symmetric-tombstone (finding #2). Third occurrence of the italic-serif oversized-margin numeral recipe (font-serif italic, clamp ~32-72px, rgba 0.32 resting, 0.7 on hover/:focus-visible). Currently three sites — .chapter-numeral on homepage, .folio-numeral on running-folio masthead, and now .related-numeral on PDPs. A fourth occurrence (e.g. a journal-prose-chapter-numeral, an about-page section numeral, or a journal-folio per-piece numeral) would justify hoisting into a .folio-numeral or .numeral-display utility class or a CSS custom-property set (--numeral-rest / --numeral-hover) consumed via shared base rules. Wait for the fourth — premature abstraction now would lock the recipe before its variance is clear."
+
+  - id: related-eyebrow-arrow-glyph-aria-hidden-double-emphasis
+    title: "One-shot live AT test on .related-eyebrow-label arrows (← / →) inside <em> under aria-label override"
+    severity: low
+    effort: S
+    class: a11y
+    status: open
+    files:
+      - src/components/related-products.tsx
+    opened_on: 2026-05-15
+    last_verified: 2026-05-15
+    dq_count: 0
+    notes: "Flagged by perf-a11y on pdp-related-grid-symmetric-tombstone. The aria-hidden glyphs ←/→ are children of <em class='related-eyebrow-label'> whose parent <a aria-label='Previous specimen · …'> overrides descendant accessible-name computation per ARIA spec, so the eyebrow text — including the arrows — should NOT be announced. Verified by spec / inspection only; worth a one-shot live AT test (VoiceOver / NVDA) on the next dev-server-running run to confirm zero double-announcement. Not user-facing-blocking; tracking as a verification gap."

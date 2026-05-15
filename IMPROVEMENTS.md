@@ -3,6 +3,66 @@
 A running record of focused changes shipped by the website-improvement routine.
 One entry per run. Newest first.
 
+## 2026-05-15 — PDP "Two further specimens" recomposed as a dictionary cross-reference
+
+**Area.** Catalogue (PDP recirculation) — `src/components/related-products.tsx` (server component) + `.related-*` block at `src/app/globals.css:5715-5870`. Rendered on every product detail route (`/supplies/<slug>` × 6) as the final section before `.pdp-outro`. Closes the journey for every catalogue visitor.
+
+**Why it's the focus.** Catalogue surface auditor FOCUS CANDIDATE — the `1fr 1fr` related grid was a textbook even split — two identical cards, no folio framing, no spread vocabulary, no per-side typographic accent. The site's editorial register lives in every preceding PDP section (specimen plate hairlines, chapter folio, italic-serif chapter cross-references on `/`), so the recirculation read as a *default Next.js template grid at the dead-end of the journey*. Picked at T2 M2 L3 I3 A3 D3 = **16 / 18** (distinctive band, top of this run) over `margin-as-a-gesture-but-no-margin` @ 14/M (journal auditor #1 — bundles 3 distinct primitives, would trip task-split heuristic), `dispatch-prev-next-pagination` @ 13/S (journal #2 — strong but lower L), `journal-list-entries-generic-reveal` @ 13/S (journal #3), `catalogue-spec-link-arrow-static` @ 13/S, `pdp-press-display-monotone-em` @ 13/S, `folio-numeral-re-typeset-on-chapter-cross` @ 13/M (chrome-saturated — historian flagged 3 consecutive chrome ships), `journal-prose-no-scroll-progress` @ 12/M (touches scroll-progress shared primitive — high risk). No Notion task override this run — Tasks DB queried via `mcp__Notion__API-query-data-source` filter `select.equals:To do` returned 0 rows. **Surface-freshness tiebreaker** also favoured catalogue: 6 ships ago (last shipped `catalogue-spc-edition-hover-scribble`), chrome is HOT (3-in-a-row: legal-folio, newsletter, journal-folio).
+
+**Mode.** Shipped.
+
+**Risk band.** Medium per `risk-rules.md` — 2 files modified, +159/-6 LOC fits the 100-250 medium band, no shared primitive surgery (consumes `Reveal` and `Tilt` but doesn't edit them), no design-token block edit, no SEO/JSON-LD change, no new client boundary. Visible-as-recirculation-chrome on every PDP. Direct-commit to main per medium-band default (medium adds screenshot capture which is currently broken — see `capture-ship-stale-server-on-3000` carry-over).
+
+**What ships.** The two siblings render as a true asymmetric spread, not a 50/50 split.
+
+- Each `<li class="related-item">` now carries `data-direction="prev" | "next"`.
+- An oversized italic-serif **plate numeral** (Instrument Serif italic, `clamp(40px, 5vw, 64px)`, `rgba(255,255,255,0.32)` resting, `0.7` on `:hover` / `:focus-visible`) sits absolute-positioned in the outer margin per side — prev numeral on the far-left edge of its column, next numeral on the far-right. The numeral is `aria-hidden` and `pointer-events: none`.
+- Per-side **padding offsets**: prev `.related-link` gets `padding-left: clamp(56px, 7vw, 88px)`; next gets the mirrored `padding-right`. This pulls the meta text *toward* the numeral on each side, framing it.
+- **Mirrored text-align**: the next side's `.related-meta` and `.related-eyebrow-pair` align right; the arrow `Read the spec ↗` aligns end. Prev side stays left-aligned. The composition reads like a flipped dictionary spread.
+- **Between-column hairline rule** — `.related-grid::after` renders as a 1px vertical line at `left: 50%`, animating `transform: scaleY(0 → 1)` from `transform-origin: 50% 0` as the section enters view. Driven by `@supports (animation-timeline: view())` + `(prefers-reduced-motion: no-preference)` + `(min-width: 720px)`. New keyframe `related-rule-draw`. Without view-timeline, the rule renders fully drawn (scaleY 1) via the base rule — graceful fallback to a static hairline.
+- **Eyebrow recast** from generic `Plate · <fig>` to per-direction reading: prev side `← Previous · Plate · III` (with `←` as an `aria-hidden` glyph inside `<em class="related-eyebrow-label">`); next side `Plate · V · Next →`. Three semantic spans: `.related-eyebrow-label` (italic-serif, 13px, `rgba 0.78` → 1.0 on hover), `.related-eyebrow-sep` (the `·` glyph, `rgba 0.32`, aria-hidden), `.related-plate` (existing eyebrow sans, retained).
+- `aria-label` on each `<a>` enriched from `${title} · Plate ${fig}` to `${label} specimen · ${title} · Plate ${fig}` so AT users hear the direction.
+- Numeral picks up the hover color cascade via `.related-item:has(.related-link:hover|focus-visible)` — `:has()` does the bidirectional sibling work that `~` couldn't (numeral comes before link in source order).
+- Mobile (<720px): numerals hide (`display: none`), grid stacks vertically, padding offsets removed, between-column rule hidden. Eyebrow pair stays per-direction; mirroring drops.
+
+**Architecture.** Pure CSS + JSX restructure of an already-rendered server component. `RelatedProducts` remains a server component — no `"use client"`, no hooks, no state. `Reveal` and `Tilt` boundaries unchanged. The siblings tuple is typed with `as const` for literal-direction narrowing. The hairline animation uses the same `@supports (animation-timeline: view())` + `(prefers-reduced-motion: no-preference)` gate-stack as `.hero-title` (`globals.css:851`) and `.chapter-numeral` (`globals.css:1402`) — consistent vocabulary, no new motion primitive. The new `related-rule-draw` keyframe is scoped under both gates plus `(min-width: 720px)`, so single-column mobile users never trigger it.
+
+**Verification.**
+- `bun run lint` — 0 errors, 7 pre-existing tooling warnings (unchanged baseline in `.claude/improvement/scripts/*.mjs`).
+- `bunx tsc --noEmit` — clean.
+- `bun run build` — 48/48 routes prerendered, Turbopack 1165.2ms compile.
+- SSR class-grep across all 6 PDP routes (`/supplies/void-book`, `/abyssal-cardstock`, `/event-horizon-pad`, `/sticky-voids`, `/savior-pen`, `/executive-despair`): each renders exactly 1× `<section class="related">`, 2× `<li class="related-item">`, 1× `data-direction="prev"` + 1× `data-direction="next"`, 2× `.related-numeral`, 2× `.related-eyebrow-pair`, `Previous specimen` + `Next specimen` aria-labels, and the closed loop I→II→III→IV→V→VI→I across the numerals. Per-side eyebrows confirmed: prev contains `Previous` + `Plate · <fig>`; next contains `Plate · <fig>` + `Next`.
+- SSR adjacent-route check: `/`, `/journal`, `/journal/the-margin-as-a-gesture`, `/about` all render 0× `.related-*` markup. The 4 substring hits on the journal article are `journal-related-item` (a separate pre-existing component) — not a regression. `/shop` is not a route in this codebase; the catalogue lives on `/`.
+- `anti-patterns.mjs` — 0 findings.
+- Screenshots skipped — `capture-ship.mjs` carry-over blocker (now 11 ships old; backlog item `capture-ship-stale-server-on-3000` already at severity high).
+- Visual diff — n/a (capture skipped).
+- Lighthouse skipped — below-the-fold CSS-only delta; reuses the existing view-timeline gate pattern; `lighthouse.csv` header-only (no baseline to regress against).
+
+**Rubric.** T2 M2 L3 I3 A3 D3 = **16 / 18** (distinctive band).
+
+**Screenshots.** Skipped — capture-ship infrastructure blocked (carry-over).
+
+**SOTD comparison.** Skipped — `sotd_parser_available: false` carry-over.
+
+**Notion.** Reports row appended via MCP `mcp__Notion__API-post-page` with Surface=catalogue, Mode=Shipped, Rubric T2 M2 L3 I3 A3 D3 = 16/18, Risk=Medium, Commit=`<sha>`. No task to flip this run.
+
+**Expected impact.** Closes the *single most generic* layout on the PDP. Every catalogue visitor who reaches the end of a product page now sees an editorial spread that reads as "Previous · Plate III ↔ Plate V · Next" — a foliated cross-reference instead of a tombstone. The numeral hover cascade (`rgba 0.32 → 0.7`) and the between-column hairline draw on scroll-in deliver the I/M lift the section had been missing. T+L+D move from 2/2/2 to 3/3/3.
+
+**Files modified.**
+- `src/components/related-products.tsx` — siblings tuple with `as const` typed direction, conditional ternary for per-side eyebrow markup, `data-direction` + `.related-numeral` span added, enriched aria-label.
+- `src/app/globals.css` — `.related-grid` now `position: relative` with `::after` between-column rule; `.related-numeral` rule set (resting + per-direction position + `:has()` hover cascade); `.related-item[data-direction]` per-side padding + text-align mirrors; `.related-eyebrow-pair` / `.related-eyebrow-label` / `.related-eyebrow-sep` new rule set; `@supports (animation-timeline: view())` block with `related-rule-draw` keyframe.
+
+**Follow-ups uncovered.**
+- `related-grid-rule-color-token-promotion` (low, hygiene) — diff-reviewer finding #1: `.related-grid::after` uses `rgba(255,255,255,0.18)` rather than `var(--color-line-*)`. Rolls into the existing folio/cart/newsletter hardcoded-color-token-promotion sweep.
+- `folio-numeral-pattern-extract-utility` (low, hygiene) — diff-reviewer finding #2: third occurrence of the italic-serif oversized-margin numeral recipe (after `.chapter-numeral` and `.folio-numeral`). Fourth occurrence justifies hoisting into a `.numeral-display` utility or a CSS custom-property set.
+- `related-eyebrow-arrow-glyph-aria-hidden-double-emphasis` (low, a11y verification) — perf-a11y flagged: aria-hidden `←` / `→` glyphs inside `<em>` whose parent `<a aria-label>` overrides descendant naming per ARIA spec; spec-verified safe but worth a one-shot live AT test on next dev-server-running run.
+
+**Backlog closed-by-drift.** None this run.
+
+**Periodic triggers fired.** None this run — retro not eligible until 2026-05-20, critic not eligible until 2026-06-10, calibrator not eligible until `shipped_count == 60`, creativity-reset not eligible (`consecutive_no_focus_runs == 0`).
+
+---
+
 ## 2026-05-15 — Footer newsletter form recast in italic-serif editorial register
 
 **Area.** Chrome (footer · newsletter form) — `src/components/newsletter.tsx` + `.newsletter` block at `src/app/globals.css:3180-3270`. Rendered in `<SiteFooter />` on 48 routes (every page except `/checkout`, which opts out via `SiteFooterMount`).

@@ -5719,14 +5719,84 @@ main.pdp ~ .folio {
   display: grid;
   gap: clamp(20px, 3vw, 36px);
   grid-template-columns: 1fr;
+  position: relative;
 }
 @media (min-width: 720px) {
   .related-grid {
     grid-template-columns: 1fr 1fr;
   }
+  /* Between-column hairline — draws scaleY 0→1 as the section
+     enters view (per-element view() timeline, same gate stack as
+     hero-title / chapter-numeral). Without view-timeline support
+     the rule renders fully drawn, matching the static fallback
+     used elsewhere on the route. */
+  .related-grid::after {
+    content: "";
+    position: absolute;
+    top: clamp(20px, 3vw, 36px);
+    bottom: clamp(20px, 3vw, 36px);
+    left: 50%;
+    width: 1px;
+    background: rgba(255, 255, 255, 0.18);
+    transform: scaleY(1);
+    transform-origin: 50% 0;
+    pointer-events: none;
+  }
+}
+@supports (animation-timeline: view()) {
+  @media (min-width: 720px) and (prefers-reduced-motion: no-preference) {
+    .related-grid {
+      view-timeline-name: --related-grid-tl;
+      view-timeline-axis: block;
+    }
+    .related-grid::after {
+      animation: related-rule-draw both;
+      animation-timeline: --related-grid-tl;
+      animation-range: entry 10% cover 35%;
+    }
+    @keyframes related-rule-draw {
+      from {
+        transform: scaleY(0);
+      }
+      to {
+        transform: scaleY(1);
+      }
+    }
+  }
 }
 .related-item {
   position: relative;
+}
+.related-numeral {
+  display: none;
+}
+@media (min-width: 720px) {
+  .related-numeral {
+    display: block;
+    position: absolute;
+    top: -4px;
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 400;
+    font-size: clamp(40px, 5vw, 64px);
+    line-height: 1;
+    color: rgba(255, 255, 255, 0.32);
+    letter-spacing: -0.02em;
+    pointer-events: none;
+    user-select: none;
+    transition: color var(--dur-2) var(--ease-out-quart);
+    z-index: 2;
+  }
+  .related-item[data-direction="prev"] .related-numeral {
+    left: 4px;
+  }
+  .related-item[data-direction="next"] .related-numeral {
+    right: 4px;
+  }
+}
+.related-item:has(.related-link:hover) .related-numeral,
+.related-item:has(.related-link:focus-visible) .related-numeral {
+  color: rgba(255, 255, 255, 0.7);
 }
 .related-link {
   display: grid;
@@ -5737,6 +5807,20 @@ main.pdp ~ .folio {
   padding: 18px;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   transition: border-color var(--dur-2) var(--ease-out-quart);
+}
+@media (min-width: 720px) {
+  .related-item[data-direction="prev"] .related-link {
+    padding-left: clamp(56px, 7vw, 88px);
+  }
+  .related-item[data-direction="next"] .related-link {
+    padding-right: clamp(56px, 7vw, 88px);
+  }
+  .related-item[data-direction="next"] .related-meta {
+    text-align: right;
+  }
+  .related-item[data-direction="next"] .related-arrow {
+    align-self: end;
+  }
 }
 .related-link:hover,
 .related-link:focus-visible {
@@ -5778,6 +5862,37 @@ main.pdp ~ .folio {
 .related-meta {
   display: grid;
   gap: 6px;
+}
+.related-eyebrow-pair {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-family: var(--font-sans);
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.55);
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+.related-item[data-direction="next"] .related-eyebrow-pair {
+  justify-content: flex-end;
+}
+.related-eyebrow-label {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 13px;
+  letter-spacing: 0;
+  text-transform: none;
+  color: rgba(255, 255, 255, 0.78);
+  transition: color var(--dur-2) var(--ease-out-quart);
+}
+.related-link:hover .related-eyebrow-label,
+.related-link:focus-visible .related-eyebrow-label {
+  color: #fff;
+}
+.related-eyebrow-sep {
+  color: rgba(255, 255, 255, 0.32);
+  letter-spacing: 0;
 }
 .related-plate {
   font-family: var(--font-sans);
