@@ -527,7 +527,7 @@ items:
 
   - id: journal-prev-next-dictionary-spread
     title: "Journal 'Two further pieces' recomposed as dictionary cross-reference — asymmetric prev/next spread with oversized italic-serif piece numerals in opposite margins and between-column hairline rule (scroll-driven scaleY draw via view-timeline); mirrors the PDP recirculation vocabulary shipped one run earlier onto the cold journal surface (0/8 last ships)"
-    commit: pending
+    commit: 9c7c09d
     date: 2026-05-15
     surface: journal
     tags: [journal, recirculation, asymmetric-layout, dictionary-cross-reference, italic-serif, oversized-numeral, piece-numeral, between-column-hairline, view-timeline, scroll-driven, prev-next-folio-framing, mirror-text-align, server-component, cold-surface, auditor-pick, register-coherence, surface-mirror-of-pdp-f107f1b, closed-loop-adjacency, no-new-client-boundary, tilt-boundary-removed, fourth-numeral-occurrence, getAdjacentPosts]
