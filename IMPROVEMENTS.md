@@ -3,6 +3,73 @@
 A running record of focused changes shipped by the website-improvement routine.
 One entry per run. Newest first.
 
+## 2026-05-15 — Journal "Two further pieces" recomposed as a dictionary cross-reference
+
+**Area.** Journal (recirculation foot) — `src/components/related-journal-posts.tsx` (server component) + `.journal-related-*` block at `src/app/globals.css:7633-7818`, plus a new `getAdjacentPosts(slug)` helper in `src/lib/journal.ts`. Rendered on every journal post route (`/journal/<slug>` × 11) as the final section before the JournalFolio masthead.
+
+**Why it's the focus.** Journal surface auditor FOCUS CANDIDATE #1 — the recirculation foot was the single most visible site on the surface where the editorial register dropped: a symmetric `1fr 1fr` grid with framed Tilt cards (aspect 5:4, frame numeral, hairline rule, glyph dot) that read as a *blog template* glued onto the bottom of a press article. The same recirculation idea just shipped on PDPs one run earlier (commit `f107f1b` — `pdp-related-grid-symmetric-tombstone`) and the journal foot was the obvious mirror surface to bring to parity. Picked at T2 M3 L3 I3 A3 D3 = **17 / 18** (top of this run, breakout from the distinctive band into the high-end) over `journal-related-grid-asymmetric` @ 14/S (same surface — would be redundant with this move), `folio-numeral-re-typeset-on-chapter-cross` @ 13/M (chrome — saturated 3-of-8 vs journal 0-of-8), `pdp-price-as-dictionary-headword` @ 13/M (catalogue — saturated 5-of-8), `journal-hero-outline-scroll-bind` @ 13/S, `numeral-plate-utility` @ 11/S (system — better landed AFTER fourth occurrence, which this ship creates), `hairline-alpha-token-family` @ 10/M (system — high ripple but invisible single ship). No Notion task override this run — Tasks DB queried via `mcp__Notion__API-query-data-source` filter `select.equals:To do` returned 0 rows. **Surface-freshness tiebreaker** decisively favoured journal: 0 of the last 8 ships touched the journal surface (5 catalogue / 3 chrome / 0 journal). Journal-folio + legal-folio brought the editorial spine onto journal, but the journal RECIRCULATION foot was still rendered in default-Next.js-blog vocabulary.
+
+**Mode.** Shipped.
+
+**Risk band.** Medium per `risk-rules.md` — 3 files modified, +257/-93 LOC fits the 100-300 medium band, no shared primitive surgery (`Reveal` consumed but unchanged; `Tilt` is REMOVED from this component but unchanged in `src/components/tilt.tsx`), no design-token block edit, no SEO/JSON-LD change, no new client boundary. Visible-as-recirculation-chrome on every journal post — same risk-rules classification as the PDP analog (`pdp-related-grid-symmetric-tombstone`, also medium). Direct-commit to main per medium-band default.
+
+**What ships.** The two siblings render as a true asymmetric dictionary spread, mirroring the PDP vocabulary one-run-earlier.
+
+- A new helper `getAdjacentPosts(slug)` in `src/lib/journal.ts` returns `{ prev, next }` (each carrying `post`, `pieceIndex`, `direction: "prev" | "next"`, `label: "Previous" | "Next"`) with closed-loop modular wraparound. `pieceIndex` is the actual piece number under `getAllPosts()` chronological ordering (XI = newest, I = oldest), so the numerals match the editorial spine numbering used by JournalFolio (`p. <i> / XI`). The closed loop across all 11 posts is verified by SSR adjacency chase: `XI ← X ← IX ← VIII ← VII ← VI ← V ← IV ← III ← II ← I ← XI`.
+- Each `<li class="journal-related-item">` now carries `data-direction="prev" | "next"`.
+- An oversized italic-serif **piece numeral** (Instrument Serif italic, `clamp(40px, 5vw, 64px)`, `rgba(255,255,255,0.32)` resting, `0.7` on `:hover` / `:focus-visible`) sits absolute-positioned in the outer margin per side — prev on the far-left edge, next on the far-right. The numeral is `aria-hidden` and `pointer-events: none`. **This is the fourth occurrence of the italic-serif oversized-margin numeral recipe across the site** (`.chapter-numeral`, `.folio-numeral`, `.related-numeral`, `.journal-related-numeral`) — the threshold the existing `folio-numeral-pattern-extract-utility` backlog item named as the trigger for utility extraction. That follow-up's severity bumped low → medium this run.
+- Per-side **padding offsets**: prev `.journal-related-link` gets `padding-left: clamp(56px, 7vw, 88px)`; next gets the mirrored `padding-right`. Pulls the meta text toward the numeral on each side, framing it.
+- **Mirrored text-align**: the next side's `.journal-related-meta` and `.journal-related-eyebrow-pair` align right; the arrow `Read the piece ↗` aligns end. Prev side stays left-aligned.
+- **Between-column hairline rule** — `.journal-related-grid::after` renders as a 1px vertical line at `left: 50%`, animating `transform: scaleY(0 → 1)` from `transform-origin: 50% 0` as the section enters view. Driven by `@supports (animation-timeline: view())` + `(prefers-reduced-motion: no-preference)` + `(min-width: 720px)`. New keyframe `journal-related-rule-draw` — **namespaced** to avoid collision with the catalogue PDP's `related-rule-draw`. Without view-timeline / under reduced-motion / below 720px the rule renders fully drawn (scaleY 1) via the base rule — graceful fallback to a static hairline.
+- **Eyebrow recast** from generic `<em>Related dispatches</em>` + frame-numeral-decor to per-direction reading: prev side `← Previous · Piece · III`, next side `Piece · V · Next →` (with `←` / `→` as `aria-hidden` glyphs inside `<em class="journal-related-eyebrow-label">`). Three semantic spans: `.journal-related-eyebrow-label` (italic-serif, 13px, `rgba 0.78` → 1.0 on hover), `.journal-related-eyebrow-sep` (the `·` glyph, `rgba 0.32`, aria-hidden), `.journal-related-piece` (10px sans uppercase tracking 0.24em, `rgba 0.55`).
+- **Section eyebrow** rewritten from "Related dispatches" to "Cross-references" — registers the recirculation as a foliated reading aid, not a content recommendation engine.
+- `aria-label` on each `<a>` enriched from `${title} — ${date}` to `${label} piece · ${title} · Piece ${fig}` so AT users hear direction and piece number.
+- The previous `.journal-related-frame*` Tilt-wrapped card was **removed** — the asymmetric spread doesn't carry frame-card decoration. One fewer Tilt boundary per `/journal/<slug>` page (small JS cost shave; `Tilt` is a client component).
+- Section eyebrow keeps `.journal-related-eyebrow-rule` (the 40px hairline before "Cross-references") and `.journal-related-title` ("Two further pieces.") unchanged.
+- Mobile (<720px): numerals hide (`display: none`), grid stacks vertically, padding offsets removed, between-column rule hidden. Eyebrow pair stays per-direction; mirroring drops.
+
+**Architecture.** Pure CSS + JSX restructure of an already-rendered server component plus a small lib helper add. `RelatedJournalPosts` remains a server component — no `"use client"`, no hooks, no state. `Reveal` boundary unchanged; `Tilt` no longer imported by this component (still used elsewhere — `related-products.tsx`, PDP visuals, manifesto chapter cards). The siblings tuple is typed via the new `AdjacentPost` type for literal-direction narrowing. The hairline animation uses the same `@supports (animation-timeline: view())` + `(prefers-reduced-motion: no-preference)` + `(min-width: 720px)` gate-stack as the PDP analog (`globals.css:5746-5765`) and `.hero-title` (`globals.css:851`) — consistent vocabulary, no new motion primitive. The new `journal-related-rule-draw` keyframe is namespaced separately so the PDP `related-rule-draw` keeps owning its scope.
+
+**Verification.**
+- `bun run lint` — 0 errors, 7 pre-existing tooling warnings (unchanged baseline in `.claude/improvement/scripts/*.mjs`).
+- `bunx tsc --noEmit` — clean.
+- `bun run build` — 48/48 routes prerendered.
+- SSR class-grep across **all 11** prerendered journal post routes: each renders exactly 1× `<section class="journal-related">`, 2× `<li class="journal-related-item">`, 1× `data-direction="prev"` + 1× `data-direction="next"`, 2× `.journal-related-numeral`, 2× `.journal-related-eyebrow-pair`, `Previous piece` + `Next piece` aria-labels enriched with title + `Piece <fig>`. Closed-loop adjacency confirmed across all 11 posts.
+- SSR adjacent-route check: homepage `/`, `/about`, `/journal` index, and PDP `/supplies/void-book` + `/supplies/savior-pen` all render `0×` `class="journal-related"` markup — no leak. The PDP `.related-*` block remains intact (12 references to `.related-numeral`/`.related-grid` in `globals.css` — all in the PDP block, unchanged).
+- No orphan references to the removed `.journal-related-frame*` or `.journal-related-date` classes anywhere in `src/`.
+- `anti-patterns.mjs` — 0 findings.
+- Screenshots skipped — `capture-ship.mjs` carry-over blocker (`capture-ship-stale-server-on-3000` at severity high, now 12 ships old).
+- Visual diff — n/a (capture skipped).
+- Lighthouse skipped — below-the-fold CSS-only motion delta on an existing surface; reuses the gate pattern shipped one run earlier; `lighthouse.csv` header-only.
+
+**Rubric.** T2 M3 L3 I3 A3 D3 = **17 / 18** (high-distinctive band — surface mirror of the PDP move just shipped, with the M-axis bumped because the journal foot now also carries the hairline scroll-draw motion which adds to a previously inert surface).
+
+**Screenshots.** Skipped — capture-ship infrastructure blocked (carry-over).
+
+**SOTD comparison.** Skipped — `sotd_parser_available: false` carry-over.
+
+**Notion.** Reports row appended via MCP `mcp__Notion__API-post-page` with Surface=journal, Mode=Shipped, Rubric T2 M3 L3 I3 A3 D3 = 17/18, Risk=Medium, Commit=`<sha>`. No task to flip this run.
+
+**Expected impact.** Brings the journal recirculation foot to vocabulary parity with the PDP recirculation foot. Every visitor who finishes a journal piece now sees an editorial spread — "← Previous · Piece III ↔ Piece V · Next →" — instead of two framed card tombstones. The two long-form surfaces of the site (catalogue PDPs + journal posts) now share the same recirculation register, which strengthens the press metaphor and tightens the design system. The L-axis lift comes from the oversized italic-serif piece numerals; the M-axis lift from the scroll-driven scaleY hairline; the I-axis lift from the `:has()` hover cascade onto the numerals; the A-axis lift from enriched aria-labels and a chronological mental model an AT user can hold.
+
+**Files modified.**
+- `src/lib/journal.ts` — adds `AdjacentPost` type + `getAdjacentPosts(slug)` closed-loop helper; `getRelatedPosts` retained but now unreferenced (filed as `get-related-posts-dead-export` follow-up).
+- `src/components/related-journal-posts.tsx` — rewrite: drops `Tilt` import, drops frame card markup, switches from `getRelatedPosts` to `getAdjacentPosts`, adds `data-direction` + `.journal-related-numeral` span, per-direction conditional eyebrow markup, enriched aria-label, section eyebrow text "Related dispatches" → "Cross-references".
+- `src/app/globals.css` — `.journal-related-grid` now `position: relative` with `::after` between-column rule; `.journal-related-numeral` rule set (resting + per-direction position + `:has()` hover cascade); `.journal-related-item[data-direction]` per-side padding + text-align mirrors; `.journal-related-eyebrow-pair` / `.journal-related-eyebrow-label` / `.journal-related-eyebrow-sep` / `.journal-related-piece` new rule set; `@supports (animation-timeline: view())` block with `journal-related-rule-draw` keyframe. Removed: `.journal-related-frame`, `.journal-related-frame-rule`, `.journal-related-frame-numeral`, `.journal-related-frame-glyph`, `.journal-related-date` (now unused). Reduced-motion override at `:7734-7754` updated — orphan `.journal-related-frame` reference replaced with the new motion-affecting selectors (`.journal-related-link`, `.journal-related-numeral`, `.journal-related-eyebrow-label`, `.journal-related-arrow`).
+
+**Follow-ups uncovered.**
+- `get-related-posts-dead-export` (low, hygiene — new) — `getRelatedPosts` now exported but unreferenced (`grep -rn "getRelatedPosts" src` returns only its own declaration). Filed for cleanup on the next journal-surface ship; not deleted in this ship to keep the diff scoped to the recompose.
+- Existing `related-grid-rule-color-token-promotion` (low, hygiene) — extended to include the new `.journal-related-*` rgba literals (matching the established PDP `.related-*` convention; rolls into the same sweep).
+- Existing `folio-numeral-pattern-extract-utility` — **severity bumped low → medium** because this ship is the fourth occurrence of the italic-serif oversized-margin numeral recipe and the "wait for the fourth" threshold the prior note named is now reached. Recommended hoist: `.numeral-plate` base class consuming `--numeral-rest` / `--numeral-hover` custom properties + per-site composition for size/position. ~80 LOC across 4 selector blocks; estimated net delta -40 lines after dedup.
+- Existing `related-eyebrow-arrow-glyph-aria-hidden-double-emphasis` (low, a11y) — extended to include `.journal-related-eyebrow-label`. Same one-shot live AT test (VoiceOver / NVDA) on next dev-server-running run covers both surfaces.
+
+**Backlog closed-by-drift.**
+- `journal-related-posts-tag-overlap-ranking` (low, distinctive-and-seo) — flipped open → closed-by-drift. The premise was "re-rank `getRelatedPosts` call site by Jaccard tag-overlap" but `RelatedJournalPosts` no longer consumes `getRelatedPosts` (now uses `getAdjacentPosts`). If a separate tag-overlap recirculation slot is wanted later, file as a new backlog item.
+
+**Periodic triggers fired.** None this run. `last_retro_at: 2026-05-13` (2 days < 7), `last_critic_at: 2026-05-13` (2 days < 28), `last_calibration_at: 2026-05-14` (1 day < 7-day floor even though `shipped_count=60` is a multiple of 10), `consecutive_no_focus_runs: 0` (no creativity-reset).
+
+---
+
 ## 2026-05-15 — PDP "Two further specimens" recomposed as a dictionary cross-reference
 
 **Area.** Catalogue (PDP recirculation) — `src/components/related-products.tsx` (server component) + `.related-*` block at `src/app/globals.css:5715-5870`. Rendered on every product detail route (`/supplies/<slug>` × 6) as the final section before `.pdp-outro`. Closes the journey for every catalogue visitor.

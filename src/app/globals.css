@@ -7635,82 +7635,166 @@ main.pdp ~ .folio {
   padding: 0;
   margin: 0;
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 32px;
+  gap: clamp(20px, 3vw, 36px);
+  grid-template-columns: 1fr;
+  position: relative;
 }
-@media (max-width: 720px) {
+@media (min-width: 720px) {
   .journal-related-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
+  }
+  /* Between-column hairline — draws scaleY 0→1 as the section
+     enters view (per-element view() timeline, mirrors the PDP
+     .related-grid pattern). Without view-timeline support the
+     rule renders fully drawn. Namespaced keyframe to avoid
+     colliding with the catalogue PDP's related-rule-draw. */
+  .journal-related-grid::after {
+    content: "";
+    position: absolute;
+    top: clamp(20px, 3vw, 36px);
+    bottom: clamp(20px, 3vw, 36px);
+    left: 50%;
+    width: 1px;
+    background: rgba(255, 255, 255, 0.18);
+    transform: scaleY(1);
+    transform-origin: 50% 0;
+    pointer-events: none;
+  }
+}
+@supports (animation-timeline: view()) {
+  @media (min-width: 720px) and (prefers-reduced-motion: no-preference) {
+    .journal-related-grid {
+      view-timeline-name: --journal-related-grid-tl;
+      view-timeline-axis: block;
+    }
+    .journal-related-grid::after {
+      animation: journal-related-rule-draw both;
+      animation-timeline: --journal-related-grid-tl;
+      animation-range: entry 10% cover 35%;
+    }
+    @keyframes journal-related-rule-draw {
+      from {
+        transform: scaleY(0);
+      }
+      to {
+        transform: scaleY(1);
+      }
+    }
   }
 }
 .journal-related-item {
-  border-top: 1px solid var(--color-line);
-  padding-top: 28px;
+  position: relative;
+}
+.journal-related-numeral {
+  display: none;
+}
+@media (min-width: 720px) {
+  .journal-related-numeral {
+    display: block;
+    position: absolute;
+    top: -4px;
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 400;
+    font-size: clamp(40px, 5vw, 64px);
+    line-height: 1;
+    color: rgba(255, 255, 255, 0.32);
+    letter-spacing: -0.02em;
+    pointer-events: none;
+    user-select: none;
+    transition: color var(--dur-2) var(--ease-out-quart);
+    z-index: 2;
+  }
+  .journal-related-item[data-direction="prev"] .journal-related-numeral {
+    left: 4px;
+  }
+  .journal-related-item[data-direction="next"] .journal-related-numeral {
+    right: 4px;
+  }
+}
+.journal-related-item:has(.journal-related-link:hover) .journal-related-numeral,
+.journal-related-item:has(.journal-related-link:focus-visible) .journal-related-numeral {
+  color: rgba(255, 255, 255, 0.7);
 }
 .journal-related-link {
-  display: flex;
-  flex-direction: column;
-  gap: 22px;
-  color: inherit;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 18px;
   text-decoration: none;
+  color: inherit;
+  padding: 28px 18px 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  transition: border-color var(--dur-2) var(--ease-out-quart);
 }
-.journal-related-frame {
-  position: relative;
-  aspect-ratio: 5 / 4;
-  border: 1px solid var(--color-line);
-  background: rgba(255, 255, 255, 0.02);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  transition: border-color var(--dur-3) ease-out;
+@media (min-width: 720px) {
+  .journal-related-item[data-direction="prev"] .journal-related-link {
+    padding-left: clamp(56px, 7vw, 88px);
+  }
+  .journal-related-item[data-direction="next"] .journal-related-link {
+    padding-right: clamp(56px, 7vw, 88px);
+  }
+  .journal-related-item[data-direction="next"] .journal-related-meta {
+    text-align: right;
+  }
+  .journal-related-item[data-direction="next"] .journal-related-arrow {
+    align-self: end;
+  }
 }
-.journal-related-link:hover .journal-related-frame {
-  border-color: var(--color-line-2);
-}
-.journal-related-frame-rule {
-  position: absolute;
-  left: 14px;
-  right: 14px;
-  bottom: 16px;
-  height: 1px;
-  background: var(--color-line-2);
-}
-.journal-related-frame-numeral {
-  font-family: var(--font-serif);
-  font-style: italic;
-  font-size: clamp(56px, 10vw, 96px);
-  color: rgba(255, 255, 255, 0.32);
-  line-height: 1;
-}
-.journal-related-frame-glyph {
-  position: absolute;
-  left: 16px;
-  top: 14px;
-  width: 8px;
-  height: 8px;
-  background: rgba(255, 255, 255, 0.5);
+.journal-related-link:hover,
+.journal-related-link:focus-visible {
+  border-top-color: rgba(255, 255, 255, 0.45);
 }
 .journal-related-meta {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  display: grid;
+  gap: 6px;
 }
-.journal-related-date {
+.journal-related-eyebrow-pair {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-family: var(--font-sans);
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.55);
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+.journal-related-item[data-direction="next"] .journal-related-eyebrow-pair {
+  justify-content: flex-end;
+}
+.journal-related-eyebrow-label {
   font-family: var(--font-serif);
   font-style: italic;
   font-size: 13px;
-  letter-spacing: 0.04em;
-  color: rgba(255, 255, 255, 0.5);
-  font-variant-numeric: oldstyle-nums;
+  letter-spacing: 0;
+  text-transform: none;
+  color: rgba(255, 255, 255, 0.78);
+  transition: color var(--dur-2) var(--ease-out-quart);
+}
+.journal-related-link:hover .journal-related-eyebrow-label,
+.journal-related-link:focus-visible .journal-related-eyebrow-label {
+  color: #fff;
+}
+.journal-related-eyebrow-sep {
+  color: rgba(255, 255, 255, 0.32);
+  letter-spacing: 0;
+}
+.journal-related-piece {
+  font-family: var(--font-sans);
+  text-transform: uppercase;
+  letter-spacing: 0.24em;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.55);
 }
 .journal-related-name {
   font-family: var(--font-serif);
-  font-size: clamp(22px, 2.4vw, 28px);
+  font-style: italic;
+  font-size: clamp(22px, 2.4vw, 32px);
   line-height: 1.1;
   margin: 0;
   font-weight: 400;
   letter-spacing: -0.005em;
+  color: #fff;
 }
 .journal-related-sub {
   font-family: var(--font-serif);
@@ -7720,15 +7804,19 @@ main.pdp ~ .folio {
   color: rgba(255, 255, 255, 0.62);
 }
 .journal-related-arrow {
+  display: inline-block;
+  margin-top: 8px;
   font-family: var(--font-serif);
   font-style: italic;
   font-size: 13px;
-  letter-spacing: 0.06em;
-  color: rgba(255, 255, 255, 0.55);
-  transition: color var(--dur-2) ease-out;
+  color: rgba(255, 255, 255, 0.6);
+  transition: color var(--dur-2) var(--ease-out-quart),
+    transform var(--dur-2) var(--ease-out-quart);
 }
-.journal-related-link:hover .journal-related-arrow {
+.journal-related-link:hover .journal-related-arrow,
+.journal-related-link:focus-visible .journal-related-arrow {
   color: #fff;
+  transform: translateX(4px);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -7748,8 +7836,15 @@ main.pdp ~ .folio {
   .journal-prose a {
     transition: none;
   }
-  .journal-related-frame {
+  .journal-related-link,
+  .journal-related-numeral,
+  .journal-related-eyebrow-label,
+  .journal-related-arrow {
     transition: none;
+  }
+  .journal-related-link:hover .journal-related-arrow,
+  .journal-related-link:focus-visible .journal-related-arrow {
+    transform: none;
   }
 }
 

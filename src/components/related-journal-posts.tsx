@@ -1,57 +1,94 @@
 import Link from "next/link";
 import { Reveal } from "@/components/reveal";
-import { Tilt } from "@/components/tilt";
-import { formatJournalDate, getRelatedPosts, romanNumeral } from "@/lib/journal";
+import { getAdjacentPosts, romanNumeral } from "@/lib/journal";
 
 export function RelatedJournalPosts({ current }: { current: string }) {
-  const siblings = getRelatedPosts(current, 2);
-  if (siblings.length === 0) return null;
+  const adjacent = getAdjacentPosts(current);
+  if (!adjacent) return null;
+  const siblings = [adjacent.prev, adjacent.next] as const;
 
   return (
-    <section className="journal-related" aria-labelledby="journal-related-heading">
+    <section
+      className="journal-related"
+      aria-labelledby="journal-related-heading"
+    >
       <header className="journal-related-head">
         <span className="journal-related-eyebrow">
           <span className="journal-related-eyebrow-rule" aria-hidden />
-          <em>Related dispatches</em>
+          <em>Cross-references</em>
         </span>
         <h2 id="journal-related-heading" className="journal-related-title">
           Two further pieces.
         </h2>
       </header>
       <ol className="journal-related-grid">
-        {siblings.map((p, i) => (
-          <Reveal key={p.slug} delay={`${i * 0.08}s`}>
-            <li className="journal-related-item">
-              <Link
-                href={`/journal/${p.slug}`}
-                className="journal-related-link"
-                data-cursor="link"
-                data-cursor-label="Open"
-                aria-label={`${p.title} — ${formatJournalDate(p.publishedAt)}`}
+        {siblings.map(({ post: p, pieceIndex, direction, label }, i) => {
+          const fig = romanNumeral(pieceIndex);
+          return (
+            <Reveal key={p.slug} delay={`${i * 0.08}s`}>
+              <li
+                className="journal-related-item"
+                data-direction={direction}
               >
-                <Tilt className="journal-related-frame" max={3}>
-                  <span className="journal-related-frame-rule" aria-hidden />
-                  <span className="journal-related-frame-numeral" aria-hidden>
-                    <em>{romanNumeral(i + 1)}</em>
-                  </span>
-                  <span className="journal-related-frame-glyph" aria-hidden />
-                </Tilt>
-                <div className="journal-related-meta">
-                  <span className="journal-related-date">
-                    <em>{formatJournalDate(p.publishedAt)}</em>
-                  </span>
-                  <h3 className="journal-related-name">{p.title}</h3>
-                  <span className="journal-related-sub">
-                    <em>{p.subtitle}</em>
-                  </span>
-                  <span className="journal-related-arrow" aria-hidden>
-                    Read the piece ↗
-                  </span>
-                </div>
-              </Link>
-            </li>
-          </Reveal>
-        ))}
+                <span className="journal-related-numeral" aria-hidden>
+                  {fig}
+                </span>
+                <Link
+                  href={`/journal/${p.slug}`}
+                  className="journal-related-link"
+                  data-cursor="link"
+                  data-cursor-label="Open"
+                  aria-label={`${label} piece · ${p.title} · Piece ${fig}`}
+                >
+                  <div className="journal-related-meta">
+                    <span className="journal-related-eyebrow-pair">
+                      {direction === "prev" ? (
+                        <>
+                          <em className="journal-related-eyebrow-label">
+                            <span aria-hidden>← </span>
+                            {label}
+                          </em>
+                          <span
+                            className="journal-related-eyebrow-sep"
+                            aria-hidden
+                          >
+                            ·
+                          </span>
+                          <span className="journal-related-piece">
+                            Piece&thinsp;·&thinsp;{fig}
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="journal-related-piece">
+                            Piece&thinsp;·&thinsp;{fig}
+                          </span>
+                          <span
+                            className="journal-related-eyebrow-sep"
+                            aria-hidden
+                          >
+                            ·
+                          </span>
+                          <em className="journal-related-eyebrow-label">
+                            {label}
+                            <span aria-hidden> →</span>
+                          </em>
+                        </>
+                      )}
+                    </span>
+                    <h3 className="journal-related-name">{p.title}</h3>
+                    <span className="journal-related-sub">
+                      <em>{p.subtitle}</em>
+                    </span>
+                    <span className="journal-related-arrow" aria-hidden>
+                      Read the piece ↗
+                    </span>
+                  </div>
+                </Link>
+              </li>
+            </Reveal>
+          );
+        })}
       </ol>
     </section>
   );

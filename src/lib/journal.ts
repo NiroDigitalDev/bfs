@@ -82,3 +82,35 @@ export function getRelatedPosts(slug: string, n = 2): JournalPost[] {
   }
   return siblings;
 }
+
+export type AdjacentPost = {
+  post: JournalPost;
+  pieceIndex: number;
+  direction: "prev" | "next";
+  label: "Previous" | "Next";
+};
+
+export function getAdjacentPosts(
+  slug: string,
+): { prev: AdjacentPost; next: AdjacentPost } | null {
+  const posts = getAllPosts();
+  const idx = posts.findIndex((p) => p.slug === slug);
+  const len = posts.length;
+  if (idx < 0 || len <= 1) return null;
+  const prevPost = posts[(idx - 1 + len) % len];
+  const nextPost = posts[(idx + 1) % len];
+  return {
+    prev: {
+      post: prevPost,
+      pieceIndex: len - ((idx - 1 + len) % len),
+      direction: "prev",
+      label: "Previous",
+    },
+    next: {
+      post: nextPost,
+      pieceIndex: len - ((idx + 1) % len),
+      direction: "next",
+      label: "Next",
+    },
+  };
+}
