@@ -489,7 +489,7 @@ items:
 
   - id: journal-folio-on-journal-routes
     title: "Editorial running-folio extended onto /journal index + 11 post pages — §III · The Journal / pp. I–XI on index; §III · Piece <roman> / p. <roman> / XI on posts"
-    commit: pending
+    commit: f14fc01
     date: 2026-05-15
     surface: chrome
     tags: [journal, folio, running-folio, chrome, masthead, register-parity, editorial-spine, server-component, roman-numerals, italic-serif, mix-blend-difference, aria-hidden, no-js, cold-surface, auditor-pick]
