@@ -425,7 +425,7 @@ items:
 
   - id: motion-vocabulary-subtask-3-of-3-magnetic-reveal
     title: "Motion [3/3] — <Magnetic reveal> extension on shared magnetic.tsx primitive + cursor-distance --magnetic-distance CSS var + first consumer All pieces · The journal homepage link"
-    commit: pending
+    commit: 88024ca
     date: 2026-05-15
     surface: system
     tags: [system, hero, catalogue, magnetic, magnetic-reveal, cursor-distance, css-custom-property, calc, raf, lerp, opacity, scale, motion-vocabulary, motion-vocabulary-3-of-3, additive, backwards-compatible, reduced-motion, pointer-fine, no-new-deps, no-new-keyframes, no-new-tokens, awwwards-current, task-driven, split-subtask]
