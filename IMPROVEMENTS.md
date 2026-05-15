@@ -3,6 +3,49 @@
 A running record of focused changes shipped by the website-improvement routine.
 One entry per run. Newest first.
 
+## 2026-05-15 — About display gains two-corner printer's-bug marks
+
+**Area.** /about — the `<header className="journal-header about-header">` block, specifically the masthead "About the press." SplitText `<h1>`.
+
+**Why it's the focus.** About was a cold surface (no about-page ship in 12+ runs) and the masthead was the lone primary surface still rendering as a centred italic-serif `<h1>` on an editorial site where every other primary surface — catalogue specimen-plate, hero, codex — ships figure-plate chrome. Picked from the About/Colophon/Press auditor (finding #1) over the journal-prose figure/caption vocabulary (tied 14/M) on tiebreaker: about cold-surface freshness + first-paint visible payoff vs. journal-prose primitive that lights up only on future image-bearing posts. The colophon press SVG platen-tap (13/M) and hero scroll-indicator scroll-bound (12/S) scored lower.
+
+**Mode.** Shipped.
+
+**Risk band.** Low — single dedicated route /about, scoped `.about-display-*` classes, no shared primitive touched, no JS, no SEO surface, additive only.
+
+**What ships.** Wrapped `<SplitText className="about-display"/>` in a new `<div className="about-display-frame">` holding the SplitText plus two decorative `aria-hidden` corner printer's-bug marks mirroring the four-corner vocabulary the catalogue specimen-plate already ships (FIG./compass/H+W/GAUGE + ED. <run>) — recast at masthead scale. Top-left `.about-display-fig` carries italic-serif "Fig. —" 11px sup + 12px hairline rule + caps-sans "THE PRESS" 9px / 0.32em sub. Bottom-right `.about-display-edition` carries caps-sans "Ed." label + italic-serif "III" numeral (clamp 14px) + decorative mid-dot separator + caps-sans "MMXXVI" roman year. Frame uses `position: relative` + `padding-block: clamp(28px,4vw,56px) clamp(40px,5vw,72px)` to reserve vertical space so the absolutely-positioned corner marks never reflow the h1 baseline. Marks animate via `@keyframes aboutDisplayMarkRise` (0.6s, opacity 0→1 + translateY -4px→0 for fig / 4px→0 for edition; delays 0.18s/0.28s) with full `@media (prefers-reduced-motion: reduce)` override pinning opacity:1 + transform:none. Mobile (<720px) hides `.about-display-edition` entirely to avoid collision with `.about-lede` descenders; `.about-display-fig` stays.
+
+**Architecture.** Auditor recommended a 4-corner specimen-plate frame around the h1 — narrowed to 2-corner (TL/BR only) to retain editorial asymmetry rather than enclose the masthead. The two corner spans are `aria-hidden` because the page's identity already lives in the SplitText h1 + JSON-LD; the marks are decorative chrome, register only. No new tokens, no new fonts (Instrument Serif + Inter already loaded via layout.tsx), one new keyframe scoped to the new selectors. Reduced-motion guard at globals.css:7830 covers both new selectors completely.
+
+**Verification.** bun run lint 0 errors + 7 pre-existing tooling warnings (unchanged set in `.claude/improvement/scripts/*.mjs`), bunx tsc --noEmit clean, bun run build 48/48 static routes (Turbopack compile 1048.4ms + static-gen 517.9ms), 0 anti-patterns. SSR class-grep on /about: about-display-frame 2×, about-display-fig 2×, about-display-edition 4× (span + inner em + decoration), about-display 10× (SplitText word/char spans intact), about-lede / about-prose / about-header / journal-eyebrow / journal-breadcrumb / outro-colophon all unchanged, SVG well-formedness 1/1. Scoping confirmed — 0 `.about-display-*` hits on / and /journal SSR. perf-a11y PASS-WITH-FOLLOWUPS — 0 bytes JS delta, ~+114 lines CSS (~+0.4-0.6KB gzipped due to high dedupe), no LCP risk (h1 untouched), no CLS risk (padding-block reserves space before absolute spans render; translateY is compositor-only), no INP risk (no JS listeners), keyboard parity intact, contrast — color-text-muted ≈ 6.4:1 (AA-body comfortable), color-fog #6b6b6b on #0a0a0a ≈ 3.5:1 (below AA but aria-hidden decorative — matches established spec-plate vocabulary). regression-spotter PASS — adjacent surfaces all rendered, new classes correctly scoped. diff-reviewer PASS-WITH-NITS — 5 new selectors all used in JSX, 0 dead selectors, 0 escape hatches, 0 scope creep; 2 low-severity nits on the rgba(255,255,255,0.32) hairline literal + sub-clamp font sizes (both deliberate, rolls into hairline-opacity-token-sweep follow-up).
+
+**Rubric.** T3 M1 L3 I2 A2 D3 = 14 / 18 (Awwwards-borderline).
+
+**Screenshots.** Skipped — stale next-server still holds port 3000 (carry-over blocker stale-next-server-on-3000-blocks-capture-ship, 7 ships now).
+
+**SOTD comparison.** Skipped — sotd_parser_available:false carry-over.
+
+**Notion.** Reports row to append via MCP API-post-page using documented standard property shapes (Title:{title:[{text:{content:...}}]}, Date:{date:{start:...}}, Mode/Surface/Risk:{select:{name:...}}, rich_text:{rich_text:[{text:{content:...}}]}). No task to flip — Tasks DB queried via `mcp__Notion__API-query-data-source` filter `select.equals:To do` returned 0 rows.
+
+**Expected impact.** The /about masthead is the page's first frame and currently the sole entry-point chrome competing with the catalogue's specimen-plate vocabulary; this aligns the surface with the rest of the site's editorial register. Two-corner asymmetric frame reads more "printer's plate" than four-corner enclosure. Reduces the gap between /about and the catalogue/hero in distinctiveness.
+
+**Files modified.**
+- `src/app/about/page.tsx` — wrapped SplitText in `<div className="about-display-frame">` with 2 corner aria-hidden spans (+14 JSX lines).
+- `src/app/globals.css` — added new `.about-display-frame` / `.about-display-fig` / `.about-display-edition` block after :7733, plus `@keyframes aboutDisplayMarkRise`, mobile break, reduced-motion override (~+114 lines).
+
+**Follow-ups uncovered.**
+- `about-display-fig-rgba-hairline-token-promotion` (low, hygiene — rolls into hairline-opacity-token-sweep).
+- `about-display-edition-color-fog-decorative-only-doc` (low, hygiene — codify --color-fog as decorative-only in CLAUDE.md).
+- `about-display-mark-rise-keyframe-shared-with-spec-plate` (low, system — promote keyframe to shared editorialMarkRise at N=3).
+- Carry-over: `stale-next-server-on-3000-blocks-capture-ship` (medium, infra, 7 ships now), `sotd-parser-fix` (low, infra), `lighthouse-baseline-seed` (low, infra).
+
+**Backlog closed-by-drift.** `drawer-cta-confirmation-state-truly-unused` — historian-verified that commit 8771e67 excised the data-confirming selectors and grep confirms zero hits in src/. Closure record only, no action.
+
+**Backlog housekeeping.** `motion-vocabulary-subtask-3-of-3-magnetic-reveal` flipped open → shipped (already in shipped.yaml per historian; in-place backlog status was stale).
+
+**Periodic triggers fired.** None — `consecutive_no_focus_runs = 0`, last retro 2 days ago, last critic 2 days ago, shipped_count 55 (not multiple of 10).
+
+
 ---
 ## 2026-05-15 — Cart-drawer foot CTA recast as a 2-row editorial composition — hairline-mark eyebrow `006 · Bind` + italic-serif `Proceed` + sans `to checkout` tail, register-paired with the drawer head
 

@@ -2643,7 +2643,7 @@ items:
     severity: medium
     effort: M
     class: distinctive
-    status: open
+    status: shipped
     files:
       - src/components/magnetic.tsx
       - src/app/globals.css
@@ -3147,13 +3147,78 @@ items:
     severity: low
     effort: S
     class: hygiene
-    status: open
+    status: closed-by-drift
     files:
       - src/components/cart-drawer.tsx
     opened_on: 2026-05-15
     last_verified: 2026-05-15
+    closed_on: 2026-05-15
     dq_count: 0
     notes: |
-      Source — cart-drawer-cta-editorial-register ship cleanup; logged
-      for audit history. Can be flipped to wontfix-resolved on next
-      Phase 0 hygiene pass.
+      Historian-verified 2026-05-15 — closure record only, no follow-up
+      action needed. Source ship 8771e67 excised data-confirming
+      selectors; grep on globals.css + cart-drawer.tsx returns zero.
+
+  - id: about-display-fig-rgba-hairline-token-promotion
+    title: Promote rgba(255,255,255,0.32) hairline literal in .about-display-fig + sep to --hairline-rgb token
+    ship: |
+      .about-display-fig::before and .about-display-edition-sep both use
+      inline rgba(255,255,255,0.32) for the hairline rule and mid-dot
+      colour. This matches the established BFS convention (also used in
+      .spec-plate-*, .pdp-plate-frame, .colophon-press) but should
+      consolidate into a --hairline-rgb token next time the hairline
+      sweep runs. Rolls into the existing hairline-opacity-token-sweep
+      backlog item — keep this as a per-call-site reference.
+    severity: low
+    effort: S
+    class: hygiene
+    status: open
+    files:
+      - src/app/globals.css
+    opened_on: 2026-05-15
+    last_verified: 2026-05-15
+    dq_count: 0
+    notes: Found by diff-reviewer on about-display-figure-plate-printer-marks.
+
+  - id: about-display-edition-color-fog-decorative-only-doc
+    title: Document --color-fog (#6b6b6b) as decorative-only token in CLAUDE.md
+    ship: |
+      .about-display-edition em uses var(--color-fog) which resolves to
+      #6b6b6b — contrast ~3.5:1 on #0a0a0a, below AA 4.5:1. Acceptable
+      here because the entire .about-display-edition is aria-hidden
+      decorative printer's-bug chrome. The same pattern exists in
+      .spec-plate-* (catalogue), .pdp-plate-frame (PDPs), and other
+      printer-bug spans. Worth adding a CLAUDE.md note codifying that
+      --color-fog is decorative-only and should never wrap user-facing
+      copy or interactive labels.
+    severity: low
+    effort: S
+    class: hygiene
+    status: open
+    files:
+      - CLAUDE.md
+    opened_on: 2026-05-15
+    last_verified: 2026-05-15
+    dq_count: 0
+    notes: Found by perf-a11y on about-display-figure-plate-printer-marks.
+
+  - id: about-display-mark-rise-keyframe-shared-with-spec-plate
+    title: Promote @keyframes aboutDisplayMarkRise to a shared editorialMarkRise primitive
+    ship: |
+      @keyframes aboutDisplayMarkRise (opacity 0→1 + translateY 4px→0)
+      is functionally identical to the entry pattern catalogue
+      specimen-plate uses on its FIG. / compass / gauge / edition
+      reveals. If a 3rd masthead surface ships the same rise pattern,
+      promote this to a shared --editorial-mark-rise keyframe and have
+      both .about-display-fig|edition and the spec-plate consumers point
+      at it. Defer until N=3 to avoid premature abstraction.
+    severity: low
+    effort: S
+    class: system
+    status: open
+    files:
+      - src/app/globals.css
+    opened_on: 2026-05-15
+    last_verified: 2026-05-15
+    dq_count: 0
+    notes: Found by perf-a11y on about-display-figure-plate-printer-marks.

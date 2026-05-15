@@ -160,12 +160,24 @@ export default function AboutPage() {
           <span className="journal-eyebrow-rule" aria-hidden />
           <em>Editorial · The press at the desk</em>
         </span>
-        <SplitText
-          as="h1"
-          text="About the press."
-          className="about-display"
-          stagger={0.03}
-        />
+        <div className="about-display-frame">
+          <span className="about-display-fig" aria-hidden>
+            <em>Fig. —</em>
+            <span>The Press</span>
+          </span>
+          <SplitText
+            as="h1"
+            text="About the press."
+            className="about-display"
+            stagger={0.03}
+          />
+          <span className="about-display-edition" aria-hidden>
+            <span>Ed.</span>
+            <em>III</em>
+            <span className="about-display-edition-sep">·</span>
+            <span>MMXXVI</span>
+          </span>
+        </div>
         <p className="journal-lede about-lede">
           A small editorial press making bound objects in a single hue. The
           work is set in italic-serif, dispatched in 48 hours, and made in

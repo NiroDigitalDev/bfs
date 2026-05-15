@@ -7732,6 +7732,120 @@ main.pdp ~ .folio {
   font-style: italic;
 }
 
+/* About display printer's plate — wraps .about-display in a positioned
+   frame and floats two decorative corner marks (Fig. — / THE PRESS top-left,
+   Ed. III · MMXXVI bottom-right). Mirrors the four-corner vocabulary the
+   catalogue specimen-plate already ships (.spec-plate-fig-text /
+   .spec-plate-edition-text), recast at masthead scale: italic-serif sup +
+   caps-sans sub for FIG.; caps-sans label + italic-serif numeral for the
+   edition tag. Both spans are aria-hidden decoration — the page's
+   identity already lives in the SplitText h1 and the JSON-LD. */
+.about-display-frame {
+  position: relative;
+  padding-block: clamp(28px, 4vw, 56px) clamp(40px, 5vw, 72px);
+}
+
+.about-display-fig {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  opacity: 0;
+  transform: translateY(-4px);
+  animation: aboutDisplayMarkRise 0.6s var(--ease-out-quart, ease) 0.18s forwards;
+}
+
+.about-display-fig em {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 11px;
+  line-height: 1;
+  color: var(--color-text-muted);
+}
+
+.about-display-fig::before {
+  content: "";
+  display: block;
+  width: 12px;
+  height: 0.5px;
+  background: rgba(255, 255, 255, 0.32);
+  margin-block: 2px;
+}
+
+.about-display-fig span {
+  font-family: var(--font-sans);
+  font-size: 9px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  line-height: 1;
+}
+
+.about-display-edition {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  opacity: 0;
+  transform: translateY(4px);
+  animation: aboutDisplayMarkRise 0.6s var(--ease-out-quart, ease) 0.28s forwards;
+}
+
+.about-display-edition em {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 14px;
+  line-height: 1;
+  color: var(--color-fog);
+}
+
+.about-display-edition span {
+  font-family: var(--font-sans);
+  font-size: 9px;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  line-height: 1;
+}
+
+.about-display-edition .about-display-edition-sep {
+  letter-spacing: 0;
+  color: rgba(255, 255, 255, 0.32);
+}
+
+@keyframes aboutDisplayMarkRise {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 720px) {
+  .about-display-frame {
+    padding-block: clamp(20px, 6vw, 32px) 0;
+  }
+  .about-display-fig {
+    top: 0;
+  }
+  .about-display-edition {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .about-display-fig,
+  .about-display-edition {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
 .about-lede {
   max-width: 56ch;
 }
