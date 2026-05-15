@@ -3884,16 +3884,14 @@ html.loading body {
   justify-content: space-between;
   gap: 18px;
   width: 100%;
-  padding: 18px 22px;
+  padding: 18px 22px 20px;
   background: transparent;
-  border: 1px solid var(--color-text-strong);
-  border-radius: 999px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 2px;
   color: var(--color-text-strong);
   font: inherit;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  font-size: 12px;
+  text-align: left;
+  text-decoration: none;
   cursor: pointer;
   overflow: hidden;
   isolation: isolate;
@@ -3914,60 +3912,94 @@ html.loading body {
 .cart-drawer-cta:hover::before {
   transform: translateY(0);
 }
-.cart-drawer-cta[data-confirming="true"] {
-  color: #000;
-}
-.cart-drawer-cta[data-confirming="true"]::before {
-  transform: translateY(0);
-}
 .cart-drawer-cta:disabled {
   cursor: default;
 }
-.cart-drawer-cta-label {
-  display: grid;
+.cart-drawer-cta-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.cart-drawer-cta-eyebrow {
+  display: inline-flex;
   align-items: center;
+  gap: 10px;
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-fog);
+  transition: color var(--dur-2) ease;
 }
-.cart-drawer-cta-default,
-.cart-drawer-cta-confirm {
-  grid-area: 1 / 1;
-  transition: transform var(--dur-2) var(--ease-out-expo),
-    opacity var(--dur-2) ease;
+.cart-drawer-cta-eyebrow-mark {
+  width: 5px;
+  height: 5px;
+  border: 1px solid var(--color-border-strong);
+  background: transparent;
+  transition: background var(--dur-2) ease, border-color var(--dur-2) ease;
 }
-.cart-drawer-cta-confirm {
-  opacity: 0;
-  transform: translateY(8px);
+.cart-drawer-cta-eyebrow-ord {
+  color: var(--color-text-strong);
+  transition: color var(--dur-2) ease;
 }
-.cart-drawer-cta[data-confirming="true"] .cart-drawer-cta-default {
-  opacity: 0;
-  transform: translateY(-8px);
+.cart-drawer-cta-eyebrow-sep {
+  color: var(--color-line-2);
 }
-.cart-drawer-cta[data-confirming="true"] .cart-drawer-cta-confirm {
-  opacity: 1;
-  transform: translateY(0);
+.cart-drawer-cta-eyebrow-sub {
+  color: var(--color-text-muted);
+  letter-spacing: 0.32em;
+  transition: color var(--dur-2) ease;
+}
+.cart-drawer-cta:hover .cart-drawer-cta-eyebrow-mark {
+  background: #000;
+  border-color: #000;
+}
+.cart-drawer-cta:hover .cart-drawer-cta-eyebrow-ord,
+.cart-drawer-cta:hover .cart-drawer-cta-eyebrow-sub {
+  color: rgba(0, 0, 0, 0.72);
+}
+.cart-drawer-cta:hover .cart-drawer-cta-eyebrow-sep {
+  color: rgba(0, 0, 0, 0.35);
+}
+.cart-drawer-cta-lede {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+.cart-drawer-cta-lede em {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(24px, 3vw, 30px);
+  line-height: 1;
+  letter-spacing: -0.015em;
+  color: inherit;
+}
+.cart-drawer-cta-lede-tail {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  transition: color var(--dur-2) ease;
+}
+.cart-drawer-cta:hover .cart-drawer-cta-lede-tail {
+  color: rgba(0, 0, 0, 0.65);
 }
 .cart-drawer-cta-glyph {
-  display: grid;
+  display: inline-flex;
   align-items: center;
-  width: 14px;
-  height: 14px;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  font-size: 18px;
+  line-height: 1;
+  flex-shrink: 0;
+  transition: transform var(--dur-2) var(--ease-out-expo);
 }
-.cart-drawer-cta-glyph-arrow,
-.cart-drawer-cta-glyph-check {
-  grid-area: 1 / 1;
-  transition: transform var(--dur-2) var(--ease-out-expo),
-    opacity var(--dur-2) ease;
-}
-.cart-drawer-cta-glyph-check {
-  opacity: 0;
-  transform: scale(0.6);
-}
-.cart-drawer-cta[data-confirming="true"] .cart-drawer-cta-glyph-arrow {
-  opacity: 0;
-  transform: translate(6px, -6px);
-}
-.cart-drawer-cta[data-confirming="true"] .cart-drawer-cta-glyph-check {
-  opacity: 1;
-  transform: scale(1);
+.cart-drawer-cta:hover .cart-drawer-cta-glyph {
+  transform: translate(4px, -4px);
 }
 .cart-drawer-fineprint {
   margin: 14px 0 0;
@@ -4074,10 +4106,12 @@ html.loading body {
   .cart-drawer-close-glyph,
   .cart-drawer-cta,
   .cart-drawer-cta::before,
-  .cart-drawer-cta-default,
-  .cart-drawer-cta-confirm,
-  .cart-drawer-cta-glyph-arrow,
-  .cart-drawer-cta-glyph-check {
+  .cart-drawer-cta-eyebrow,
+  .cart-drawer-cta-eyebrow-mark,
+  .cart-drawer-cta-eyebrow-ord,
+  .cart-drawer-cta-eyebrow-sub,
+  .cart-drawer-cta-lede-tail,
+  .cart-drawer-cta-glyph {
     transition: none;
   }
   .cart-line {

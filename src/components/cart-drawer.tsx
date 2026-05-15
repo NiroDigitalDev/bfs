@@ -314,13 +314,20 @@ export function CartDrawer() {
               data-cursor="link"
               data-cursor-label="Proceed"
             >
-              <span className="cart-drawer-cta-label">
-                <span className="cart-drawer-cta-default">
-                  Proceed to checkout
+              <span className="cart-drawer-cta-body">
+                <span className="cart-drawer-cta-eyebrow" aria-hidden>
+                  <span className="cart-drawer-cta-eyebrow-mark" />
+                  <span className="cart-drawer-cta-eyebrow-ord">006</span>
+                  <span className="cart-drawer-cta-eyebrow-sep">·</span>
+                  <span className="cart-drawer-cta-eyebrow-sub">Bind</span>
+                </span>
+                <span className="cart-drawer-cta-lede">
+                  <em>Proceed</em>
+                  <span className="cart-drawer-cta-lede-tail">to checkout</span>
                 </span>
               </span>
               <span className="cart-drawer-cta-glyph" aria-hidden>
-                <span className="cart-drawer-cta-glyph-arrow">↗</span>
+                ↗
               </span>
             </Link>
             <p className="cart-drawer-fineprint">

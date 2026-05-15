@@ -4,6 +4,97 @@ A running record of focused changes shipped by the website-improvement routine.
 One entry per run. Newest first.
 
 ---
+## 2026-05-15 — Cart-drawer foot CTA recast as a 2-row editorial composition — hairline-mark eyebrow `006 · Bind` + italic-serif `Proceed` + sans `to checkout` tail, register-paired with the drawer head
+
+**Area.** `cart` — the global `<CartDrawer>` panel (`src/components/cart-drawer.tsx`) mounts in `layout.tsx` via `<CartIsland>` and ships on every route. Its head register is editorial — a 6×6 hairline-bracketed glyph + ordinal-`005` + `·` + `Manifest` eyebrow above an italic-serif `Your selections.` title at clamp(36px, 4.6vw, 56px). Its foot CTA, until this ship, was a stock dark uppercase pill labelled `Proceed to checkout ↗` — text-transform: uppercase, font-weight: 700, letter-spacing: 0.16em, border-radius: 999px. The head sold an editorial-press vocabulary that the foot abandoned. This ship closes that gap.
+
+**Why it's the focus.** Auditor-pick (catalogue/PDP pass, finding #4) at rubric T:3 M:1 L:2 I:2 A:3 D:2 = 13/18 (Solid). Wins on score (13) over reference-scout's Floema previous-chapter-ghost-folio @ 11, scroll-progress-route-aware-tick @ 11, cursor-mode-vocabulary @ 11, and section-title-italic-serif-variant @ 11 (which lost on surface-freshness — manifesto/hero red-hot from last 2 ships). Cart is the coldest surface in the last-5 window (tied with chrome at 6 ships ago). Closes a real off-register smell on a cold surface where the head/foot typographic disagreement was the obvious template-tell. Historian flagged cart-drawer.tsx as a shared primitive — risk: medium per `risk-rules.md`, single CTA component, well-bounded.
+
+**Mode.** Shipped.
+
+**Risk band.** Medium — shared primitive (CartDrawer mounted in layout, visible on every route) in the conversion path to /checkout; mitigated by single-CTA scope + dead-code removal folded in + all five Phase 5 gates passing.
+
+**What ships.**
+
+A two-row left-aligned editorial composition replacing the pill:
+
+- **Row 1 (eyebrow).** `<span class="cart-drawer-cta-eyebrow" aria-hidden>` carrying:
+  - A 5×5 hairline mark (`.cart-drawer-cta-eyebrow-mark`, 1px `var(--color-border-strong)` border, transparent ground), mirroring the drawer head's 6×6 eyebrow mark at a smaller register so the foot reads as the head's quieter counterpart.
+  - The ordinal `006` (`.cart-drawer-cta-eyebrow-ord`, `var(--color-text-strong)`). The drawer head is `005 · Manifest`; the CTA advances to `006 · Bind` — the manifest is the held selection, the binding is the act of committing it.
+  - A `·` separator (`.cart-drawer-cta-eyebrow-sep`, `var(--color-line-2)`).
+  - The label `Bind` (`.cart-drawer-cta-eyebrow-sub`, `var(--color-text-muted)`, 0.32em letter-spacing).
+
+- **Row 2 (lede).** `<span class="cart-drawer-cta-lede">` carrying:
+  - `<em>Proceed</em>` at `var(--font-serif)` italic 400, clamp(24px, 3vw, 30px), line-height 1, letter-spacing -0.015em — the foot's italic-serif anchor matching the head's italic title at a smaller display size.
+  - `<span class="cart-drawer-cta-lede-tail">to checkout</span>` at `var(--font-sans)` 11px, 0.3em letter-spacing, uppercase, `var(--color-text-muted)`. Reads as a hairline subtitle to the italic verb.
+
+- **Right slot.** `<span class="cart-drawer-cta-glyph" aria-hidden>↗</span>` — Unicode arrow inside a 24×24 inline-flex container at font-size 18px. Translates `+4px / −4px` on hover.
+
+- **Frame.** Border-radius dropped from 999px (pill) to 2px (editorial rectangle). 1px `var(--color-border-strong)` border. Transparent ground. Padding 18px 22px 20px to seat both rows comfortably.
+
+- **Hover.** Existing fill-from-bottom `::before { transform: translateY(101%) → translateY(0) }` over `var(--dur-3) var(--ease-out-expo)` is **preserved** — no new motion. Color inverts to `#000` on the white fill. The hover state propagates to the eyebrow mark (fill #000 + border #000), eyebrow-ord/sub (`rgba(0,0,0,0.72)`), eyebrow-sep (`rgba(0,0,0,0.35)`) and lede-tail (`rgba(0,0,0,0.65)`) so the entire composition reads against the inverted ground.
+
+- **Cleanup (folded in).** Removed dead CSS for `[data-confirming]`, `.cart-drawer-cta-default`, `.cart-drawer-cta-confirm`, `.cart-drawer-cta-glyph-arrow`, `.cart-drawer-cta-glyph-check` — ~30 LOC of selectors that had no JSX renderer (confirmed via grep: `data-confirming` is set nowhere in `src/`). Likely orphan from an earlier iteration that didn't ship its JS path.
+
+**Architecture.** Two file edits. `src/components/cart-drawer.tsx:310-330` — single JSX block replacement; the `<Link>` element keeps its `href`, `onClick`, `data-cursor`, `data-cursor-label` attributes (so cursor tracking and close-on-click behavior are preserved). `src/app/globals.css:3880-3970` — full rewrite of the `.cart-drawer-cta` block (97 added / 56 removed lines / net +41). Reduced-motion guard at `globals.css:~4070-4082` updated to drop the four removed selectors and add the six new transitioning ones (-eyebrow, -eyebrow-mark, -eyebrow-ord, -eyebrow-sub, -lede-tail, -glyph). No new tokens. No new fonts (Instrument Serif + Inter already loaded via `layout.tsx`). No new keyframes. No new JS listeners. Zero-overhead change on the JS side.
+
+**Verification.**
+- `bun run lint` — 0 errors, 7 pre-existing warnings in `.claude/improvement/scripts/*.mjs` (unrelated to changed files).
+- `bunx tsc --noEmit` — clean.
+- `bun run build` — 48/48 static routes prerendered (Turbopack 1134.2ms + 541.9ms). Unchanged route set.
+- SSR class-grep (`.next/server/app/index.html`, `.next/server/app/supplies/void-book.html`, `.next/static/chunks/*.css`, `.next/static/chunks/*.js`):
+  - `cart-drawer-cta` — JS 45× / CSS 35×
+  - `cart-drawer-cta-body` — JS 2× / CSS 1×
+  - `cart-drawer-cta-eyebrow` — JS 18× / CSS 13×
+  - `cart-drawer-cta-eyebrow-mark/-ord/-sep/-sub` — JS 4/4/3/4, CSS 3/3/2/3
+  - `cart-drawer-cta-lede` — JS 7× / CSS 5×
+  - `cart-drawer-cta-lede-tail` — JS 4× / CSS 3×
+  - `cart-drawer-cta-glyph` — JS 4× / CSS 3×
+  - `cart-drawer-cta-glyph-arrow` / `-glyph-check` — **0 / 0** in both JS and CSS chunks (correctly excised)
+  - reduced-motion `@media (prefers-reduced-motion: reduce)` guard — 29× in CSS bundle (present)
+  - Drawer head and adjacent chrome unchanged: `cart-drawer-eyebrow` 5×, `cart-drawer-title` 3×, `cart-empty-cta` 1× (empty-state branch unaffected — different class), `nav-cta` 4× (cart-island button unaffected), `pdp-add-to-cart` 0 in SSR (mounts on interaction). Hero/chapter-rail/folio/spec-plate (×270, six PDPs)/outro-wordmark/outro-disclaimer all preserved at expected counts.
+  - The CTA's filled-state markup is gated behind `lines.length > 0` in `cart-drawer.tsx:298`, so SSR HTML on / and PDPs shows the drawer head (`005 · Manifest` intact) but the foot lives only in the JS bundle until a user opens the drawer with items — matches prior cart-drawer ship pattern.
+- `anti-patterns.mjs` — 0 findings.
+- Lighthouse — skipped. CSS-only delta + JS-zero change; no LCP/CLS/INP surface (CTA paints below the fold inside an off-canvas drawer); no above-the-fold change. `lighthouse.csv` baseline still empty (carry-over `lighthouse-baseline-seed`).
+- Visual diff — skipped. Screenshots blocked by stale next-server PID 46706 holding port 3000 (carry-over `stale-next-server-on-3000-blocks-capture-ship`, now 6 ships old).
+
+**Rubric.** T:3 M:1 L:2 I:2 A:3 D:2 = **13 / 18** (Solid).
+- T:3 — three typographic registers in one CTA composition (eyebrow caps-sans, italic-serif lede, caps-sans tail) where there was previously one heavy-tracked uppercase pill label.
+- M:1 — existing fill-from-bottom hover preserved; no new motion primitive, no new keyframes. The +4/-4 glyph nudge is a single existing transition vocabulary.
+- L:2 — single CTA composition, but it now contains 6 typographic elements + ground frame where it previously held 2 elements. Layout-density doubled.
+- I:2 — hover propagates state to 5 child elements in coordinated invert (mark fill, mark border, eyebrow-ord, eyebrow-sub, eyebrow-sep, lede-tail, glyph translate); the orchestration is the interaction.
+- A:3 — Link is single tab stop; aria-hidden correctly scoped to decorative eyebrow + glyph; accessible name `Proceed to checkout` computed from row 2 plain-text descendants; reduced-motion override complete with end-state preservation; contrast verified across rest + hover states.
+- D:2 — closes the head/foot vocabulary disagreement; the `006 · Bind` ordinal-advance is BFS-specific copy that no other site can claim; vocabulary parity within the drawer is the move. Not D:3 because the composition idea (eyebrow + serif + tail) is established in the head already — this is repetition for register parity, not a new vocabulary.
+
+**Screenshots.** Skipped. Capture-ship blocked by carry-over `stale-next-server-on-3000-blocks-capture-ship` (port 3000 held by PID 46706, now 6 ships old; this is an infra follow-up not a regression).
+
+**SOTD comparison.** Skipped. `sotd_parser_available: false` carry-over.
+
+**Notion.** No task-driven override this run — Tasks DB queried via `mcp__Notion__API-query-data-source` filter `select.equals:"To do"` returned 0 results. Reports row to append via MCP `notion-create-pages` after commit lands.
+
+**Expected impact.**
+- Cart drawer CTA reads as the same press as the drawer head — eliminates the head/foot register disagreement that signaled "agency template" on a high-trust transactional surface.
+- The italic-serif `Proceed` introduces the drawer's only italic-serif moment outside the title, building the typographic dialogue that the rest of the site (manifesto, codex, PDPs) now lives up to.
+- The `006 · Bind` ordinal naming the act of binding the manifest is BFS-specific editorial copy that no other e-commerce site can claim — the manifest metaphor is followed through to the act.
+- Dead-CSS cleanup removes ~30 LOC of orphan selectors that diff-reviewers would have flagged on the next adjacent ship anyway.
+
+**Files modified.**
+- `src/components/cart-drawer.tsx` (CTA JSX block, lines ~310–330)
+- `src/app/globals.css` (`.cart-drawer-cta*` selectors at ~3880–4005; reduced-motion guard at ~4106–4116)
+
+**Follow-ups uncovered.**
+- `cart-drawer-cta-hardcoded-color-token-promotion` (low, hygiene) — `#000` mark fill/border + `rgba(0,0,0,0.72|0.65|0.35)` hover values; rolls into existing `spec-plate-ink-token-promotion` sweep.
+- `cart-drawer-cta-eyebrow-10px-contrast-policy` (low, a11y) — 10px caps-sans on `--color-fog` ≈ 4.74:1 sits on the WCAG AA boundary; option to bump to `var(--color-text-muted)` (≈ 9.4:1) for stricter floor.
+- `drawer-cta-confirmation-state-truly-unused` (low, hygiene) — closure record: the removed `data-confirming` CSS was orphan from an earlier iteration; grep confirms no JS path needs restoring.
+- `stale-next-server-on-3000-blocks-capture-ship` (medium, infra) — carry-over from prior 5 ships; port 3000 still held by PID 46706.
+- `sotd-parser-fix` (low, infra) — carry-over.
+- `lighthouse-baseline-seed` (low, infra) — carry-over; `.claude/improvement/lighthouse.csv` still header-only.
+
+**Backlog closed-by-drift.** None this run. Historian confirmed all 6 existing closed-by-drift items remain correctly marked.
+
+**Periodic triggers fired.** None. Retro last fired 2026-05-13 (gap 2d < 7d); critic last fired 2026-05-13 (gap 2d < 28d); calibrator gated on `shipped_count % 10 == 0` (now 54, +1 = 55 — not a multiple); creativity-reset gated on `consecutive_no_focus_runs >= 2` (now 0).
+
+---
 ## 2026-05-15 — Catalogue specimen-plate gains a hover/focus-revealed `ED. <run>` printer's bug — stroke-draw hairline + italic-serif smallcaps inside the FIG./GAUGE/compass vocabulary
 
 **Area.** `catalogue` — the homepage's six `.chapter-figure` covers (and, as a render-only inheritor, the six PDP `.pdp-specimen-frame` cover plates) consume a shared `<SpecimenPlate>` SVG overlay (`src/components/specimen-plate.tsx`) that has carried four marks since launch: a top-left `FIG. <I-VI>` label, a top-right rotating compass, a height/width dimensioning pair on the right and bottom edges, and a bottom-left `GAUGE · <g/m²>` label. The bottom-right quadrant of the 400×500 viewBox was empty. This ship adds a fifth mark there — an italic-serif `ED. <edition>` printer's bug with its own 36px hairline rule above — that stays idle at rest and *draws in* under reader attention (mouse hover OR keyboard focus within the parent `<article className="chapter">`), pairing with the existing FIG. / GAUGE vocabulary as a fourth corner of the technical drawing.

@@ -3076,3 +3076,84 @@ items:
     dq_count: 0
     notes: |
       Source — perf-a11y audit on catalogue-spc-edition-hover-scribble ship.
+
+  - id: cart-drawer-cta-hardcoded-color-token-promotion
+    title: Promote hardcoded #000 + rgba(0,0,0,.72|.65|.35) literals in .cart-drawer-cta hover state to tokens
+    ship: |
+      The cart-drawer-cta editorial-register rebuild introduced 4 hardcoded
+      color literals in the hover branch — `#000` for eyebrow-mark fill +
+      border (globals.css:~3946-3947) and `rgba(0,0,0,0.72|0.65|0.35)` for
+      eyebrow-ord/sub, lede-tail, and eyebrow-sep on hover. The `#000`
+      values should route through `var(--color-text-strong)` /
+      `var(--color-ink)` (whichever maps to the canonical strong-on-paper
+      token); the rgba alpha stops should fold into the broader
+      `--plate-ink-<n>` / `--ink-on-paper-<n>` series that the existing
+      spec-plate-ink-token-promotion sweep was supposed to address. Best
+      shipped as part of that systematic pass, not as a one-off.
+    severity: low
+    effort: S
+    class: hygiene
+    status: open
+    files:
+      - src/app/globals.css
+    opened_on: 2026-05-15
+    last_verified: 2026-05-15
+    dq_count: 0
+    notes: |
+      Source — diff-reviewer pass on cart-drawer-cta-editorial-register ship.
+      Defer to spec-plate-ink-token-promotion sweep; this is the second
+      instance of the same idiom (spec-plate-* uses rgba(255,255,255,0.78)
+      and similar on its dimensional labels).
+
+  - id: cart-drawer-cta-eyebrow-10px-contrast-policy
+    title: Decide whether 10px caps-sans on --color-fog (4.74:1) meets the BFS body-floor
+    ship: |
+      The new `.cart-drawer-cta-eyebrow` runs at 10px caps-sans 0.3em
+      tracking colored `var(--color-fog)` ≈ #6b6b6b on `--color-ink` ≈
+      #0a0a0a → 4.74:1. Passes WCAG AA for normal text (4.5:1) but sits
+      right on the boundary at a small caps-sans size. Two policy
+      options: (a) accept — uppercase letterforms read at this contrast,
+      and the eyebrow has aria-hidden=true so it's purely decorative;
+      (b) bump to `var(--color-text-muted)` (already used for the sub
+      and lede-tail, ≈ 9.4:1) to match the drawer head's contrast at
+      the same role. Worth documenting either way as a body-floor
+      precedent.
+    severity: low
+    effort: S
+    class: a11y
+    status: open
+    files:
+      - src/app/globals.css
+    opened_on: 2026-05-15
+    last_verified: 2026-05-15
+    dq_count: 0
+    notes: |
+      Source — perf-a11y audit on cart-drawer-cta-editorial-register ship.
+      Same pattern as manifesto-num-resting-contrast-policy from prior
+      ship — accumulating these establishes the policy.
+
+  - id: drawer-cta-confirmation-state-truly-unused
+    title: Confirmed via grep that the removed data-confirming/.cart-drawer-cta-confirm CSS was orphan
+    ship: |
+      The cart-drawer-cta rebuild removed `[data-confirming]`,
+      `.cart-drawer-cta-default`, `.cart-drawer-cta-confirm`,
+      `.cart-drawer-cta-glyph-arrow`, `.cart-drawer-cta-glyph-check`
+      selectors (~30 LOC of CSS) because no JSX rendered them.
+      Grep confirms `data-confirming` is set nowhere in src/ — no
+      JS path needs restoring. This is closure: the confirm state
+      was either deferred during initial implementation or rolled
+      back without the CSS being cleaned up. No follow-up action
+      needed beyond this record.
+    severity: low
+    effort: S
+    class: hygiene
+    status: open
+    files:
+      - src/components/cart-drawer.tsx
+    opened_on: 2026-05-15
+    last_verified: 2026-05-15
+    dq_count: 0
+    notes: |
+      Source — cart-drawer-cta-editorial-register ship cleanup; logged
+      for audit history. Can be flipped to wontfix-resolved on next
+      Phase 0 hygiene pass.
