@@ -6,9 +6,15 @@ type Props = {
   children: React.ReactNode;
   className?: string;
   strength?: number;
+  reveal?: boolean;
 };
 
-export function Magnetic({ children, className = "", strength = 0.3 }: Props) {
+export function Magnetic({
+  children,
+  className = "",
+  strength = 0.3,
+  reveal = false,
+}: Props) {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -22,6 +28,8 @@ export function Magnetic({ children, className = "", strength = 0.3 }: Props) {
     let ty = 0;
     let cx = 0;
     let cy = 0;
+    let td = 0;
+    let cd = 1;
 
     const onMove = (e: PointerEvent) => {
       const r = el.getBoundingClientRect();
@@ -29,15 +37,25 @@ export function Magnetic({ children, className = "", strength = 0.3 }: Props) {
       const my = e.clientY - (r.top + r.height / 2);
       tx = mx * strength;
       ty = my * strength;
+      if (reveal) {
+        const dist = Math.hypot(mx, my);
+        const fieldRadius = Math.hypot(r.width, r.height) / 2;
+        td = Math.max(0, Math.min(1, 1 - dist / fieldRadius));
+      }
     };
     const onLeave = () => {
       tx = 0;
       ty = 0;
+      if (reveal) td = 0;
     };
     const loop = () => {
       cx += (tx - cx) * 0.15;
       cy += (ty - cy) * 0.15;
       el.style.transform = `translate3d(${cx.toFixed(2)}px, ${cy.toFixed(2)}px, 0)`;
+      if (reveal) {
+        cd += (td - cd) * 0.15;
+        el.style.setProperty("--magnetic-distance", cd.toFixed(3));
+      }
       raf = requestAnimationFrame(loop);
     };
 
@@ -50,10 +68,11 @@ export function Magnetic({ children, className = "", strength = 0.3 }: Props) {
       el.removeEventListener("pointermove", onMove);
       el.removeEventListener("pointerleave", onLeave);
     };
-  }, [strength]);
+  }, [strength, reveal]);
 
+  const classes = `magnetic${reveal ? " magnetic-reveal" : ""}${className ? " " + className : ""}`;
   return (
-    <div ref={ref} className={`magnetic ${className}`}>
+    <div ref={ref} className={classes}>
       {children}
     </div>
   );

@@ -1463,6 +1463,16 @@ html.loading body {
     letter-spacing: 0.32em;
   }
 }
+/* ============ MAGNETIC REVEAL (motion-vocabulary [3/3]) ============ */
+/* Cursor-distance-driven micro-motion. Element rests at slightly reduced */
+/* opacity / scale, interpolates to full state as cursor approaches center. */
+/* Default --magnetic-distance: 1 = full state, so touch / reduced-motion / */
+/* no-JS users see the rest state. The Magnetic primitive only sets the */
+/* variable on (pointer: fine) + (prefers-reduced-motion: no-preference). */
+.magnetic-reveal {
+  opacity: calc(0.65 + 0.35 * var(--magnetic-distance, 1));
+  scale: calc(0.96 + 0.04 * var(--magnetic-distance, 1));
+}
 .chapter-title {
   font-size: clamp(40px, 5.8vw, 96px);
   line-height: 0.92;

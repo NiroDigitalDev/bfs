@@ -677,7 +677,7 @@ export default function Home() {
             ))}
           </ol>
           <Reveal delay="0.18s">
-            <Magnetic strength={0.2}>
+            <Magnetic strength={0.2} reveal>
               <Link
                 href="/journal"
                 className="from-journal-all"
