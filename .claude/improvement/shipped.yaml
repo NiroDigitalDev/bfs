@@ -461,7 +461,7 @@ items:
 
   - id: catalogue-spc-edition-hover-scribble
     title: "Catalogue specimen-plate gains a hover/focus-revealed ED. <run> printer's bug — italic-serif smallcaps text + 36-unit hairline rule drawing in via stroke-dashoffset, completing the four-corner FIG./compass/H+W/GAUGE vocabulary"
-    commit: pending
+    commit: 08a5de7
     date: 2026-05-15
     surface: catalogue
     tags: [catalogue, system, pdp, typography, italic-serif, smallcaps, oldstyle-numerals, stroke-dashoffset, focus-within, hover-reveal, attention-state, reference-scout, awwwards-current, printer-bug, plate-spec-extension, additive-only, no-js, css-only]
