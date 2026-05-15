@@ -3417,7 +3417,7 @@ items:
     notes: "Flagged by perf-a11y on newsletter-editorial-register-pass. Post-submit, the input+button subtree (~42px content+padding box at font-size 14px+12px) swaps to a single <output> element (~30px content+padding box at font-size 14px). ~2-6px vertical delta possible. NOT user-perceptible at footer position AND post-interaction (input-initiated within 500ms) is excluded from the CLS web-vital — but trims a CLS edge case if tightened. Match .newsletter-status to font: inherit + padding: 8px 0 or measure pre-swap input+button height and pin output to match."
 
   - id: related-grid-rule-color-token-promotion
-    title: "Promote .related-grid::after + .related-numeral + .related-eyebrow-* + .journal-related-* rgba literals to var(--color-line-*) tokens"
+    title: "Promote .related-grid::after + .related-numeral + .related-eyebrow-* + .journal-related-* + .about-coda-* rgba literals to var(--color-line-*) tokens"
     severity: low
     effort: S
     class: hygiene
@@ -3427,11 +3427,11 @@ items:
     opened_on: 2026-05-15
     last_verified: 2026-05-15
     dq_count: 0
-    notes: "Flagged by diff-reviewer on pdp-related-grid-symmetric-tombstone, and EXTENDED on journal-prev-next-dictionary-spread (the journal analog of the PDP ship now reproduces the same rgba literals at .journal-related-grid::after / .journal-related-numeral / .journal-related-eyebrow-label / .journal-related-eyebrow-sep / .journal-related-piece). PDP + journal recirculation now share identical low-alpha grids: 0.18 (between-column hairline), 0.32 (numeral resting + sep), 0.45 (link border-top hover), 0.55 (eyebrow body + piece kicker), 0.7 (numeral hover + arrow hover), 0.78 (eyebrow-label resting). Rolls into the existing folio/cart/newsletter hardcoded-color-token-promotion sweep — tokenise .related-*, .journal-related-*, .newsletter, .folio[data-variant='journal'|'legal'], .cart-* blocks together in one --color-line-* / --ink-alpha-* ramp."
+    notes: "Flagged by diff-reviewer on pdp-related-grid-symmetric-tombstone, EXTENDED on journal-prev-next-dictionary-spread, and EXTENDED AGAIN on about-coda-dictionary-cross-reference-spread (third namespaced reproduction of the same .related-* alpha grid into .about-coda-*). PDP + journal recirculation + /about coda now all share identical low-alpha grids: 0.18 (between-column hairline), 0.32 (numeral resting + sep), 0.45 (link border-top hover), 0.55 (eyebrow body + piece/plate kicker), 0.62 (sub), 0.7 (numeral hover + arrow hover), 0.78 (eyebrow-label resting). Rolls into the existing folio/cart/newsletter hardcoded-color-token-promotion sweep — tokenise .related-*, .journal-related-*, .about-coda-*, .newsletter, .folio[data-variant='journal'|'legal'], .cart-* blocks together in one --color-line-* / --ink-alpha-* ramp."
 
   - id: folio-numeral-pattern-extract-utility
-    title: "Hoist italic-serif oversized-margin numeral pattern (.chapter-numeral, .folio-numeral, .related-numeral, .journal-related-numeral) into a single utility class or CSS custom-property set"
-    severity: medium
+    title: "Hoist italic-serif oversized-margin numeral pattern (.chapter-numeral, .related-numeral, .journal-related-numeral, .about-coda-numeral) into a single .numeral-plate utility class with --numeral-rest / --numeral-hover custom properties"
+    severity: high
     effort: M
     class: hygiene
     status: open
@@ -3440,10 +3440,10 @@ items:
     opened_on: 2026-05-15
     last_verified: 2026-05-15
     dq_count: 0
-    notes: "Flagged by diff-reviewer on pdp-related-grid-symmetric-tombstone (3rd occurrence); FOURTH occurrence reached on journal-prev-next-dictionary-spread (.journal-related-numeral). Severity bumped low → medium — the 'wait for the fourth' threshold the previous note named is now met. Four sites: .chapter-numeral on homepage (chapter heading), .folio-numeral on running-folio masthead, .related-numeral on PDP recirculation, .journal-related-numeral on journal recirculation. Shared recipe (font-serif italic 400, clamp size, line-height ~1, color rgba(255,255,255,0.32), letter-spacing ~-0.02em, pointer-events:none, user-select:none, transition color var(--dur-2) var(--ease-out-quart), :has() hover→rgba(0.7)). Variance: size clamp endpoints + slight line-height/letter-spacing for chapter-numeral (0.8/-0.04em). Recommended hoist: a .numeral-plate base class consuming --numeral-rest / --numeral-hover custom properties + per-site size override via composition (.chapter-numeral / .folio-numeral / .related-numeral / .journal-related-numeral keep only their specific clamp + position rules). Touches ~80 LOC across 4 selector blocks; estimated net delta ~-40 lines after dedup."
+    notes: "Flagged by diff-reviewer on pdp-related-grid-symmetric-tombstone (3rd occurrence); FOURTH occurrence reached on journal-prev-next-dictionary-spread; FIFTH + SIXTH occurrences reached on about-coda-dictionary-cross-reference-spread (.about-coda-numeral renders TWICE per /about render — one numeral per data-direction). Severity bumped medium → HIGH — the 'wait for the threshold' has been comprehensively exceeded; the recipe now appears at 5 distinct selector sites (six DOM instances per /about render). NOTE: prior audit noted .folio-numeral as a 4th member but the system auditor's 2026-05-15 correction confirmed .folio-numeral is a 14px white masthead glyph (NOT the oversized-margin recipe) — real members are .chapter-numeral, .related-numeral, .journal-related-numeral, .about-coda-numeral. Shared recipe (font-serif italic 400, clamp size, line-height ~1, color rgba(255,255,255,0.32), letter-spacing ~-0.02em, pointer-events:none, user-select:none, transition color var(--dur-2) var(--ease-out-quart), :has() hover→rgba(0.7)). Variance: size clamp endpoints + slight line-height/letter-spacing for chapter-numeral (0.8/-0.04em). Recommended hoist: a .numeral-plate base class consuming --numeral-rest / --numeral-hover custom properties + per-site size override via composition. Touches ~100 LOC across 4 selector blocks; estimated net delta ~-60 lines after dedup. THIS IS NOW THE TOP-PRIORITY SYSTEM SHIP — every future spread that needs oversized italic-serif numerals should consume the utility, not re-declare the recipe."
 
   - id: related-eyebrow-arrow-glyph-aria-hidden-double-emphasis
-    title: "One-shot live AT test on .related-eyebrow-label + .journal-related-eyebrow-label arrows (← / →) inside <em> under aria-label override"
+    title: "One-shot live AT test on .related-eyebrow-label + .journal-related-eyebrow-label + .about-coda-eyebrow-label arrows (← / →) inside <em> under aria-label override"
     severity: low
     effort: S
     class: a11y
@@ -3451,7 +3451,21 @@ items:
     files:
       - src/components/related-products.tsx
       - src/components/related-journal-posts.tsx
+      - src/app/about/page.tsx
     opened_on: 2026-05-15
     last_verified: 2026-05-15
     dq_count: 0
-    notes: "Flagged by perf-a11y on pdp-related-grid-symmetric-tombstone; reproduced on journal-prev-next-dictionary-spread (.journal-related-eyebrow-label carries the same ← / → glyphs in the same <em> shape under the same aria-label override). The aria-hidden glyphs are children of <em class='*-eyebrow-label'> whose parent <a aria-label='Previous|Next piece|specimen · …'> overrides descendant accessible-name computation per ARIA spec, so the eyebrow text — including the arrows — should NOT be announced. Verified by spec / inspection only; one live AT test (VoiceOver / NVDA) on next dev-server-running run covers both surfaces."
+    notes: "Flagged by perf-a11y on pdp-related-grid-symmetric-tombstone; reproduced on journal-prev-next-dictionary-spread; EXTENDED on about-coda-dictionary-cross-reference-spread (.about-coda-eyebrow-label carries the same ← / → glyphs in the same <em> shape under the same aria-label override on the Catalogue card's '← The Catalogue' and the Journal card's 'The Journal →' eyebrows). The aria-hidden glyphs are children of <em class='*-eyebrow-label'> whose parent <a aria-label='The Catalogue · …' or 'The Journal · …'> overrides descendant accessible-name computation per ARIA spec, so the eyebrow text — including the arrows — should NOT be announced. Verified by spec / inspection only; one live AT test (VoiceOver / NVDA) on next dev-server-running run covers all three surfaces."
+
+  - id: rule-draw-keyframe-consolidate
+    title: "Consolidate three identical scaleY 0→1 keyframes (related-rule-draw, journal-related-rule-draw, about-coda-rule-draw) into one shared @keyframes hairline-rule-draw-y with custom-property-driven transform-origin"
+    severity: medium
+    effort: S
+    class: hygiene
+    status: open
+    files:
+      - src/app/globals.css
+    opened_on: 2026-05-15
+    last_verified: 2026-05-15
+    dq_count: 0
+    notes: "Flagged on about-coda-dictionary-cross-reference-spread by diff-reviewer + perf-a11y (corroborating the system auditor's earlier flag on the same run's pre-pick). Three byte-identical keyframes now live in globals.css: related-rule-draw (~5757), journal-related-rule-draw (~7675), about-coda-rule-draw (~8340). All three are nested inside the same @supports (animation-timeline: view()) + @media (min-width: 720px) AND (prefers-reduced-motion: no-preference) guard stack; all three are scaleY 0→1; all three use transform-origin: 50% 0 on their consumers; all three run over `entry 10% cover 35%`. Recommended consolidation: replace with a single @keyframes hairline-rule-draw-y { to { transform: scaleY(1); } } (the from-state is implied by the static :not(animated) baseline at scaleY(1) — verify) and update the three consumers to reference it. Net delta: ~-30 LOC. Pairs naturally with rule-color-token-promotion if both ship together."

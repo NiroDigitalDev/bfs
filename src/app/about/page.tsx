@@ -273,29 +273,102 @@ export default function AboutPage() {
           className="about-section about-section-coda"
           aria-labelledby="about-press"
         >
-          <h2 id="about-press">
-            <em>From the press</em>
-          </h2>
-          <p>
-            The press keeps an editorial dispatch at the Journal. Notes on
-            type, on paper, on the physics of an edition. Read in any order;
-            the running folio is not a sequence.
-          </p>
-          <Reveal delay="0.1s" className="about-cta-row">
-            <Magnetic strength={0.22}>
-              <Link
-                href="/journal"
-                className="about-cta"
-                data-cursor="link"
-                data-cursor-label="Read"
-              >
-                <span>Read the journal</span>
-                <span className="about-cta-arrow" aria-hidden>
-                  →
+          <header className="about-coda-head">
+            <span className="about-coda-eyebrow">
+              <span className="about-coda-eyebrow-rule" aria-hidden />
+              <em>Continue · Two further volumes</em>
+            </span>
+            <h2 id="about-press" className="about-coda-title">
+              <em>Two ways onward.</em>
+            </h2>
+          </header>
+          <ol className="about-coda-grid">
+            <Reveal delay="0s">
+              <li className="about-coda-item" data-direction="left">
+                <span className="about-coda-numeral" aria-hidden>
+                  I
                 </span>
-              </Link>
-            </Magnetic>
-          </Reveal>
+                <Link
+                  href="/"
+                  className="about-coda-link"
+                  data-cursor="link"
+                  data-cursor-label="Open"
+                  aria-label="The Catalogue · six editions in matte black"
+                >
+                  <div className="about-coda-meta">
+                    <span className="about-coda-eyebrow-pair">
+                      <em className="about-coda-eyebrow-label">
+                        <span aria-hidden>← </span>The Catalogue
+                      </em>
+                      <span
+                        className="about-coda-eyebrow-sep"
+                        aria-hidden
+                      >
+                        ·
+                      </span>
+                      <span className="about-coda-plate">
+                        Vol.&thinsp;·&thinsp;I
+                      </span>
+                    </span>
+                    <h3 className="about-coda-name">
+                      Six editions in matte black.
+                    </h3>
+                    <span className="about-coda-sub">
+                      <em>
+                        Bound objects, stationery, and the apparatus of the
+                        editorial process.
+                      </em>
+                    </span>
+                    <span className="about-coda-arrow" aria-hidden>
+                      Browse the editions ↗
+                    </span>
+                  </div>
+                </Link>
+              </li>
+            </Reveal>
+            <Reveal delay="0.08s">
+              <li className="about-coda-item" data-direction="right">
+                <span className="about-coda-numeral" aria-hidden>
+                  II
+                </span>
+                <Link
+                  href="/journal"
+                  className="about-coda-link"
+                  data-cursor="link"
+                  data-cursor-label="Read"
+                  aria-label="The Journal · editorial dispatches in eleven pieces"
+                >
+                  <div className="about-coda-meta">
+                    <span className="about-coda-eyebrow-pair">
+                      <span className="about-coda-plate">
+                        Vol.&thinsp;·&thinsp;II
+                      </span>
+                      <span
+                        className="about-coda-eyebrow-sep"
+                        aria-hidden
+                      >
+                        ·
+                      </span>
+                      <em className="about-coda-eyebrow-label">
+                        The Journal<span aria-hidden> →</span>
+                      </em>
+                    </span>
+                    <h3 className="about-coda-name">
+                      Eleven pieces, in any order.
+                    </h3>
+                    <span className="about-coda-sub">
+                      <em>
+                        Notes on type, on paper, on the physics of an edition.
+                      </em>
+                    </span>
+                    <span className="about-coda-arrow" aria-hidden>
+                      Read the journal ↗
+                    </span>
+                  </div>
+                </Link>
+              </li>
+            </Reveal>
+          </ol>
         </section>
       </article>
 
