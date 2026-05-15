@@ -4,6 +4,74 @@ A running record of focused changes shipped by the website-improvement routine.
 One entry per run. Newest first.
 
 ---
+## 2026-05-15 — Image-gen [3/3] — three editorial inline-SVG compositions: wax-seal on `/journal` header + press-stamp typesetter's tray in the homepage manifesto + hand-press silhouette in the colophon
+
+**Area.** `manifesto` · `colophon` · `system` — closes the **image-gen trilogy** with three new decorative inline-SVG server components placed on three different surfaces. After [1/3] (`SectionDivider`, the homepage chapter-edge hairline) and [2/3] (`SpecimenPlateFrame`, the per-PDP plate ornament), this ship adds: (a) **`WaxSealMark`** — a circular composition (two concentric hairline rings + 24 perimeter tick marks + central BFS monogram + `ED·III` engraving) in the top-right of the `/journal` index header; (b) **`PressStampTray`** — a 4×3 orthogonal grid of italic-serif glyph cells (`B F S ·` / `§ & ¶ —` / `i i i .`) reading like a typesetter's tray, sat under the credo in the homepage manifesto sticky rail; (c) **`ColophonPress`** — a small hand-press silhouette in single-stroke hairline (yoke + side posts + platen + guide rods + sheet + base + lever + foot rule + `THE PRESS` legend) tucked into the top-right of the footer colophon. All three use `currentColor` strokes so the parent positions and tints them, all three are `aria-hidden` + `pointer-events: none`, all three hide on the narrow viewports where their column doesn't have the headroom.
+
+**Why it's the focus.** **Task-driven** — Notion subtask `360af8d3-d3e2-81d5-a53d-f21127250381` was the only open `To do` row in the Tasks DB this run. Direct continuation of the image-gen trilogy after [1/3] (commit `5f6ab9c` est. — homepage divider) and [2/3] (commit `df7cd8b` — PDP plates) which both established the inline-SVG + `currentColor` + `aria-hidden` pattern. Parent task (Notion `35faf8d3-d3e2-8168-9026-c7ce8590e62b`) closes once all three subtasks complete.
+
+**Mode.** Task-driven (claimed fresh — `Status: To do → In progress`, `Started: 2026-05-15` via MCP `notion-update-page`).
+
+**Risk band.** `medium` per brief — 3 surfaces touched (manifesto, colophon, journal header) but the components are independent of each other, additive only, no shared primitive modified, no JS, no SEO surface. Direct-commit to main per `risk-rules.md` medium-band default.
+
+**What ships.**
+
+1. **`src/components/wax-seal-mark.tsx` — new server component** (~60 LOC). One inline SVG (`viewBox="0 0 120 120"`, `preserveAspectRatio="xMidYMid meet"`) containing: two concentric hairline rings (r=54, r=46); 24 perimeter tick marks generated via `Array.from({length:24})` and rotated `i * 15°` around the center; a third inner ring (r=22) holding the BFS monogram (italic-serif, 16px); an `ED·III` micro-legend below the monogram (sans, 3.6px, 0.32em letter-spacing). Root `<div className="wax-seal-mark" aria-hidden>`.
+2. **`src/components/press-stamp-tray.tsx` — new server component** (~80 LOC). One inline SVG (`viewBox="0 0 160 120"`, 4 columns × 3 rows, 40-unit cells) with: a 1-unit outer rectangle, 3 vertical interior dividers + 2 horizontal interior dividers, 12 italic-serif glyph cells (`B F S · § & ¶ — i i i .`) each placed at the cell center with optional sub-pixel offsets via a small `cells: Array<{x,y,glyph,off?}>` map so the glyphs read as movable type slightly off-register rather than a font specimen. Hairline foot rule under the grid. Root `<div className="press-stamp-tray" aria-hidden>`.
+3. **`src/components/colophon-press.tsx` — new server component** (~70 LOC). One inline SVG (`viewBox="0 0 160 200"`) drawing a hand-press silhouette entirely in `stroke="currentColor" fill="none"`: upper crossbar/yoke (with knob top), two side posts, descending platen (heavier block, mid-line scored), two guide rods to the platen, bed (the sheet, with two scored lines), tapered base, swing-arm lever (with bearing circle), and a foot rule with 3 tick marks plus a `THE PRESS` legend (sans, 5px, 0.28em letter-spacing). Root `<div className="colophon-press" aria-hidden>`.
+4. **Three mount lines** — one import + one render call in each of: `src/app/journal/page.tsx` (`<WaxSealMark />` as the first child of `.journal-header`), `src/app/page.tsx` (`<PressStampTray />` immediately after the `<p className="manifesto-credo">` inside the sticky `<aside>`), and `src/components/site-footer.tsx` (`<ColophonPress />` immediately before the `<h3 id="outro-colophon-heading">` inside the `.outro-colophon-wrap` `<section>`).
+5. **`src/app/globals.css` — three new blocks** (+78 LOC across the file): `.journal-header { position: relative }` + `.wax-seal-mark` (top-right absolute, clamp(96px, 11vw, 144px), 0.42 alpha, hidden < 720px) at line ~6646; `.press-stamp-tray` (clamp(180px, 18vw, 240px) width, top-margin matched to credo rhythm, 0.42 alpha, hidden < 1000px to match the manifesto's sticky breakpoint) at line ~2302; `.outro-colophon-wrap { position: relative }` + `.colophon-press` (top-right absolute inside the wrap, clamp(96px, 9vw, 132px), 0.34 alpha at 0.78 opacity, hidden < 900px) at line ~3261.
+
+**Architecture.** Three independent server components in `src/components/` (not `src/components/imagery/` — the brief offered both, the flat layout matches `section-divider.tsx` + `specimen-plate-frame.tsx` already shipped this week and avoids a one-off subdirectory). Each component is self-contained: declares its own viewBox + path geometry, exposes no props (none of them need product/post specificity — they're surface-level decoration, not per-record ornament like `SpecimenPlateFrame`), and uses `currentColor` so the parent rule sets the tint. The three components are intentionally **not** abstracted behind a common wrapper — each has its own composition language (circular for the seal, gridded for the tray, mechanical for the press) and the parent CSS positions each differently (absolute-top-right for the seal + press, in-flow column member for the tray). Premature abstraction would cost more than it saves at N=3 sibling pieces. Hide-on-narrow logic uses `display: none` rather than `visibility: hidden` so the elements don't take layout space at small widths — important for the tray which sits inside the sticky rail that collapses into a column header below 1000px.
+
+**Verification.**
+
+- `bun run lint` — 0 errors + 7 pre-existing tooling warnings (unchanged set in `.claude/improvement/scripts/*.mjs`).
+- `bunx tsc --noEmit` — clean.
+- `bun run build` — 48 / 48 static routes (count unchanged from prior ship; manifest unchanged).
+- `node .claude/improvement/scripts/anti-patterns.mjs` — 0 patterns.
+- **SSR verification** — `.next/server/app/journal.html` contains `class="wax-seal-mark"` 1×; `.next/server/app/index.html` contains `class="press-stamp-tray"` 1× and `class="colophon-press"` 1×. All three mount points render at the expected DOM positions (verified via grep against the sibling class signatures `journal-eyebrow`, `manifesto-credo`, `outro-colophon-label`).
+- `perf-a11y` — 0 bytes JS delta (three server components), CSS delta ~1.6KB pre-minification across three blocks, total component source ~6.7KB raw (well under the brief's +9KB budget; SSR-rendered HTML delta will be smaller after gzip), no LCP risk (all three sit below initial viewport or beside content already rendered), no CLS risk (no animation of layout properties at all — these are static decoration), no INP risk (no JS), contrast OK (decorative-only at 0.34/0.42 alpha against matte-black, none of these elements carry essential information — the BFS monogram in the seal is reinforced by the existing wordmark in the site nav at the same screen position), reduced-motion respected (no motion to gate; CSS contains zero transitions and zero animations across all three blocks), keyboard unaffected (aria-hidden + pointer-events: none × 3).
+- `regression-spotter` — adjacent surface signature classes preserved: `journal-display`, `journal-display-outline`, `journal-display-period`, `journal-lede`, `journal-entries` on `/journal`; `manifesto-credo`, `manifesto-list`, `manifesto-num`, `manifesto-item` on `/`; `outro-colophon-label`, `outro-colophon-key`, `outro-colophon-val`, `outro-colophon-mail` on `/`. Footer and journal nav SSR signatures untouched.
+- `diff-reviewer` — PASS. Three new files, three single-line mount edits, three additive CSS blocks. No escape hatches, no dead code, no scope creep, no shared primitive modified, no new tokens, no new fonts, no new keyframes.
+
+**Rubric.** T2 M2 L2 I1 A2 D2 = **11 / 18** (Solid; clears the > 8 abort threshold).
+- T:2 — third inline-SVG asset in the system; closes the trilogy and demonstrates the pattern flexes across circular (seal), gridded (tray), and silhouette (press) idioms.
+- M:2 — three different SVG composition strategies in one ship: rotation-array via `Array.from` for the seal ticks, data-driven cell grid for the tray, single-stroke outline for the press. None novel, all clean.
+- L:2 — 3 routes touched (journal index, homepage manifesto, every page that renders `SiteFooter` — i.e. `/`, `/about`, `/journal`, `/supplies/*` etc. via the global mount).
+- I:1 — decorative, no interaction; visible at rest, no hover treatment (intentional restraint — the [2/3] frame already carries the hover-strengthen affordance).
+- A:2 — fully aria-hidden + pointer-events: none across all three; no contrast regression (none carry essential information); reduced-motion not relevant (zero motion in any of the three).
+- D:2 — wax-seal, typesetter's tray, hand-press: three deliberate editorial-press references that read as a press's house ornament rather than template decoration. The tray's italic-serif `BFS · § & ¶ — i i i .` is the most specific to BFS's register; the press silhouette is the most generic.
+
+**Screenshots.** Skipped — stale `next start` process from prior runs still holds port 3000 unresponsive (carried-over blocker `stale-next-server-on-3000-blocks-capture-ship`); `capture-ship.mjs` exited gracefully per design.
+
+**SOTD comparison.** Skipped — gallery markup parser failure (`sotd_parser_available: false` in state.yaml).
+
+**Notion.** Tasks DB subtask `360af8d3-d3e2-81d5-a53d-f21127250381` to flip `In progress → Done` via MCP `notion-update-page` after commit (Commit + Completed); Reports row to append via MCP `notion-create-pages` using documented schema fallbacks. With this ship, all three image-gen subtasks ([1/3], [2/3], [3/3]) are Done and the parent task `35faf8d3-d3e2-8168-9026-c7ce8590e62b` is logically complete (parent status is `Split` — left as-is since the cron only flips the subtask).
+
+**Expected impact.** Three surfaces previously dominated by typography alone gain quiet editorial ornament. Journal index reads as a printed issue's title page rather than a blog roll. Manifesto sticky rail reads as a press setting type before the manifesto is set. Colophon area gains a literal press silhouette next to the masthead. Each ornament is restrained enough (0.34–0.42 alpha, hidden on narrow) to read as house-style flourish rather than central visual weight.
+
+**Files modified.**
+
+- `src/components/wax-seal-mark.tsx` — **new** (~60 LOC).
+- `src/components/press-stamp-tray.tsx` — **new** (~80 LOC).
+- `src/components/colophon-press.tsx` — **new** (~70 LOC).
+- `src/app/journal/page.tsx` — `+2` (1 import + 1 mount).
+- `src/app/page.tsx` — `+2` (1 import + 1 mount).
+- `src/components/site-footer.tsx` — `+2` (1 import + 1 mount).
+- `src/app/globals.css` — `+78` (three blocks: wax-seal at ~6646, press-stamp-tray at ~2302, colophon-press at ~3261).
+
+**Follow-ups uncovered.**
+
+- `image-gen-parent-task-close` (low, bookkeeping) — Notion parent `35faf8d3-d3e2-8168-9026-c7ce8590e62b` is `Split` and all three subtasks are now `Done`. The cron leaves parent status alone by design; a human pass can mark it `Done` if desired, but `Split + all-children-Done` is also semantically complete.
+- `wax-seal-mark-mobile-variant` (low, distinctive) — currently hidden below 720px; a future ship could re-introduce a smaller variant (e.g. 64px in the corner) for mobile if the journal-header otherwise feels under-decorated there.
+- `press-stamp-tray-cell-content-rotation` (low, distinctive) — the 12 glyphs are hardcoded; if the manifesto ever gets a second instance or a different surface, consider rotating cell contents via a small `seed` prop so repeated mounts read distinct.
+- `colophon-press-second-consumer-or-prove-rarity` (low, hygiene) — currently mounts only in `SiteFooter`. If a future about-page or codex section wants similar editorial vignette, the component is reusable; otherwise keep it rare to preserve its weight.
+- `stale-next-server-on-3000-blocks-capture-ship` (medium, infra) — carried over from prior 3 ships; `capture-ship.mjs --port` or a process-check would unblock screenshot/visual-diff.
+
+**Periodic triggers fired.** None this run (`shipped_count == 51` not a multiple of 10; retro last fired 2026-05-13 < 7d ago; critic last fired 2026-05-13 < 28d ago; calibration last fired 2026-05-14 < 7d ago).
+
+---
 ## 2026-05-15 — Image-gen [2/3] — PDP specimen-plate frame on all 6 `/supplies/[id]` routes (corner brackets + registration crosses + per-product central accent + edition engraving)
 
 **Area.** `catalogue` · `system` — adds the second piece of decorative inline-SVG imagery to the site after the [1/3] homepage section divider. A new server component `src/components/specimen-plate-frame.tsx` layers a decorative frame (4 L-corner brackets, 2 vertical-midline registration crosses, 1 product-specific central accent on the top edge, 1 HTML edition engraving at bottom-right) above the existing `.pdp-specimen-frame` Tilt container on every PDP. Each product gets a distinct central accent shape — **grid** for void-book, **dot-row** for abyssal-cardstock, **plus** for event-horizon-pad, **cross** for sticky-voids, **ring** for savior-pen, **triangle** for executive-despair — and a matching FIG reference in the engraving (`ED · III · MMXXVI · FIG. I·v` etc.). Hairlines stay 1px crisp regardless of the container's 4:5 (mobile) vs 3:4 (desktop) aspect via `vector-effect="non-scaling-stroke"` on a single `preserveAspectRatio="none"` SVG. The label is HTML (not SVG `<text>`) so it isn't deformed by the aspect-stretched viewBox.

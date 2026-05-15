@@ -3,6 +3,7 @@ import { Reveal } from "@/components/reveal";
 import { SplitText } from "@/components/split-text";
 import { Magnetic } from "@/components/magnetic";
 import { Newsletter } from "@/components/newsletter";
+import { ColophonPress } from "@/components/colophon-press";
 
 export function SiteFooter() {
   return (
@@ -42,6 +43,7 @@ export function SiteFooter() {
           className="outro-colophon-wrap"
           aria-labelledby="outro-colophon-heading"
         >
+          <ColophonPress />
           <h3 id="outro-colophon-heading" className="outro-colophon-label">
             <span aria-hidden>§</span>
             <em>Colophon</em>

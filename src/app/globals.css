@@ -2299,6 +2299,30 @@ html.loading body {
   max-width: 48ch;
 }
 
+/* Press-stamp typesetter's tray — sits beneath the manifesto credo in the
+   sticky rail. Editorial vignette: a 4×3 grid of glyph cells reading like
+   movable type. Width capped so it never exceeds the sticky-rail column. */
+.press-stamp-tray {
+  width: clamp(180px, 18vw, 240px);
+  max-width: 100%;
+  margin-top: clamp(20px, 2.4vw, 32px);
+  color: rgba(255, 255, 255, 0.42);
+  pointer-events: none;
+  user-select: none;
+}
+.press-stamp-tray svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+@media (max-width: 999px) {
+  /* Below the sticky breakpoint the rail collapses into a column header
+     and the tray would compete with the manifesto items below it. Hide. */
+  .press-stamp-tray {
+    display: none;
+  }
+}
+
 /* ============ PRESS ============ */
 .press {
   padding: clamp(60px, 8vw, 120px) 22px;
@@ -3257,6 +3281,31 @@ html.loading body {
 .outro-colophon-wrap {
   max-width: 1480px;
   margin: clamp(40px, 5vw, 72px) auto 0;
+  position: relative;
+}
+
+/* Colophon press — small hand-press vignette to the right of the dl on
+   wide viewports. Sits absolutely against the wrap so it doesn't change
+   the colophon's existing rhythm. */
+.colophon-press {
+  position: absolute;
+  top: -8px;
+  right: 0;
+  width: clamp(96px, 9vw, 132px);
+  color: rgba(255, 255, 255, 0.34);
+  pointer-events: none;
+  user-select: none;
+  opacity: 0.78;
+}
+.colophon-press svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+@media (max-width: 899px) {
+  .colophon-press {
+    display: none;
+  }
 }
 .outro-colophon-label {
   display: flex;
@@ -6642,6 +6691,35 @@ main.pdp ~ .folio {
 .journal-lede em {
   font-style: italic;
   color: rgba(255, 255, 255, 0.92);
+}
+
+/* Wax-seal — decorative mark in the /journal index header. Sits in the
+   top-right corner of the header on desktop, hidden on narrow viewports
+   where the display heading needs the full width. Aria-hidden and
+   pointer-events:none so it never interferes with the heading reveal. */
+.journal-header {
+  position: relative;
+}
+.wax-seal-mark {
+  position: absolute;
+  top: 36px;
+  right: 22px;
+  width: clamp(96px, 11vw, 144px);
+  height: clamp(96px, 11vw, 144px);
+  color: rgba(255, 255, 255, 0.42);
+  pointer-events: none;
+  user-select: none;
+  opacity: 0.85;
+}
+.wax-seal-mark svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+@media (max-width: 720px) {
+  .wax-seal-mark {
+    display: none;
+  }
 }
 
 .journal-list {

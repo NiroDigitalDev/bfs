@@ -11,6 +11,7 @@ import { CartCount, AddToCart, NavCart } from "@/components/cart-island";
 import { IndexMenu } from "@/components/index-menu";
 import { SpecimenPlate } from "@/components/specimen-plate";
 import { SectionDivider } from "@/components/section-divider";
+import { PressStampTray } from "@/components/press-stamp-tray";
 import {
   NotebookVisual,
   CardstockVisual,
@@ -491,6 +492,7 @@ export default function Home() {
               .
               <em> On the others, a position on colour.</em>
             </p>
+            <PressStampTray />
           </aside>
           <ol className="manifesto-list">
             {[

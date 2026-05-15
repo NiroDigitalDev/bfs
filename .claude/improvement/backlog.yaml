@@ -2776,7 +2776,7 @@ items:
     severity: medium
     effort: M
     class: distinctive
-    status: open
+    status: shipped
     files:
       - src/components/imagery/
       - src/app/journal/page.tsx

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { JournalPostCard } from "@/components/journal-post-card";
 import { Magnetic } from "@/components/magnetic";
 import { SplitText } from "@/components/split-text";
+import { WaxSealMark } from "@/components/wax-seal-mark";
 import { getAllPosts } from "@/lib/journal";
 import { site, siteUrl } from "@/lib/site";
 
@@ -95,6 +96,7 @@ export default function JournalIndexPage() {
       </nav>
 
       <header className="journal-header">
+        <WaxSealMark />
         <span className="journal-eyebrow">
           <span className="journal-eyebrow-rule" aria-hidden />
           <em>Journal · Editorial dispatches</em>
