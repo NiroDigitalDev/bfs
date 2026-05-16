@@ -545,7 +545,7 @@ items:
 
   - id: outro-wordmark-dictionary-expansion
     title: "Footer closing wordmark recomposed as the dictionary expansion of its abbreviation — 'BFS' becomes two outline-stroke majors ('Blacks' / 'Sale.') stacked block-wise with an italic-serif lowercase connector ('for') compressed into the line-gap between them per dictionary lemma compression; first chrome application of the dictionary register established on PDP recirc / journal prev-next / /about coda; the only on-site 'BFS' surface that was aria-hidden gains a readable sr-only sibling"
-    commit: pending
+    commit: 74f4fe3
     date: 2026-05-16
     surface: chrome
     tags: [chrome, outro, footer, wordmark, sitewide, every-route, abbreviation-as-lemma, dictionary-expansion, lemma-compression, italic-serif-connector, outline-stroke, instrument-serif, scroll-driven-settle, view-timeline, animation-rescope, sr-only-readable-name, register-coherence, register-extension-to-chrome, fourth-surface-for-dictionary-register, css-only-behavioral-changes, no-new-client-boundary, no-new-keyframe, found-wip-completion]
