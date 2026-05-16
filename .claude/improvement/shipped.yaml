@@ -554,7 +554,7 @@ items:
 
   - id: manifesto-credo-active-correspondence
     title: "Sticky manifesto credo carries a marginalia <sup> that mirrors the active manifesto item — first cross-column active-correspondence in the BFS register"
-    commit: pending
+    commit: 8278212
     date: 2026-05-16
     surface: manifesto
     tags: [manifesto, credo, sticky-aside, cross-column-correspondence, italic-serif-marginalia, roman-numeral, oldstyle-figures, intersection-observer, custom-event-bus, use-sync-external-store, new-client-component, cold-surface-first-touch, distinctive, register-extension]
