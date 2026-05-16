@@ -13,6 +13,7 @@ import { SpecimenPlate } from "@/components/specimen-plate";
 import { SectionDivider } from "@/components/section-divider";
 import { PressStampTray } from "@/components/press-stamp-tray";
 import { ManifestoList } from "@/components/manifesto-list";
+import { ManifestoCredoMark } from "@/components/manifesto-credo-mark";
 import {
   NotebookVisual,
   CardstockVisual,
@@ -482,6 +483,7 @@ export default function Home() {
               stagger={0.03}
             />
             <p className="manifesto-credo">
+              <ManifestoCredoMark />
               On most days, we are a stationery{" "}
               <span className="errata">
                 <del className="errata-cor">brand</del>{" "}

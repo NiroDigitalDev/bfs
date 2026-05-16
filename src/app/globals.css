@@ -2252,6 +2252,7 @@ html.loading body {
   }
 }
 .manifesto-credo {
+  position: relative;
   font-family: var(--font-serif);
   font-size: clamp(18px, 1.8vw, 22px);
   line-height: 1.4;
@@ -2260,6 +2261,46 @@ html.loading body {
 }
 .manifesto-credo em {
   color: #fff;
+}
+/* Marginalia mark — sits in the top-right margin of the credo paragraph
+   on ≥1000px (where the manifesto layout opens into two columns). Mirrors
+   the active manifesto item via the `bfs:manifesto:active` CustomEvent
+   dispatched by ManifestoList. Roman numerals (I/II/III/IV) deliberately
+   differ from .manifesto-num (which uses Arabic 01/02/03/04): the mark is
+   a footnote-style cross-reference, not a duplicate. Decorative chrome —
+   aria-hidden; the readable content lives in the manifesto items
+   themselves. */
+.manifesto-credo-mark {
+  display: none;
+}
+@media (min-width: 1000px) {
+  .manifesto-credo-mark {
+    display: block;
+    position: absolute;
+    top: -0.6em;
+    right: clamp(-32px, -2.4vw, -16px);
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 400;
+    font-size: clamp(14px, 1.2vw, 18px);
+    line-height: 1;
+    letter-spacing: 0;
+    font-feature-settings: "onum" 1;
+    color: rgba(244, 244, 244, 0.85);
+    opacity: 0;
+    transition: opacity 320ms var(--ease-out-quart);
+    pointer-events: none;
+    user-select: none;
+  }
+  .manifesto-credo-mark[data-visible="true"],
+  .manifesto-credo-mark[data-static="true"] {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .manifesto-credo-mark {
+    transition: none;
+  }
 }
 .manifesto-list {
   display: grid;

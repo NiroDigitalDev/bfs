@@ -16,15 +16,45 @@ export function ManifestoList({ items }: { items: ManifestoItem[] }) {
       window.matchMedia("(prefers-reduced-motion: reduce)").matches
     ) {
       els.forEach((el) => el.setAttribute("data-active", "true"));
+      document.dispatchEvent(
+        new CustomEvent("bfs:manifesto:active", { detail: { index: null } })
+      );
       return;
     }
+
+    const ratios = new Map<HTMLLIElement, number>();
+    let lastDispatched: number | null = -1;
 
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          const next = entry.intersectionRatio > 0.5 ? "true" : "false";
-          (entry.target as HTMLElement).setAttribute("data-active", next);
+          const target = entry.target as HTMLLIElement;
+          ratios.set(target, entry.intersectionRatio);
+          target.setAttribute(
+            "data-active",
+            entry.intersectionRatio > 0.5 ? "true" : "false"
+          );
         });
+        let bestIdx = -1;
+        let bestRatio = 0.5;
+        ratios.forEach((ratio, target) => {
+          if (ratio > bestRatio) {
+            const idx = els.indexOf(target);
+            if (idx !== -1) {
+              bestIdx = idx;
+              bestRatio = ratio;
+            }
+          }
+        });
+        const next: number | null = bestIdx === -1 ? null : bestIdx;
+        if (next !== lastDispatched) {
+          lastDispatched = next;
+          document.dispatchEvent(
+            new CustomEvent("bfs:manifesto:active", {
+              detail: { index: next },
+            })
+          );
+        }
       },
       {
         rootMargin: "-25% 0px -25% 0px",

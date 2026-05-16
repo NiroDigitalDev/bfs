@@ -2938,18 +2938,19 @@ items:
     severity: medium
     effort: S
     class: distinctive
-    status: open
+    status: shipped
     files:
       - src/app/page.tsx:475-494
       - src/components/manifesto-list.tsx
       - src/app/globals.css:2254-2263
     opened_on: 2026-05-15
-    last_verified: 2026-05-15
+    last_verified: 2026-05-16
     dq_count: 0
     notes: |
       Source — out-of-scope from manifesto-item-as-sans-card ship
       (added DOM coordination across columns; ship after the baseline
-      lands).
+      lands). Shipped 2026-05-16 — see IMPROVEMENTS.md and shipped.yaml
+      entry manifesto-credo-active-correspondence.
 
   - id: manifesto-num-resting-contrast-policy
     title: `.manifesto-num` resting alpha 0.35 ≈ 3.3:1 — document or bump
@@ -3496,3 +3497,63 @@ items:
       run. Watch for the trigger: any new "<abbr>" → "<expansion>" surface where
       the visible mark is a compressed dictionary lemma. Logged so a future
       reviewer doesn't re-derive the same recipe under a different namespace.
+
+  - id: marginalia-mark-pattern-extract-utility
+    title: Hoist the `.manifesto-credo-mark` italic-serif marginalia recipe to a `.marginalia-mark` utility once a second credo+marginalia cross-reference surface appears
+    ship: |
+      Single occurrence today (.manifesto-credo-mark in globals.css under
+      .manifesto-credo). If another surface ships a similar marginalia
+      cross-reference — e.g. a journal editor's note with an active-section
+      sup, an /about pull-quote with an active manifesto cite, or a /supplies
+      caption with a corresponding plate cross-ref — the recipe is worth
+      hoisting to a utility class: `position: absolute; font-family: var(--font-serif);
+      font-style: italic; font-feature-settings: 'onum' 1; opacity-arc; pointer-
+      events: none; user-select: none` + per-site offset slot (top/right are
+      consumer-specific). Premature without a second instance — single-use is fine.
+    severity: low
+    effort: S
+    class: hygiene
+    status: open
+    files:
+      - src/app/globals.css
+    opened_on: 2026-05-16
+    last_verified: 2026-05-16
+    dq_count: 0
+    notes: |
+      Source — diff-reviewer self-check on manifesto-credo-active-correspondence
+      run. Pairs in spirit with lemma-connector-pattern-extract-utility — both
+      are single-occurrence marginalia/italic-serif recipes awaiting a second
+      surface to justify a utility hoist.
+
+  - id: cross-island-event-bus-typed-utility
+    title: Hoist the `document.addEventListener('bfs:*', ...)` pattern to a typed cross-island event bus once a second cross-island event pair appears
+    ship: |
+      The manifesto-credo-active-correspondence ship introduced the first
+      document-level CustomEvent pub/sub in the BFS codebase
+      (`bfs:manifesto:active` dispatched from ManifestoList, subscribed
+      by ManifestoCredoMark). Every other client-to-client signal in the
+      codebase has used React props or context. The pattern was correct
+      here (ManifestoList is in the manifesto section and ManifestoCredoMark
+      is in the sticky aside; lifting state to a common parent would force
+      the entire manifesto section into a client boundary, defeating the
+      Server Component default). If a SECOND cross-island pair appears
+      (e.g. index-menu → chapter-rail active state, or cart-drawer →
+      nav-cart counter), hoist to a typed event-bus module
+      (`src/lib/bfs-event-bus.ts`?) with a `BfsEventMap` type so consumers
+      get autocomplete and signature checks. Until then the inline
+      addEventListener pattern is fine — single-use, ~6 lines.
+    severity: low
+    effort: S
+    class: system
+    status: open
+    files:
+      - src/components/manifesto-list.tsx
+      - src/components/manifesto-credo-mark.tsx
+    opened_on: 2026-05-16
+    last_verified: 2026-05-16
+    dq_count: 0
+    notes: |
+      Source — diff-reviewer self-check on manifesto-credo-active-correspondence
+      run. Premature: the second cross-island pair has not arrived yet.
+      When it does, ship the typed bus FIRST so both consumers can adopt it
+      simultaneously.

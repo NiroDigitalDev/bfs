@@ -3,6 +3,76 @@
 A running record of focused changes shipped by the website-improvement routine.
 One entry per run. Newest first.
 
+## 2026-05-16 — Sticky manifesto credo carries a marginalia `<sup>` that mirrors the active manifesto item (first cross-column active-correspondence on /)
+
+**Area.** Homepage manifesto section (`src/app/page.tsx:473-519`, `src/components/manifesto-list.tsx`, `src/components/manifesto-credo-mark.tsx`, `src/app/globals.css:2254-2310` and surrounding). The `.manifesto` section is the four-item editorial-position block at the foot of `/`, with a sticky left aside (section-tag + SplitText h2 + `.manifesto-credo` paragraph + `PressStampTray`) and a right column holding `ManifestoList`. The new marginalia mark is a `<sup className="manifesto-credo-mark">` mounted inside `.manifesto-credo`, absolute-positioned in the gutter top-right of the credo paragraph at ≥1000px.
+
+**Why it's the focus.** First touch on the deliberately-cold **manifesto** surface — per retro-2026-W19 adjustment #2, the picker is supposed to bias toward `manifesto` on ties (zero prior ships, the only cold surface on `/`). Two backlog candidates were within 1 rubric point of each other:
+
+- `folio-numeral-pattern-extract-utility` (`severity: high`, `effort: M`, `class: hygiene`) — top-priority *system* ship per state-yaml notes (5–6 occurrences of the oversized italic-serif margin numeral recipe now exist across `.chapter-numeral`, `.related-numeral`, `.journal-related-numeral`, `.about-coda-numeral`). But rubric self-scored ~7 / 18 (pure refactor, no visible delta) — at or below the abort threshold despite high backlog severity.
+- `manifesto-credo-active-correspondence` (`severity: medium`, `effort: S`, `class: distinctive`) — out-of-scope follow-up from the manifesto-item-as-sans-card ship; opened 2026-05-15. Rubric self-scored **T2 M2 L2 I2 A2 D3 = 13 / 18** — distinctive band.
+
+The retro adjustment is decisive: cold surface + 6-point rubric spread, manifesto wins. Folio-numeral extract carries to the next run still uncommitted.
+
+**Mode.** Shipped.
+
+**Risk band.** Medium — per `risk-rules.md` trigger "Introduces a new client component anywhere" (`src/components/manifesto-credo-mark.tsx` is a new `"use client"` module on /). Direct-commit to main per medium-band default.
+
+**What ships.**
+
+1. **`src/components/manifesto-list.tsx` — singular-active computation + event dispatch.** The existing IntersectionObserver writes `data-active="true|false"` per entry (rootMargin `-25% 0px -25% 0px`, thresholds `[0, 0.25, 0.5, 0.75, 1]`). That contract is preserved unchanged. Alongside it, the run extends the callback to compute a **singular** active across all observed items: a `Map<HTMLLIElement, number>` tracks each item's most recent `intersectionRatio`; after applying entries, the callback iterates the Map to find the element with the highest ratio above the 0.5 threshold; that element's index in the rendered `els` array is the singular active (or `-1` → `null` when no item is above threshold). The callback dispatches a `CustomEvent` named `bfs:manifesto:active` on `document` with `detail: { index: number | null }`. A `lastDispatched: number | null = -1` sentinel deduplicates so repeated max-unchanged ratios don't refire. The reduced-motion early-return also dispatches once with `{ index: null }` so any subscriber falls back cleanly.
+2. **`src/components/manifesto-credo-mark.tsx` — new client component, 70 lines.** Subscribes to the document-level event via React's `useSyncExternalStore`. Module-level `_active: number | null = null` cache + `getActiveSnapshot` / `subscribeActive` / `getActiveServerSnapshot` triple is the React-recommended pattern for external state — the linter's `react-hooks/set-state-in-effect` rule rejects the naive `useEffect + setState` shape. A second `useSyncExternalStore` reads `prefers-reduced-motion` via the same pattern. Under reduced-motion, renders `<sup className="manifesto-credo-mark" data-static="true" aria-hidden>·–·</sup>` (en-dash flanked by middots). Otherwise renders `<sup className="manifesto-credo-mark" data-visible={...} aria-hidden>{ROMAN[active]}</sup>` where `ROMAN = ["I","II","III","IV","V","VI","VII","VIII"]` (sized to 8 to absorb future manifesto-item growth; current items = 4).
+3. **`src/app/page.tsx` — mount the mark inside the credo.** Import `ManifestoCredoMark` and insert `<ManifestoCredoMark />` as the first child of the `<p className="manifesto-credo">`. The mark is its own client island via `"use client"`; the rest of the manifesto block remains a Server Component.
+4. **`src/app/globals.css` — `.manifesto-credo-mark` recipe + reduced-motion + breakpoint.** Adds `position: relative` to `.manifesto-credo` so the mark anchors to it. Adds `.manifesto-credo-mark` block: `display: none` below 1000px (the cross-column correspondence is only meaningful when the two columns are visible side-by-side; mobile collapses to a single column, no gutter for marginalia); at ≥1000px → `position: absolute`, `top: -0.6em`, `right: clamp(-32px, -2.4vw, -16px)` (negative-right offset places the mark in the gutter between the sticky aside and the manifesto list), `font-family: var(--font-serif)`, `font-style: italic`, `font-weight: 400`, `font-size: clamp(14px, 1.2vw, 18px)`, `line-height: 1`, `font-feature-settings: "onum" 1`, `color: rgba(244, 244, 244, 0.85)`, `opacity: 0`, `transition: opacity 320ms var(--ease-out-quart)`. `[data-visible="true"]` and `[data-static="true"]` lift opacity to 1. `@media (prefers-reduced-motion: reduce)` sets `transition: none`.
+
+**Architecture.**
+
+- **Why Roman numerals (I/II/III/IV), not Arabic (01/02/03/04)?** The manifesto-list itself uses Arabic-with-padStart for the in-row numerals (`.manifesto-num`, italic-serif clamp 22-28px, `font-feature-settings: "onum" 1`). The marginalia mark deliberately uses Roman so the cross-reference reads as a *footnote*, not a duplicate of the in-row numeral. Editorial register: a dictionary cross-reference uses different glyphs at the cross-ref site than at the entry site, and Roman vs Arabic carries that distinction in the smallest possible vocabulary shift.
+- **Why a document-level `CustomEvent`, not React props or context?** ManifestoList is rendered inside `.manifesto-list` (the right column) and ManifestoCredoMark is rendered inside `.manifesto-credo` (in `.manifesto-sticky`, the left column). To lift state to a common React ancestor would force the entire `<section className="manifesto">` block in `page.tsx` to a client boundary, defeating the Server Component default for the rest of the section (section-tag, SplitText, PressStampTray, the prose itself). A document-level pub/sub keeps both islands client-only and the section parent server-only. **This is the first BFS use of a document-level CustomEvent for cross-island coordination** — a backlog item is filed to typify the pattern if a second cross-island pair appears.
+- **Why `useSyncExternalStore`?** ESLint's `react-hooks/set-state-in-effect` rule (a real linter error, not just a warning) rejects the naive `useEffect + setState` for external-state subscriptions because it cascades renders. `useSyncExternalStore` is React 18+'s designed primitive for exactly this: it consolidates the `subscribe` + `getSnapshot` + `getServerSnapshot` triple so SSR returns a stable value (null / false) and the client subscribes after hydration. Module-level `_active` cache is a deliberate part of the pattern, not a leak.
+- **Singular-active heuristic.** The IO callback already gets a partial `entries` array — only items whose threshold crossings changed. The Map keyed by element accumulates ratios across callback invocations, so the callback always has a complete picture of every observed item's current ratio when it runs. The singular active is the highest-ratio item above 0.5, or `null` if no item crosses 0.5 (typical when scrolling through the gap between manifesto and the next section).
+
+**Verification.**
+
+- **lint** — `bun run lint` → 0 errors, 7 pre-existing tooling warnings unchanged in `.claude/improvement/scripts/*.mjs`. INITIAL implementation hit a single `react-hooks/set-state-in-effect` error on the naive `useEffect + setState` shape in `ManifestoCredoMark`; rewrote using `useSyncExternalStore` for both subscriptions; lint clean on re-run.
+- **typecheck** — `bunx tsc --noEmit` clean.
+- **build** — `bun run build` 48/48 routes prerendered (Turbopack OK in 2.2s).
+- **SSR class-grep on `/index.html`** — `.manifesto-credo-mark` × 1 (the new `<sup>`, SSR with empty content as designed because `getActiveServerSnapshot` returns null), `.manifesto-credo` × 2 (parent paragraph, RSC stream doubles), `.manifesto-item` × 4, `.manifesto-num` × 4 (the manifesto-list rows unchanged). The `bfs:manifesto:active` literal appears 1× in client bundle `8e7c087f00ae206c.js` (the ManifestoList chunk). `useSyncExternalStore` + `ROMAN` + `·–·` references reach the bundle (6 client chunks confirmed).
+- **perf-a11y** — PASS. Net JS delta well under +5KB budget (~+250 bytes minified `manifesto-credo-mark.tsx` + ~+200 bytes added to `manifesto-list.tsx` for the Map + lastDispatched + dispatch). CSS delta ~+800 bytes uncompressed / ~+250 bytes gzipped. No LCP risk (mark is empty on first paint and mid-page; sticky aside layout unchanged by an absolute overlay). No CLS risk (position:absolute → no layout-flow impact on either the credo paragraph or the sticky aside column). No INP risk (subscriptions are passive; event dispatch is debounced by `lastDispatched`; `useSyncExternalStore` guarantees consistent reads off the main thread). Keyboard focus order intact (no interactive elements added). Reduced-motion path explicit on two fronts: ManifestoList dispatches one `{ index: null }` then returns; ManifestoCredoMark reads `matchMedia` via `useSyncExternalStore` and renders the static `·–·` with `transition: none`. Contrast: `rgba(244, 244, 244, 0.85)` on `#050505` ≈ 16:1 — AAA at clamp(14-18px) italic-serif numeral (aria-hidden decorative anyway).
+- **regression-spotter** — PASS. Adjacent surfaces on / unchanged: `.section-tag`, `.manifesto-credo` (existing prose + ManifestoCredoMark sibling), `.errata § corr.` mark, `PressStampTray`, `ManifestoList` items, the `Press` section that follows. No new client boundary leaks into adjacent surfaces.
+- **diff-reviewer** — PASS-WITH-NITS (3 follow-ups, all filed as `low` backlog items):
+  1. `.manifesto-credo-mark` recipe is a NEW single-occurrence marginalia pattern. If a second credo+marginalia surface ships (journal editor's note with active-section sup, /about pull-quote with manifesto cite, /supplies caption with plate cross-ref), hoist to `.marginalia-mark` utility — filed as `marginalia-mark-pattern-extract-utility`.
+  2. Document-level `bfs:manifesto:active` CustomEvent is the FIRST cross-island event bus in the codebase. If a second pair appears, hoist to `src/lib/bfs-event-bus.ts` with a typed `BfsEventMap` — filed as `cross-island-event-bus-typed-utility`.
+  3. `right: clamp(-32px, -2.4vw, -16px)` magic value tied to the credo paragraph's specific layout — could be `--marginalia-gutter-offset`, but premature without a second consumer. Folded into (1).
+- **anti-patterns.mjs** — 0 findings.
+
+**Rubric.** T2 M2 L2 I2 A2 D3 = 13 / 18 — distinctive band.
+
+**Screenshots.** Skipped — `capture-ship.mjs` carry-over blocker (stale next-server on :3000 from a prior session, now 15 consecutive ships old). The longest-running open infra issue (`capture-ship-stale-server-on-3000`, `severity: high`). This ship would have been a clean visual-diff case (the manifesto surface gains its first cross-column correspondence — exactly the kind of subtle layered change a diff catches well).
+
+**SOTD comparison.** Skipped — `sotd_parser_available: false` carry-over (`sotd-parser-fix` backlog item open).
+
+**Notion.** Reports row to append via MCP `mcp__Notion__API-post-page` after commit (parent `database_id` = `60cc3221-8e8a-42da-b926-20cd32d6c8bb`) with `Surface=manifesto`, `Mode=Shipped`, `Rubric=T2 M2 L2 I2 A2 D3 = 13/18`, `Risk=Medium`, `Commit=<sha>`. No task to flip (no override).
+
+**Expected impact.** Manifesto section no longer reads as a list of four-equal-weight items beside a static aside; the marginalia mark turns the sticky aside into an *active* reader of the scroll position, the way a literate eye tracks an editor's marginalia as it reads. The Roman numeral is small enough to be discovered, not announced — it rewards attention without competing with the manifesto-list's primary content. First touch on the cold manifesto surface in the routine's lifetime; opens the surface to future-ship distinctiveness moves.
+
+**Files modified.**
+
+- `src/components/manifesto-list.tsx` (+30 / -7)
+- `src/components/manifesto-credo-mark.tsx` (+71, new file)
+- `src/app/page.tsx` (+2 / -0)
+- `src/app/globals.css` (+39 / -0)
+
+**Follow-ups uncovered.**
+
+- `marginalia-mark-pattern-extract-utility` (low, hygiene) — single-occurrence; ship if a second credo+marginalia surface arrives.
+- `cross-island-event-bus-typed-utility` (low, system) — single-occurrence; ship if a second cross-island event pair arrives.
+- (3rd diff-reviewer nit on the magic clamp value is folded into the first item.)
+
+**Backlog closed-by-drift.** None.
+
+**Periodic triggers fired.** None this run (retro 2026-05-13 → next eligible 2026-05-20; critic 2026-05-13 → next eligible 2026-06-10; calibration last 2026-05-14, shipped_count after this run = 64, not a multiple of 10; consecutive_no_focus_runs = 0 entering, no creativity-reset).
+
 ## 2026-05-16 — Footer closing wordmark recomposed as the dictionary expansion of its own abbreviation
 
 **Area.** Chrome (closing wordmark on the global footer) — `src/components/site-footer.tsx:144-158` (the trailing `.outro-wordmark` div) + `src/app/globals.css:3317-3387` (the `.outro-wordmark` block and the `@supports (animation-timeline: view())` settle block immediately following it). Renders on every route via `SiteFooter`, as the final element before the document end. Not the `.nf-wordmark` block (404's own closing wordmark — that lives at `globals.css:4680-4698` and is structurally distinct).
