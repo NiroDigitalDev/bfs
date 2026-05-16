@@ -3314,31 +3314,60 @@ html.loading body {
 .outro-links a:hover {
   color: #fff;
 }
+/* Closing wordmark recomposed as a dictionary expansion of the
+   abbreviation: two outline-stroke majors ("Blacks", "Sale.") stacked
+   block-wise with a small italic-serif lowercase connector ("for")
+   compressed into the line-gap between them — the lemma reads like a
+   dictionary entry expanding its own headword. The container holds the
+   base typography (size, stroke color, color: transparent), child
+   classes inherit + selectively override. */
 .outro-wordmark {
   pointer-events: none;
   user-select: none;
   position: relative;
   margin-top: clamp(40px, 8vw, 100px);
-  font-size: clamp(40vw, 50vw, 60vw);
-  line-height: 0.8;
+  font-size: clamp(34vw, 44vw, 54vw);
+  line-height: 0.82;
   letter-spacing: -0.08em;
   font-weight: 900;
   text-align: center;
   color: transparent;
   -webkit-text-stroke: 1px rgba(255, 255, 255, 0.1);
   overflow: hidden;
-  white-space: nowrap;
-  max-height: 35vw;
+  max-height: 90vw;
 }
-/* Scroll-driven settling — the closing BFS wordmark tightens
-   letter-spacing and thins its outline stroke as it enters the
-   viewport, reading like type settling onto the page-foot rather
-   than a static decoration. Per-element view() timeline, same
-   gate stack as .chapter-numeral above. Stroke color stays under
-   the base rule so it doesn't drift; only width + spacing animate. */
+.outro-wordmark-major {
+  display: block;
+}
+.outro-wordmark-conn {
+  display: block;
+  position: relative;
+  z-index: 1;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(36px, 6vw, 92px);
+  letter-spacing: -0.01em;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.55);
+  -webkit-text-stroke: 0;
+  /* Lemma compression — the connector overlaps into the line-gap above
+     and below, the way an italic abbreviation expansion sits visually
+     inside its headword on a dictionary page. */
+  margin: clamp(-9vw, -7.5vw, -5vw) 0;
+}
+.outro-wordmark-conn em {
+  font-style: italic;
+}
+/* Scroll-driven settling — the outline-stroke majors tighten letter-
+   spacing and thin their stroke as the wordmark enters the viewport,
+   reading like type settling onto the page-foot rather than a static
+   decoration. Per-element view() timeline, same gate stack as
+   .chapter-numeral above. Connector stays static — the "fixed
+   pronunciation guide" of the lemma. */
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) and (min-width: 900px) {
-    .outro-wordmark {
+    .outro-wordmark-major {
       animation: outro-wordmark-settle linear both;
       animation-timeline: view();
       animation-range: entry 0% cover 90%;

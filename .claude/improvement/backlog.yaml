@@ -3469,3 +3469,30 @@ items:
     last_verified: 2026-05-15
     dq_count: 0
     notes: "Flagged on about-coda-dictionary-cross-reference-spread by diff-reviewer + perf-a11y (corroborating the system auditor's earlier flag on the same run's pre-pick). Three byte-identical keyframes now live in globals.css: related-rule-draw (~5757), journal-related-rule-draw (~7675), about-coda-rule-draw (~8340). All three are nested inside the same @supports (animation-timeline: view()) + @media (min-width: 720px) AND (prefers-reduced-motion: no-preference) guard stack; all three are scaleY 0→1; all three use transform-origin: 50% 0 on their consumers; all three run over `entry 10% cover 35%`. Recommended consolidation: replace with a single @keyframes hairline-rule-draw-y { to { transform: scaleY(1); } } (the from-state is implied by the static :not(animated) baseline at scaleY(1) — verify) and update the three consumers to reference it. Net delta: ~-30 LOC. Pairs naturally with rule-color-token-promotion if both ship together."
+
+  - id: lemma-connector-pattern-extract-utility
+    title: Hoist the .outro-wordmark-conn "italic-serif lowercase connector compressed into the line-gap" recipe to a utility (.lemma-conn or similar) once a second dictionary-expansion-of-abbreviation surface appears
+    ship: |
+      Single occurrence today (.outro-wordmark-conn at globals.css:~3340). If
+      another dictionary expansion of an abbreviation lands — e.g. "EDN" → "Edition"
+      on edition pages, "COL" → "Colophon" on a future colophon hero, "MSS" → "Manuscripts"
+      on a press page — the connector recipe is worth hoisting to a utility class:
+      `display: block; position: relative; z-index: 1; font-family: var(--font-serif);
+      font-style: italic; font-weight: 400; line-height: 1; -webkit-text-stroke: 0;
+      color: rgba(255, 255, 255, 0.55);` + a sizing slot (the negative-margin lemma-
+      compression value is site-specific so stays under the consumer, not the utility).
+      Premature without a second instance — single-use is fine.
+    severity: low
+    effort: S
+    class: hygiene
+    status: open
+    files:
+      - src/app/globals.css
+    opened_on: 2026-05-16
+    last_verified: 2026-05-16
+    dq_count: 0
+    notes: |
+      Source — diff-reviewer self-check on outro-wordmark-dictionary-expansion
+      run. Watch for the trigger: any new "<abbr>" → "<expansion>" surface where
+      the visible mark is a compressed dictionary lemma. Logged so a future
+      reviewer doesn't re-derive the same recipe under a different namespace.

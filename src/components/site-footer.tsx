@@ -141,9 +141,21 @@ export function SiteFooter() {
         <span aria-hidden> · </span>All wrongs reserved.
       </p>
 
+      {/* Closing wordmark recomposed as the dictionary expansion of "BFS" —
+          the abbreviation literally becomes its own lemma. Three lines: gigantic
+          outline-stroke "Blacks", italic-serif lowercase connector "for" set inside
+          the line gap (overlapping per dictionary lemma compression), gigantic
+          outline-stroke "Sale.". The visible mark stays decorative; an sr-only
+          sibling gives ATs the readable name (the prior <div>BFS</div> was silent
+          to screen readers). */}
       <div className="outro-wordmark" aria-hidden>
-        BFS
+        <span className="outro-wordmark-major">Blacks</span>
+        <span className="outro-wordmark-conn">
+          <em>for</em>
+        </span>
+        <span className="outro-wordmark-major">Sale.</span>
       </div>
+      <span className="sr-only">Blacks for Sale. Edition III, MMXXVI.</span>
     </footer>
   );
 }
