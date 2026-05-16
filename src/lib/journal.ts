@@ -52,6 +52,29 @@ export function getAllPosts(): JournalPost[] {
   );
 }
 
+export function slugifyTag(tag: string): string {
+  return tag.toLowerCase().replace(/\s+/g, "-");
+}
+
+export function getAllTags(): { tag: string; slug: string }[] {
+  const seen = new Map<string, string>();
+  for (const post of journalPosts) {
+    for (const t of post.tags) {
+      const s = slugifyTag(t);
+      if (!seen.has(s)) seen.set(s, t);
+    }
+  }
+  return [...seen.entries()]
+    .map(([slug, tag]) => ({ tag, slug }))
+    .sort((a, b) => a.tag.localeCompare(b.tag));
+}
+
+export function getPostsByTagSlug(slug: string): JournalPost[] {
+  return getAllPosts().filter((p) =>
+    p.tags.map(slugifyTag).includes(slug),
+  );
+}
+
 export function getPostBySlug(slug: string): JournalPost | null {
   return journalPosts.find((p) => p.slug === slug) ?? null;
 }

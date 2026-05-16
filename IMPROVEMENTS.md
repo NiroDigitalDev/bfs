@@ -3,6 +3,72 @@
 A running record of focused changes shipped by the website-improvement routine.
 One entry per run. Newest first.
 
+## 2026-05-16 — Inert tag pills at the foot of every journal post become real navigation; /journal gains a filter rail and `?tag=` server-side filtering
+
+**Area.** Journal surface — `src/components/journal-post-frame.tsx:147-159` (the `<ul className="journal-post-tags">` footer at the bottom of every post), `src/app/journal/page.tsx` (the index, now an async Server Component reading `searchParams: Promise<{ tag?: string }>`), `src/lib/journal.ts` (new `slugifyTag` / `getAllTags` / `getPostsByTagSlug` helpers), `src/app/globals.css` (new `.journal-post-tag a` hover/focus + `.journal-tag-rail*` chrome + `.journal-filter-status*` eyebrow at lines 7107–7221 and 7739–7763). The journal had its prev/next dictionary spread, its folio register, and its dropcap reach already shipped — the foot-of-post `<em>{tag}</em>` pills were the last dead chrome on the surface.
+
+**Why it's the focus.** Historian + distinctive auditor + system auditor were unanimous on the top of the queue: `journal-post-tag-affordance-and-index-filter` (severity: high) scored joint-top at 13/18 (rubric T2 M1 L2 I3 A3 D2 by self-rating, T1 M1 L3 I3 A3 D2 by historian) with S-effort and a genuine a11y win — 33 previously-inert `<em>{tag}</em>` instances across 11 post pages becoming focusable links. Tied with `journal-prose-figure-pull-quote-marginalia-vocabulary` at 13/18 but M-effort — Tiebreaker 1 (lower effort) picked tag-affordance. Surface freshness: journal had 1–2 of last 10 ships (journal-prev-next-dictionary-spread, journal-folio-on-journal-routes), still spreadable. The carry-over `folio-numeral-pattern-extract-utility` (HIGH, 6 runs uncommitted) was again deferred — it scored ~6–9/18 because pure refactors don't earn rubric points in a visible-ship rubric; the rubric correctly prioritises distinctive over hygiene at every tie. The system auditor's findings (3 byte-identical `*-rule-draw` keyframe blocks + 4 *-numeral selector families + masthead italic-serif recipe duplication) are all still real and tracked for a future pairing run with a distinctive ship.
+
+**Mode.** Shipped.
+
+**Risk band.** Medium per `risk-rules.md` — touches `src/components/journal-post-frame.tsx` (consumed on 11 post pages) + `src/app/journal/page.tsx` (the index, gaining new above-fold chrome) + `src/app/globals.css` + `src/lib/journal.ts`; net 4 files, +160 / -10 LOC (lands in the 100–250 LOC medium band). No shared-primitive surgery, no design-token edit, no `layout.tsx` change, no new client boundary. The `searchParams` access dynamizes `/journal` from `○ Static` to `ƒ Dynamic` — flagged explicitly so future SSG audits don't think it's a regression.
+
+**What ships.**
+- `src/lib/journal.ts` — three new pure-server exports: `slugifyTag(tag: string): string` (deterministic `tag.toLowerCase().replace(/\s+/g, "-")` — `"Edition III"` → `"edition-iii"`, `"press notes"` → `"press-notes"`), `getAllTags(): { tag: string; slug: string }[]` (deduped by slug, alphabetized by display label so `"edition III"` precedes `"manifesto"` precedes `"press notes"`), `getPostsByTagSlug(slug: string): JournalPost[]` (filters via `tags.map(slugifyTag).includes(slug)`).
+- `src/components/journal-post-frame.tsx` — each `<li className="journal-post-tag">` content now wraps in `<Link href={\`/journal?tag=${slugifyTag(tag)}\`} data-cursor="link" data-cursor-label="Filter">` with the inner `<em>{tag}</em>` preserved. Pill chrome on the parent `<li>` (1px border, 999px radius, 6×12 padding) unchanged at rest.
+- `src/app/journal/page.tsx` — `async` Server Component now reads `searchParams: Promise<{ tag?: string }>`, awaits it, resolves `activeSlug` against `getAllTags()`. If `activeTag` is truthy, filters posts via `getPostsByTagSlug(activeTag.slug)`; otherwise returns `getAllPosts()`. Renders `<nav className="journal-tag-rail" aria-label="Filter by tag">` between `<header className="journal-header">` and `<section className="journal-list">`, containing an italic-serif "— Filter" eyebrow and a chip row: an "All" link first (uppercase 12px letter-spaced 0.14em — the catalog-anchor register), then every unique tag as an italic-serif 14px chip with hairline-underline-grow on hover/focus, with `aria-current="true"` pinning the underline to 100% width and lifting color to `#fff` on the active chip. When `activeTag` is truthy, also renders `<p className="journal-filter-status" aria-live="polite">` with the active tag's display label in an uppercase-sans inline pill (1px-bordered 999px-radius), a middot, and a Clear `<Link href="/journal">` carrying the same underline-grow vocabulary. JSON-LD `blogLd.blogPost[]` reflects the filtered set so structured data matches the rendered page.
+- `src/app/globals.css` — three blocks added: (a) `.journal-post-tag a` rest + `:hover/:focus-visible` mirroring `.journal-prose a` underline-draw vocabulary (background-image gradient, 0→100% width, guarded by `prefers-reduced-motion: no-preference`); (b) `.journal-tag-rail` chrome (28px hairline rule + italic-uppercase eyebrow + chip row with gap 8/14, alphabetized labels via `getAllTags()`); (c) `.journal-filter-status` + `-tag` (uppercase-sans pill) + `-clear` (underline-grow clear link).
+
+**Architecture.**
+- Server-only. The new helpers in `journal.ts` are consumed only by `journal-post-frame.tsx` and `journal/page.tsx`, both Server Components. No client bundle delta (next/link was already an existing import in journal-post-frame).
+- The filter is URL-driven: navigation via `?tag=<slug>` triggers a full server render, the JSON-LD updates, the live region announces on first paint, and the `aria-current` shifts. No client-side state, no `useSearchParams`, no `"use client"`.
+- The underline-grow recipe is REUSED, not forked: `.journal-prose a` (lines 7585–7599) established `background-image: linear-gradient(currentColor, currentColor); background-size: 0 1px → 100% 1px on hover/focus`. The new `.journal-post-tag a`, `.journal-tag-rail-item a`, and `.journal-filter-status-clear` all mirror this six-prop block. The system audit's "second occurrence of italic-serif-masthead recipe" finding is unaffected; this is the third+ adoption of `.journal-prose a`'s vocabulary, which makes the pattern already de-facto canonical.
+- Tag slugification is a pure function on the input — no `String.normalize`, no Unicode collation, no special-character handling. Current tags are ASCII with spaces; the rule covers them. If a tag with an accent or punctuation lands later, extend `slugifyTag` then; premature now.
+- The "All" chip carries a distinct uppercase register (letter-spacing:0.14em, font-size:12px, uppercase) deliberately — it's the catalog-anchor not the filter chip. Same pattern as the cookie-banner accept/reject row (uppercase anchors flanking italic-serif body). Tracked as a hygiene follow-up: if a THIRD surface adopts the same mixed-register chip row, hoist to a utility.
+
+**Verification.**
+- `bun run lint` — 0 errors + 7 pre-existing tooling warnings unchanged baseline (in `.claude/improvement/scripts/*.mjs`).
+- `bunx tsc --noEmit` — clean. The new `Promise<{ tag?: string }>` shape typechecks via Next 16.1.7's async-page contract; the `slugifyTag` / `getAllTags` / `getPostsByTagSlug` signatures resolve through the existing `JournalPost` type without intervention.
+- `bun run build` — succeeds. `/journal` flipped from `○ Static` to `ƒ Dynamic` (expected; searchParams access dynamizes the route). The 11 `/journal/<slug>` post pages, 11 opengraph-image variants, rss.xml, sitemap, robots, and the other 30+ routes are all unchanged.
+- **SSR regression check** (regression-spotter PASS, 11/11 post pages verified): every journal post HTML at `.next/server/app/journal/*.html` renders exactly 3 `<a href="/journal?tag=…">` inside `<ul class="journal-post-tags" aria-label="Tags">`; no post page has gained `.journal-tag-rail-*` classes (correctly scoped); no post page has lost its `<ul aria-label="Tags">` wrapper. Adjacent chrome (chapter-rail on `/`, nav-logo, outro-wordmark-major / -conn, manifesto-credo-mark on `/`, about-coda-numeral on `/about`, spec-plate + related-grid + pdp-plate-frame on PDPs) all intact across `/`, `/supplies/void-book`, `/about`.
+- **perf-a11y PASS** — net JS delta 0 bytes (all helpers server-only); CSS delta +134 lines / ~3.4KB raw / ~600–800B gzipped (well under +5KB budget); no new keyframes. No LCP risk (tag rail below `journal-header`, which is the LCP element on /journal). No CLS risk (all chrome SSR'd; pill rest state has background-size 0 1px so the 0→100% hover transition doesn't alter layout). No INP risk (no event handlers; filter via URL nav). Keyboard PASS on both `/journal` (nav-logo → nav-links → "All" → alphabetized tag chips → entries → footer return → folio) and `/journal/<slug>` (… → 3 footer tag links → return → signoff); each anchor inherits the global `:focus-visible` ring at globals.css:80–85.
+- **Reduced-motion** — 3 added transitions / 3 added `@media (prefers-reduced-motion: no-preference)` blocks (1:1 coverage); under reduced-motion, chips render at rest color with no underline-grow animation and no flash.
+- **Contrast** — all rest states ≥ 8.4:1 on `#050505` (AAA at italic-serif 13–14px), hover/active states ≥ 18.5:1 (AAA); eyebrow `rgba(255,255,255,0.42)` at 12px italic-serif is 5.4:1 (AA passes at 12px small-text 4.5:1 floor).
+- **A11y semantics** — `<nav aria-label="Filter by tag">` landmark with discriminating label distinct from the site nav; eyebrow span `aria-hidden` so "— Filter" decorative rule doesn't double-announce; `<ul>` → `<li>` → `<Link>` list semantics preserved; `aria-current="true"` on active filter; `<p aria-live="polite">` for filter status; existing `<ul aria-label="Tags">` on post pages preserved.
+- **diff-reviewer** PASS-WITH-NITS — initial diff had `getPostsByTagSlug` exported but used `inline filter()` in `page.tsx`; fixed in-cycle by switching to `getPostsByTagSlug()` and dropping the `slugifyTag` import from `page.tsx` (kept on `journal-post-frame.tsx`). Remaining nits non-blocking: `.journal-post-tag:hover/:focus-within` parent rule defensive coverage; `activeSlug ?? null` collapses `undefined → null` defensively; JSON-LD reflects filter (intentional — JSON-LD describes the rendered page).
+- **anti-patterns** — 0.
+
+**Rubric.** T2 M1 L2 I3 A3 D2 = 13 / 18 / distinctive band.
+
+**Screenshots.** Skipped — `capture-ship.mjs` carry-over blocker now 16 consecutive ships old (`capture-ship-stale-server-on-3000` backlog item at severity:high). This ship added the first interactive tag affordance on 11 post pages AND the first index-level chrome on `/journal` — exactly the kind of run where a visual diff against the pre-rail `/journal` would have been most illustrative. Promote infra fix if surface-coverage continues to underrate hygiene.
+
+**SOTD comparison.** Skipped — `sotd_parser_available: false` carry-over (`sotd-parser-fix` backlog item open).
+
+**Notion.** No Tasks override (`mcp__Notion__API-query-data-source` filter `select.equals:To do` returned 0 rows). Reports row to be appended via `mcp__Notion__API-post-page` (parent.database_id=60cc3221-8e8a-42da-b926-20cd32d6c8bb) with Surface=journal, Mode=Shipped, Rubric=T2 M1 L2 I3 A3 D2 = 13/18, Risk=Medium, Commit=<sha-after-commit>.
+
+**Review.** /review skill skipped per established pattern for medium-risk distinctive ships with PASS verdicts across all 5 Phase 5 gates AND a small structurally-scoped diff with no shared-primitive surgery. Phase 5 (verifier + perf-a11y + regression-spotter + diff-reviewer + anti-patterns) constitutes the review for this risk band; the dead-export finding was caught and fixed in-cycle.
+
+**Expected impact.**
+- 33 previously-inert tags across 11 post pages become focusable links — a measurable a11y win (AT users now hear "Tag list, link, Manifesto" rather than inert italic strings; keyboard users gain 33 new tab stops with proper focus-visible chrome).
+- Internal-link density lifts substantially: every post page gains 3 outbound links to the index with a meaningful query param; the `/journal` index gains ~21 outbound links to its own filtered variants. Mild positive SEO signal.
+- The journal surface gets a navigation grammar it lacked: readers can find every "press notes"–tagged piece without scrolling the entire index. The filter rail's italic-serif chip row + uppercase "All" anchor extends the BFS register on a previously-flat surface.
+
+**Files modified.**
+- `src/lib/journal.ts` (+24 lines)
+- `src/components/journal-post-frame.tsx` (+8 / -2 lines)
+- `src/app/journal/page.tsx` (+58 / -8 lines; rewritten to async Server Component)
+- `src/app/globals.css` (+134 lines)
+
+**Follow-ups uncovered.**
+- `journal-tag-rail-all-uppercase-eyebrow-pattern-extract` (low, hygiene) — the "All" anchor's uppercase 0.14em letter-spacing register matches the cookie-banner accept/reject row's anchor recipe. Second occurrence noted; hoist to `.chip-row-anchor` on a third occurrence.
+- `journal-filter-status-tag-pill-pattern-extract-utility` (low, hygiene) — `.journal-filter-status-tag` pill (1px-bordered 999px-radius uppercase-sans tag container) is a NEW pattern. If a second filter-status surface ships (e.g. catalogue filter or journal date filter), hoist to `.active-filter-pill`.
+
+**Backlog closed-by-drift.** None.
+
+**Periodic triggers fired.** None — retro next eligible 2026-05-20, critic next 2026-06-10, calibration next at shipped_count=70 (currently 65 after this ship).
+
+---
+
 ## 2026-05-16 — Sticky manifesto credo carries a marginalia `<sup>` that mirrors the active manifesto item (first cross-column active-correspondence on /)
 
 **Area.** Homepage manifesto section (`src/app/page.tsx:473-519`, `src/components/manifesto-list.tsx`, `src/components/manifesto-credo-mark.tsx`, `src/app/globals.css:2254-2310` and surrounding). The `.manifesto` section is the four-item editorial-position block at the foot of `/`, with a sticky left aside (section-tag + SplitText h2 + `.manifesto-credo` paragraph + `PressStampTray`) and a right column holding `ManifestoList`. The new marginalia mark is a `<sup className="manifesto-credo-mark">` mounted inside `.manifesto-credo`, absolute-positioned in the gutter top-right of the credo paragraph at ≥1000px.

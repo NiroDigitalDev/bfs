@@ -3,7 +3,7 @@ import { JournalFolio } from "@/components/journal-folio";
 import { SplitText } from "@/components/split-text";
 import { Magnetic } from "@/components/magnetic";
 import { RelatedJournalPosts } from "@/components/related-journal-posts";
-import { formatJournalDate, romanNumeral } from "@/lib/journal";
+import { formatJournalDate, romanNumeral, slugifyTag } from "@/lib/journal";
 import type { JournalPost } from "@/lib/journal";
 import { site } from "@/lib/site";
 
@@ -148,7 +148,13 @@ export function JournalPostFrame({
         <ul className="journal-post-tags" aria-label="Tags">
           {post.tags.map((tag) => (
             <li key={tag} className="journal-post-tag">
-              <em>{tag}</em>
+              <Link
+                href={`/journal?tag=${slugifyTag(tag)}`}
+                data-cursor="link"
+                data-cursor-label="Filter"
+              >
+                <em>{tag}</em>
+              </Link>
             </li>
           ))}
         </ul>

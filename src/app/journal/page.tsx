@@ -5,7 +5,11 @@ import { JournalPostCard } from "@/components/journal-post-card";
 import { Magnetic } from "@/components/magnetic";
 import { SplitText } from "@/components/split-text";
 import { WaxSealMark } from "@/components/wax-seal-mark";
-import { getAllPosts } from "@/lib/journal";
+import {
+  getAllPosts,
+  getAllTags,
+  getPostsByTagSlug,
+} from "@/lib/journal";
 import { site, siteUrl } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -38,8 +42,19 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
-export default function JournalIndexPage() {
-  const posts = getAllPosts();
+export default async function JournalIndexPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ tag?: string }>;
+}) {
+  const params = await searchParams;
+  const activeSlug = typeof params.tag === "string" ? params.tag : null;
+  const allTags = getAllTags();
+  const activeTag = activeSlug
+    ? allTags.find((t) => t.slug === activeSlug) ?? null
+    : null;
+  const posts =
+    activeTag !== null ? getPostsByTagSlug(activeTag.slug) : getAllPosts();
 
   const blogLd = {
     "@context": "https://schema.org",
@@ -124,6 +139,53 @@ export default function JournalIndexPage() {
           on paper, ink, and the single hue.
         </p>
       </header>
+
+      <nav className="journal-tag-rail" aria-label="Filter by tag">
+        <span className="journal-tag-rail-eyebrow" aria-hidden>
+          <span className="journal-tag-rail-rule" />
+          <em>Filter</em>
+        </span>
+        <ul className="journal-tag-rail-list">
+          <li className="journal-tag-rail-item journal-tag-rail-item-all">
+            <Link
+              href="/journal"
+              data-cursor="link"
+              data-cursor-label="All"
+              aria-current={activeTag === null ? "true" : undefined}
+            >
+              <em>All</em>
+            </Link>
+          </li>
+          {allTags.map(({ tag, slug }) => (
+            <li key={slug} className="journal-tag-rail-item">
+              <Link
+                href={`/journal?tag=${slug}`}
+                data-cursor="link"
+                data-cursor-label="Filter"
+                aria-current={activeTag?.slug === slug ? "true" : undefined}
+              >
+                <em>{tag}</em>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </nav>
+
+      {activeTag && (
+        <p className="journal-filter-status" aria-live="polite">
+          <em>Filtering by</em>{" "}
+          <span className="journal-filter-status-tag">{activeTag.tag}</span>{" "}
+          ·{" "}
+          <Link
+            href="/journal"
+            className="journal-filter-status-clear"
+            data-cursor="link"
+            data-cursor-label="Clear"
+          >
+            <em>Clear</em>
+          </Link>
+        </p>
+      )}
 
       <section className="journal-list" aria-label="Pieces">
         {posts.length === 0 ? (

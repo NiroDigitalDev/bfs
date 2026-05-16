@@ -7104,6 +7104,118 @@ main.pdp ~ .folio {
   }
 }
 
+/* ============ TAG RAIL (filter chrome above the entries list) ============ */
+.journal-tag-rail {
+  padding: 28px 0 8px;
+  border-top: 1px solid var(--color-line);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.journal-tag-rail-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.42);
+}
+.journal-tag-rail-rule {
+  display: inline-block;
+  width: 28px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.32);
+}
+.journal-tag-rail-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  align-items: baseline;
+}
+.journal-tag-rail-item a {
+  display: inline-flex;
+  align-items: baseline;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 14px;
+  letter-spacing: 0.02em;
+  color: rgba(255, 255, 255, 0.55);
+  text-decoration: none;
+  padding: 2px 0;
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 0 1px;
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .journal-tag-rail-item a {
+    transition:
+      background-size var(--dur-4) var(--ease-out-quart),
+      color var(--dur-2) var(--ease-out-quart);
+  }
+}
+.journal-tag-rail-item a:hover,
+.journal-tag-rail-item a:focus-visible {
+  color: rgba(255, 255, 255, 0.95);
+  background-size: 100% 1px;
+}
+.journal-tag-rail-item a[aria-current="true"] {
+  color: #fff;
+  background-size: 100% 1px;
+}
+.journal-tag-rail-item-all a {
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: 12px;
+}
+
+.journal-filter-status {
+  padding: 14px 0 0;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.55);
+}
+.journal-filter-status-tag {
+  color: #fff;
+  font-style: normal;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border: 1px solid var(--color-line);
+  border-radius: 999px;
+  margin: 0 2px;
+}
+.journal-filter-status-clear {
+  color: rgba(255, 255, 255, 0.62);
+  text-decoration: none;
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 0 1px;
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  padding-bottom: 1px;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .journal-filter-status-clear {
+    transition:
+      background-size var(--dur-4) var(--ease-out-quart),
+      color var(--dur-2) var(--ease-out-quart);
+  }
+}
+.journal-filter-status-clear:hover,
+.journal-filter-status-clear:focus-visible {
+  color: #fff;
+  background-size: 100% 1px;
+}
+
 .journal-list {
   padding: 24px 0 96px;
 }
@@ -7626,6 +7738,30 @@ main.pdp ~ .folio {
   letter-spacing: 0.04em;
   color: rgba(255, 255, 255, 0.62);
   border-radius: 999px;
+}
+.journal-post-tag a {
+  color: inherit;
+  text-decoration: none;
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 0 1px;
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  padding-bottom: 1px;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .journal-post-tag a {
+    transition:
+      background-size var(--dur-4) var(--ease-out-quart),
+      color var(--dur-2) var(--ease-out-quart);
+  }
+}
+.journal-post-tag:hover,
+.journal-post-tag:focus-within {
+  color: rgba(255, 255, 255, 0.95);
+}
+.journal-post-tag a:hover,
+.journal-post-tag a:focus-visible {
+  background-size: 100% 1px;
 }
 .journal-post-foot-actions {
   display: flex;

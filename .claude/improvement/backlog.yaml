@@ -2233,13 +2233,14 @@ items:
     severity: high
     effort: S
     class: distinctive
-    status: open
+    status: shipped
     files:
       - src/components/journal-post-frame.tsx:147
       - src/app/globals.css:7010
       - src/app/journal/page.tsx
     opened_on: 2026-05-14
-    last_verified: 2026-05-14
+    last_verified: 2026-05-16
+    shipped_on: 2026-05-16
     dq_count: 0
     notes: |
       Source — journal auditor finding #1 (highest-leverage) on
@@ -3557,3 +3558,53 @@ items:
       run. Premature: the second cross-island pair has not arrived yet.
       When it does, ship the typed bus FIRST so both consumers can adopt it
       simultaneously.
+
+  - id: journal-tag-rail-all-uppercase-eyebrow-pattern-extract
+    title: ".journal-tag-rail-item-all uppercase 0.14em letter-spacing chip is the second 'All / catalog-anchor' uppercase contrast-with-italic pattern (cookie-banner accept/reject was first) — premature without a third occurrence"
+    ship: |
+      `.journal-tag-rail-item-all a` at globals.css adopts uppercase
+      letter-spacing:0.14em + 12px to stand apart from the italic-serif
+      tag labels in the chip row. The same italic-chip-row-with-uppercase-
+      anchor recipe appears in the cookie-banner accept/reject row. If a
+      THIRD surface ever surfaces a similar mixed-register chip row, hoist
+      to a `.chip-row-anchor` utility. Premature; flagged for tracking.
+    severity: low
+    effort: S
+    class: hygiene
+    status: open
+    files:
+      - src/app/globals.css
+    opened_on: 2026-05-16
+    last_verified: 2026-05-16
+    dq_count: 0
+    notes: |
+      Source — diff-reviewer self-check on
+      journal-post-tag-affordance-and-index-filter run. Pairs in spirit
+      with lemma-connector-pattern-extract-utility,
+      marginalia-mark-pattern-extract-utility, and
+      cross-island-event-bus-typed-utility — all 'second occurrence noted,
+      hoist on third' tracking entries.
+
+  - id: journal-filter-status-tag-pill-pattern-extract-utility
+    title: ".journal-filter-status-tag pill (1px-bordered 999px-radius uppercase-tag-name container) is a NEW pattern this run introduced — hoist to .active-filter-pill if a second filter-status surface ships"
+    ship: |
+      The .journal-filter-status-tag pill at globals.css renders the
+      active tag's display label in uppercase 13px sans inside a
+      1px-bordered 999px-radius pill — distinct from .journal-post-tag
+      (which holds italic-serif glyphs). It's a small visual register
+      shift designating 'this is the currently-active filter, not just
+      another nav link'. If a second filter-status surface lands (e.g.
+      a /supplies filter on the catalogue or a /journal date filter),
+      hoist this recipe to .active-filter-pill or similar. Premature.
+    severity: low
+    effort: S
+    class: hygiene
+    status: open
+    files:
+      - src/app/globals.css
+    opened_on: 2026-05-16
+    last_verified: 2026-05-16
+    dq_count: 0
+    notes: |
+      Source — diff-reviewer self-check on
+      journal-post-tag-affordance-and-index-filter run.
